@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alarmotron</title>
+<style>
+body{margin:0;}
+img{max-width:100%;}
+</style>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --bg:#EEF2F0; --surface:#FFFFFF; --surface-2:#F5F8F6;
+    --ink:#16262A; --ink-soft:#4C5F62; --ink-faint:#7C8C8E;
+    --border:#D9E1DE;
+    --accent:#1F6F72; --accent-ink:#0E4547; --accent-bg:#E4F0EF;
+    --violet:#6E5A9E; --violet-bg:#EEEAF6;
+    --blue:#3A6690; --blue-bg:#E6EEF6;
+    --olive:#67763B; --olive-bg:#EEF1E0;
+    --sev-ecart:#2A7A56; --sev-ecart-bg:#E5F3EB;
+    --sev-temp:#8F630F; --sev-temp-bg:#FBF1DD;
+    --sev-vital:#B14A17; --sev-vital-bg:#FBE7DA;
+    --sev-deces:#9C3F58; --sev-deces-bg:#F8E9EE;
+    --shadow: 0 1px 2px rgba(16,38,40,.06), 0 6px 16px rgba(16,38,40,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#101A1C; --surface:#172426; --surface-2:#1C2B2D;
+      --ink:#E7EEEC; --ink-soft:#AEBEBC; --ink-faint:#7E9391;
+      --border:#2B3D3F;
+      --accent:#5AB9B5; --accent-ink:#8ED8D4; --accent-bg:#1B3536;
+      --violet:#B3A0E0; --violet-bg:#2A2440;
+      --blue:#8FB4DA; --blue-bg:#1C2C3B;
+      --olive:#AEC17A; --olive-bg:#232B18;
+      --sev-ecart:#7FCB9F; --sev-ecart-bg:#1B3527;
+      --sev-temp:#E7B65E; --sev-temp-bg:#3A2E13;
+      --sev-vital:#F0925B; --sev-vital-bg:#3E260F;
+      --sev-deces:#E39CAE; --sev-deces-bg:#3A1E27;
+      --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 20px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101A1C; --surface:#172426; --surface-2:#1C2B2D;
+    --ink:#E7EEEC; --ink-soft:#AEBEBC; --ink-faint:#7E9391;
+    --border:#2B3D3F;
+    --accent:#5AB9B5; --accent-ink:#8ED8D4; --accent-bg:#1B3536;
+    --violet:#B3A0E0; --violet-bg:#2A2440;
+    --blue:#8FB4DA; --blue-bg:#1C2C3B;
+    --olive:#AEC17A; --olive-bg:#232B18;
+    --sev-ecart:#7FCB9F; --sev-ecart-bg:#1B3527;
+    --sev-temp:#E7B65E; --sev-temp-bg:#3A2E13;
+    --sev-vital:#F0925B; --sev-vital-bg:#3E260F;
+    --sev-deces:#E39CAE; --sev-deces-bg:#3A1E27;
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 20px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{background:var(--bg);}
+  body{
+    color:var(--ink); font-family:'IBM Plex Sans', system-ui, sans-serif;
+    line-height:1.55; font-size:16px; min-height:100vh;
+  }
+  h1,h2,h3{font-family:'Source Serif 4', Georgia, serif; text-wrap:balance; color:var(--ink); margin:0;}
+  a{color:var(--accent-ink);}
+  button{font-family:inherit;}
+  a:focus-visible, button:focus-visible, textarea:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  ::selection{background:var(--accent-bg);}
+
+  .wrap{max-width:920px; margin:0 auto; padding:0 24px 100px;}
+
+  header.top{
+    position:sticky; top:0; z-index:20;
+    background:color-mix(in srgb, var(--bg) 90%, transparent);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--border);
+  }
+  header.top .inner{
+    max-width:920px; margin:0 auto; padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+  }
+  .brand{display:flex; align-items:baseline; gap:10px; cursor:pointer;}
+  .brand .mark{
+    font-family:'Source Serif 4', serif; font-weight:700; font-size:19px; color:var(--ink);
+  }
+  .brand .tag{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint);
+    letter-spacing:.03em; display:none;
+  }
+  @media (min-width:560px){ .brand .tag{display:inline;} }
+
+  .crumbs{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-faint);
+    display:flex; gap:6px; align-items:center; flex-wrap:wrap;
+  }
+  .crumbs button.link{
+    background:none; border:none; padding:0; color:var(--ink-faint); font-family:inherit; font-size:12px; cursor:pointer; text-decoration:underline;
+  }
+  .crumbs button.link:hover{color:var(--accent-ink);}
+
+  .toast{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(8px);
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px;
+    background:var(--ink); color:var(--bg); padding:9px 16px; border-radius:999px;
+    opacity:0; transition:opacity .25s ease, transform .25s ease; z-index:50; pointer-events:none;
+  }
+  .toast.show{opacity:.92; transform:translateX(-50%) translateY(0);}
+
+  section.screen{padding-top:40px; display:none;}
+  section.screen.active{display:block;}
+
+  /* ---- home ---- */
+  .home-head{padding:16px 0 8px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--accent-ink); margin-bottom:14px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:""; width:20px; height:1px; background:var(--accent-ink); display:inline-block;}
+  h1{font-size:clamp(28px,4.4vw,38px); font-weight:600; line-height:1.15;}
+  .lede{margin-top:14px; font-size:16.5px; color:var(--ink-soft); max-width:62ch;}
+
+  .track-grid{margin-top:34px; display:grid; grid-template-columns:1fr; gap:14px;}
+  @media (min-width:640px){ .track-grid{grid-template-columns:1fr 1fr;} }
+  .track-card{
+    text-align:left; cursor:pointer; border-radius:16px; border:1px solid var(--border);
+    background:var(--surface); box-shadow:var(--shadow); padding:22px 24px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .track-card:hover{border-color:var(--tc);}
+  .track-card .t-name{font-family:'Source Serif 4', serif; font-size:20px; font-weight:600; color:var(--tc-ink);}
+  .track-card .t-desc{font-size:13.5px; color:var(--ink-soft);}
+  .track-card .t-count{
+    margin-top:8px; font-family:'IBM Plex Mono', monospace; font-size:11.5px;
+    color:var(--tc-ink); background:var(--tc-bg); align-self:flex-start; padding:3px 10px; border-radius:999px;
+  }
+  .inf{--tc:var(--accent); --tc-ink:var(--accent-ink); --tc-bg:var(--accent-bg);}
+  .as{--tc:var(--violet); --tc-ink:var(--violet); --tc-bg:var(--violet-bg);}
+  .ap{--tc:var(--blue); --tc-ink:var(--blue); --tc-bg:var(--blue-bg);}
+  .aes{--tc:var(--olive); --tc-ink:var(--olive); --tc-bg:var(--olive-bg);}
+
+  /* ---- lieux screen ---- */
+  .track-banner{
+    display:flex; align-items:center; gap:12px; padding:14px 18px; border-radius:12px;
+    background:var(--tc-bg); color:var(--tc-ink); margin-top:8px;
+  }
+  .track-banner .name{font-family:'Source Serif 4', serif; font-weight:600; font-size:19px;}
+  .track-banner .n{font-family:'IBM Plex Mono', monospace; font-size:12px; margin-left:auto;}
+
+  .lieu-grid{margin-top:24px; display:grid; grid-template-columns:1fr; gap:12px;}
+  @media (min-width:640px){ .lieu-grid{grid-template-columns:1fr 1fr;} }
+  .lieu-card{
+    text-align:left; cursor:pointer; border-radius:14px; border:1px solid var(--border);
+    background:var(--surface); box-shadow:var(--shadow); padding:18px 20px;
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+  .lieu-card:hover{border-color:var(--accent);}
+  .lieu-card.empty{opacity:.6; cursor:default;}
+  .lieu-card.empty:hover{border-color:var(--border);}
+  .lieu-card .l-name{font-size:15.5px; font-weight:600;}
+  .lieu-card .l-n{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-faint); white-space:nowrap;}
+
+  .doc-box{
+    margin-top:30px; background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:16px 18px;
+  }
+  .doc-box .d-label{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint);}
+  .doc-box ul{margin:10px 0 0; padding-left:18px; font-size:13.5px;}
+  .doc-box li{margin-bottom:5px;}
+  .doc-box li.pinned{list-style:none; margin:-2px 0 10px -18px; padding:8px 12px; background:var(--accent-bg); border-radius:8px; color:var(--accent-ink);}
+  .doc-box li.pinned a{color:var(--accent-ink);}
+
+  /* ---- liste screen ---- */
+  .filterrow{margin-top:22px; display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+    border:1px solid var(--border); background:var(--surface); color:var(--ink-soft);
+    padding:6px 13px; border-radius:999px; cursor:pointer;
+  }
+  .chip.active{background:var(--accent); border-color:var(--accent); color:#fff;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .chip.active{color:#0b1414;} }
+  :root[data-theme="dark"] .chip.active{color:#0b1414;}
+
+
+  .patient-grid{margin-top:22px; display:grid; grid-template-columns:1fr; gap:12px;}
+  @media (min-width:600px){ .patient-grid{grid-template-columns:1fr 1fr;} }
+  .patient-card{
+    text-align:left; cursor:pointer; border-radius:14px; border:1px solid var(--border); border-left:4px solid var(--sc);
+    background:var(--surface); box-shadow:var(--shadow); padding:16px 18px;
+  }
+  .patient-card:hover{border-color:var(--accent); border-left-color:var(--sc);}
+  .patient-card .p-name{font-family:'Source Serif 4', serif; font-size:17px; font-weight:600;}
+  .patient-card .p-meta{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint); margin-top:2px;}
+  .patient-card .p-hook{font-size:13.5px; color:var(--ink-soft); margin-top:8px;}
+  .patient-card .p-sev{
+    display:inline-block; margin-top:10px; font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    text-transform:uppercase; letter-spacing:.03em; padding:2px 8px; border-radius:5px; background:var(--sbg); color:var(--sc);
+  }
+  .empty-note{margin-top:26px; padding:20px; border:1px dashed var(--border); border-radius:12px; color:var(--ink-soft); font-size:14.5px;}
+  .empty-note a{font-weight:500;}
+
+  /* ---- case screen ---- */
+  .case-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-top:8px;}
+  .case-head h2{font-size:26px;}
+  .case-tags{margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;}
+  .tag{font-family:'IBM Plex Mono', monospace; font-size:11px; padding:3px 9px; border-radius:6px; background:var(--surface-2); color:var(--ink-soft); border:1px solid var(--border);}
+  .tag.sev{background:var(--sbg); color:var(--sc); border-color:transparent;}
+
+  .box{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px 24px; margin-top:22px; box-shadow:var(--shadow);}
+  .box h3{font-size:16px; font-weight:600;}
+  .box .box-sub{font-size:13px; color:var(--ink-faint); margin-top:4px;}
+  .box p.situation{margin-top:14px; font-size:15px; color:var(--ink);}
+
+  .alarm-grid{margin-top:18px; display:flex; flex-direction:column; gap:16px;}
+  .alarm-item{border-top:1px solid var(--border); padding-top:16px;}
+  .alarm-item:first-child{border-top:none; padding-top:0;}
+  .alarm-item .a-label{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--accent-ink);}
+  .alarm-item .a-q{font-size:13px; color:var(--ink-soft); margin-top:4px;}
+  .alarm-item textarea{
+    margin-top:9px; width:100%; min-height:64px; resize:vertical;
+    font-family:'IBM Plex Sans', sans-serif; font-size:14px; color:var(--ink);
+    background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:10px 12px;
+  }
+  .actions-box textarea{
+    margin-top:9px; width:100%; min-height:90px; resize:vertical;
+    font-family:'IBM Plex Sans', sans-serif; font-size:14px; color:var(--ink);
+    background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:10px 12px;
+  }
+
+  /* ---- FEI (déclaration) ---- */
+  .fei-tip{
+    margin-top:2px; padding:12px 14px; border-radius:10px; background:var(--accent-bg); color:var(--accent-ink);
+    font-size:13px; line-height:1.5; display:flex; gap:10px; align-items:flex-start;
+  }
+  .fei-tip .fei-tip-icon{font-size:15px; line-height:1.4;}
+  .fei-section{margin-top:20px;}
+  .fei-section:first-of-type{margin-top:18px;}
+  .fei-section .f-label{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--accent-ink);}
+  .fei-section .f-sub{font-size:12.5px; color:var(--ink-faint); margin-top:3px;}
+  .fei-options{margin-top:10px; display:flex; flex-wrap:wrap; gap:4px 6px;}
+  .fei-opt{
+    display:flex; align-items:center; gap:9px; cursor:pointer; user-select:none;
+    padding:6px 12px 6px 8px; border-radius:8px; border:1px solid transparent;
+  }
+  .fei-opt:hover{background:var(--surface-2);}
+  .fei-opt .box-sq{
+    width:22px; height:22px; flex:0 0 auto; border-radius:4px; border:2.25px solid var(--accent);
+    background:transparent; display:flex; align-items:center; justify-content:center;
+    font-size:13px; color:#fff; font-weight:700; line-height:1;
+  }
+  .fei-opt.sel .box-sq{background:var(--accent);}
+  .fei-opt.sel .box-sq::after{content:"✓";}
+  .fei-opt .lbl{font-size:13.5px;}
+  .fei-opt.correct .box-sq{border-color:var(--sev-ecart); box-shadow:0 0 0 3px color-mix(in srgb, var(--sev-ecart) 25%, transparent);}
+  .fei-opt.correct .lbl{color:var(--sev-ecart); font-weight:500;}
+  .fei-meta{margin-top:10px; display:grid; grid-template-columns:1fr; gap:10px;}
+  @media (min-width:560px){ .fei-meta{grid-template-columns:1fr 1fr 1fr;} }
+  .fei-meta label{display:block; font-size:11.5px; color:var(--ink-faint); margin-bottom:4px;}
+  .fei-meta input{
+    width:100%; font-family:'IBM Plex Sans', sans-serif; font-size:13.5px; color:var(--ink);
+    background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:8px 10px;
+  }
+  .fei-textbox textarea{
+    margin-top:9px; width:100%; min-height:74px; resize:vertical;
+    font-family:'IBM Plex Sans', sans-serif; font-size:14px; color:var(--ink);
+    background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:10px 12px;
+  }
+
+  .savehint{margin-top:14px; font-size:12px; color:var(--ink-faint); display:flex; align-items:center; gap:6px;}
+
+  .btnrow{margin-top:24px; display:flex; gap:10px; flex-wrap:wrap;}
+  .btn{
+    font-family:'IBM Plex Sans', sans-serif; font-size:13.5px; font-weight:500; cursor:pointer;
+    border-radius:9px; padding:10px 16px; border:1px solid var(--border); background:var(--surface); color:var(--ink);
+  }
+  .btn:hover{border-color:var(--accent-ink);}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+
+  .godpanel{margin-top:22px; border:1px solid var(--sev-vital); background:var(--sev-vital-bg); border-radius:14px; padding:22px 24px;}
+  .godpanel .g-label{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--sev-vital); display:flex; align-items:center; gap:6px;}
+  .godpanel h4{font-size:14px; margin-top:16px; font-weight:600;}
+  .godpanel h4:first-of-type{margin-top:18px;}
+  .godpanel ul{margin:8px 0 0; padding-left:18px; font-size:13.5px;}
+  .godpanel li{margin-bottom:5px;}
+  .godpanel .g-source{margin-top:16px; padding-top:12px; border-top:1px solid color-mix(in srgb, var(--sev-vital) 30%, transparent); font-size:12.5px;}
+  .lockednote{margin-top:22px; padding:16px 18px; border:1px dashed var(--border); border-radius:12px; color:var(--ink-faint); font-size:13.5px; display:flex; align-items:center; gap:8px;}
+
+  footer.pagefoot{max-width:920px; margin:64px auto 0; padding:24px; border-top:1px solid var(--border); font-size:12.5px; color:var(--ink-faint);}
+
+  @media print{
+    header.top, .btnrow, .filterrow, footer.pagefoot, #screen-home, #screen-lieux, #screen-liste{display:none !important;}
+    body{background:#fff;}
+    .box, .godpanel{box-shadow:none; border:1px solid #999;}
+    .box{break-inside:avoid; page-break-inside:avoid;}
+    textarea{
+      overflow:visible !important; resize:none !important;
+      border-color:#999 !important; background:#fff !important;
+    }
+    .fei-meta input{border-color:#999 !important; background:#fff !important;}
+  }
+</style>
+<script src="alarmotron-scorm-api.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <div class="brand" onclick="goHome()">
+      <span class="mark">Alarmotron</span>
+      <span class="tag">recueil de cas &amp; grille ALARM</span>
+    </div>
+    <div class="crumbs" id="crumbs"></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="screen active" id="screen-home">
+    <div class="home-head">
+      <div class="eyebrow">Outil de formation — sécurité des soins</div>
+      <h1>Choisissez votre formation</h1>
+      <p class="lede">Un recueil de cas réels, publiés et analysés par des organismes de santé (HAS, MACSF, réseaux régionaux). À vous de retrouver les facteurs contributifs avec la méthode ALARM, puis de proposer des actions — le corrigé est réservé au mode formateur.</p>
+    </div>
+    <div class="track-grid" id="track-grid"></div>
+  </section>
+
+  <section class="screen" id="screen-lieux">
+    <div class="track-banner" id="lieux-banner"></div>
+    <div class="lieu-grid" id="lieu-grid"></div>
+    <div class="doc-box" id="doc-box"></div>
+  </section>
+
+  <section class="screen" id="screen-liste">
+    <div class="track-banner" id="liste-banner"></div>
+    <div class="filterrow" id="filter-row"></div>
+    <div class="patient-grid" id="patient-grid"></div>
+    <div class="empty-note" id="liste-empty" style="display:none;"></div>
+  </section>
+
+  <section class="screen" id="screen-case">
+    <div class="case-head">
+      <div>
+        <h2 id="case-name"></h2>
+        <div class="case-tags" id="case-tags"></div>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3>Situation</h3>
+      <div class="box-sub">Les faits, tels que rapportés — à vous de creuser le pourquoi.</div>
+      <p class="situation" id="case-situation"></p>
+    </div>
+
+    <div class="box fei-box">
+      <h3>1 — Déclarer : Fiche de Signalement Indésirable (FEI)</h3>
+      <div class="box-sub">À remplir avant l'analyse — dans la vraie vie, on déclare d'abord. L'ordre est libre ici, mais c'est la logique à retenir.</div>
+      <div id="fei-content"></div>
+    </div>
+
+    <div class="box">
+      <h3>2 — Analyser : grille ALARM — facteurs contributifs</h3>
+      <div class="box-sub">Pour chaque catégorie, notez ce que vous identifiez dans la situation. Une catégorie peut rester vide si rien ne s'y rattache.</div>
+      <div class="alarm-grid" id="alarm-grid"></div>
+    </div>
+
+    <div class="box actions-box">
+      <h3>Propositions d'actions correctives</h3>
+      <div class="box-sub">Actions immédiates, organisationnelles, de formation… à vous de structurer.</div>
+      <textarea id="actions-input" placeholder="Vos propositions…"></textarea>
+      <div class="savehint">💾 Enregistré automatiquement dans ce navigateur</div>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn" onclick="backToListe()">← Retour à la liste</button>
+      <button class="btn" onclick="window.print()">Imprimer / exporter ma fiche</button>
+    </div>
+
+    <div id="god-area"></div>
+  </section>
+
+</div>
+
+<footer class="pagefoot">
+  Alarmotron — recueil constitué à partir de sources publiques (HAS, MACSF/La Prévention Médicale, CCECQA, OMEDIT Normandie, SRA Grand Est), les récits sont anonymisés/reformulés et les prénoms des patients sont fictifs. Vérifier la disponibilité des liens sources au moment de l'usage en formation.
+</footer>
+<script>
+/* ===================== DONNÉES ===================== */
+
+const TRACKS = {
+  inf:  {label:"Infirmier", desc:"Tous les cas du recueil, tous secteurs confondus.", cls:"inf"},
+  as:   {label:"Aide-soignant", desc:"Hospitalier (bloc, imagerie…) et lieux de vie EHPAD / ESMS.", cls:"as"},
+  ap:   {label:"Auxiliaire de puériculture", desc:"Crèche, maternité, néonatologie, pédiatrie.", cls:"ap"},
+  aes:  {label:"Accompagnant éducatif et social", desc:"Lieux de vie EHPAD / ESMS uniquement — pas d'hospitalier.", cls:"aes"}
+};
+
+const LIEUX = {
+  maternite:   "Maternité",
+  naissance:   "Salle de naissance",
+  neonat:      "Néonatologie",
+  pediatrie:   "Pédiatrie",
+  creche:      "Crèche / collectivité",
+  bloc:        "Bloc opératoire",
+  imagerie:    "Imagerie",
+  ehpad:       "EHPAD / ESMS",
+  domicile:    "Domicile (SSIAD / HAD)",
+  hospitalier: "Hospitalier (autre service)"
+};
+
+const TRACK_LIEUX = {
+  ap:  ["maternite","naissance","neonat","pediatrie","creche"],
+  as:  ["bloc","imagerie","ehpad","domicile","hospitalier"],
+  aes: ["ehpad"],
+  inf: ["maternite","naissance","neonat","pediatrie","creche","bloc","imagerie","ehpad","domicile","hospitalier"]
+};
+
+const GRAVITE = {
+  ecart: {label:"Écart maîtrisé", cls:"ecart"},
+  temp:  {label:"Préjudice temporaire", cls:"temp"},
+  vital: {label:"Pronostic vital engagé", cls:"vital"},
+  deces: {label:"Décès / déficit permanent", cls:"deces"}
+};
+
+const ALARM_CATS = [
+  ["patient","Facteurs liés au patient","État clinique, comportement, antécédents, contexte social ou familial au moment des faits."],
+  ["tache","Facteurs liés aux tâches à accomplir","Protocoles existants : sont-ils disponibles, clairs, réellement appliqués ?"],
+  ["professionnel","Facteurs liés au professionnel","Compétences, expérience, charge de travail, fatigue du ou des professionnels impliqués."],
+  ["equipe","Facteurs liés à l'équipe","Communication, transmission, supervision, encadrement entre membres de l'équipe."],
+  ["environnement","Facteurs liés à l'environnement de travail","Locaux, matériel, effectifs, interruptions de tâches."],
+  ["organisation","Facteurs liés à l'organisation et au management","Organisation du travail, ressources allouées, procédures institutionnelles."],
+  ["contexte","Facteurs liés au contexte institutionnel","Contraintes réglementaires, économiques ou de politique de santé pesant sur la situation."]
+];
+
+const CASES = [
+{id:"camille", prenom:"Camille", age:"mère, post-partum", lieu:"maternite", gravite:"ecart", tracks:["ap","inf"],
+ hook:"Une injection de Rhophylac® part sur la mauvaise patiente.",
+ situation:"Dans le service de suites de couches, la sage-femme référente est occupée à la surveillance d'une transfusion lorsqu'une injection de Rhophylac® (immunoglobuline anti-D) doit être réalisée : elle en délègue la préparation et l'administration à une étudiante infirmière de 1ʳᵉ année, seule. L'étudiante réalise l'injection, puis complète les documents de traçabilité. En les apportant à la sage-femme, elle réalise que l'injection a été faite à Mme Z., alors que le produit était prescrit pour Mme D., Rh négatif. Ce jour-là, trois nouveau-nés du service — dont ceux de Mme Z. et de Mme D. — étaient prénommés Raphaël, et les transmissions du matin avaient plaisanté sur cette coïncidence.",
+ alarm:{
+   patient:["Homonymie des prénoms des deux nouveau-nés du service (deux « Raphaël »), source de confusion en transmission."],
+   tache:["Traçabilité de l'administration complétée après l'injection, et non avant."],
+   professionnel:["Étudiante de 1ʳᵉ année, sans vérification de l'identité par question ouverte."],
+   equipe:["Délégation à l'étudiante, non accompagnée, pendant que la sage-femme référente gérait une transfusion.","Encadrement insuffisant d'une étudiante débutante."]
+ },
+ actions:["Renforcer l'encadrement des étudiants, en particulier en 1ʳᵉ année.","Vérification systématique de l'identité par question ouverte à chaque étape de soin.","Contrôle croisé avec le bracelet d'identification avant toute intervention.","Compléter la traçabilité avant l'administration, jamais après.","Formation institutionnelle sur l'identitovigilance."],
+ source:{name:"La Prévention Médicale (MACSF)", date:"16.07.2026", url:"https://www.prevention-medicale.org/cas-cliniques-et-retours-d-experience/Tous-les-retours-d-experience/injection-rhophylac-mauvaise-accouchee"}},
+
+{id:"adam", prenom:"Adam", age:"nouveau-né, à naître", lieu:"naissance", gravite:"temp", tracks:["ap","inf"],
+ hook:"Un surdosage d'ocytocine pendant le travail.",
+ situation:"En salle de naissance, une patiente est sous perfusion d'ocytocine (Syntocinon®) pour déclenchement du travail. La sage-femme en poste ce jour-là est une remplaçante, peu familière du modèle de pompe à perfusion utilisé dans ce service : elle règle l'appareil sur « 12 », en pensant régler un débit en ml/h comme elle en a l'habitude ailleurs, alors que cette pompe est paramétrée en mUI/min. Le service est en sous-effectif ce soir-là et aucun collègue n'est sollicité pour vérifier le réglage avant la mise en route. Peu après, le monitoring objective une hyperactivité utérine puis une bradycardie fœtale à 80 battements par minute, avec apparition de liquide amniotique méconial. La perfusion est arrêtée et un traitement est administré ; le rythme se normalise. L'accouchement a lieu une heure plus tard, Apgar 10/10.",
+ alarm:{
+   tache:["Pompe à perfusion calibrée en mUI/min, alors que le réglage a été pensé en ml/h."],
+   professionnel:["Personnel intérimaire peu familier de ce modèle de pompe."],
+   equipe:["Charge de travail ne permettant pas de solliciter un collègue.","Absence de double vérification à la préparation."],
+   organisation:["Recours à du personnel temporaire non formé au matériel du service."]
+ },
+ actions:["Renforcer les effectifs permanents pour limiter le recours à l'intérim.","Double présence obligatoire pour tout personnel temporaire en salle de naissance.","Reprogrammer les pompes en ml/h pour homogénéiser l'unité de mesure du service."],
+ source:{name:"La Prévention Médicale (MACSF)", date:"11.05.2026", url:"https://www.prevention-medicale.org/cas-cliniques-et-retours-d-experience/Tous-les-retours-d-experience/erreur-administration-syntocinon-travail-confusion-dose-debit"}},
+
+{id:"nael", prenom:"Naël", age:"nouveau-né", lieu:"neonat", gravite:"vital", tracks:["ap","inf"],
+ hook:"Une injection d'amoxicilline à dix fois la dose prescrite.",
+ situation:"En unité de néonatologie, la forme pédiatrique d'amoxicilline habituellement utilisée est en rupture de stock ; la pharmacie ne peut livrer que le lendemain. Une infirmière, arrivée dans le service depuis peu, doit préparer une injection d'amoxicilline prescrite à un nouveau-né : elle emprunte un flacon à l'unité adulte voisine, le service connaissant une activité importante cette nuit-là. Environ dix minutes après l'injection, le nouveau-né présente une bradycardie, une hypotension et des marbrures. Une oxygénothérapie et un remplissage vasculaire sont mis en place, avec récupération complète. Le contrôle a posteriori révèle que la dose administrée était dix fois supérieure à la prescription : la formulation empruntée, dosée pour un adulte, est bien plus concentrée que la forme pédiatrique habituelle.",
+ alarm:{
+   tache:["Absence de vérification de la formulation (adulte/pédiatrique) avant préparation."],
+   professionnel:["Infirmière nouvellement recrutée dans le service.","Routine sur un médicament perçu comme anodin."],
+   environnement:["Rupture de stock de la forme pédiatrique, livraison décalée au lendemain.","Activité importante du service cette nuit-là."],
+   organisation:["Emprunt de médicament à une unité adulte voisine, sans procédure encadrant cette pratique."]
+ },
+ actions:["Signalétique visuelle (code couleur) pour les médicaments pédiatriques.","Parcours d'accueil spécifique pour les nouveaux arrivants en néonatologie.","Interdiction des transferts de médicaments entre unités adulte et pédiatrique.","Stock de sécurité renforcé pour les médicaments pédiatriques les plus utilisés.","Vérification systématique à chaque étape de préparation."],
+ source:{name:"La Prévention Médicale (MACSF)", date:"16.02.2026", url:"https://www.prevention-medicale.org/cas-cliniques-et-retours-d-experience/Tous-les-retours-d-experience/erreur-administration-medicament-neonatalogie"}},
+
+{id:"louna", prenom:"Louna", age:"nouveau-née", lieu:"maternite", gravite:"temp", tracks:["ap","inf"],
+ hook:"Un bébé chute du lit maternel à 3h du matin.",
+ situation:"En maternité, une mère qui avait l'habitude, lors de ses grossesses précédentes, de garder son bébé dans son lit, accueille son nouveau-né pour l'allaiter durant la nuit. Le service dispose de berceaux de cododo (attenants au lit, permettant de garder le bébé à proximité en sécurité), mais en nombre limité, et l'équipe présente cette nuit-là n'a pas été formée à leur installation ; aucun de ces dispositifs n'est proposé à la mère, avec qui les risques du partage du lit ne sont pas non plus abordés. Vers 3h du matin, elle découvre son bébé au sol : il est tombé du lit. Le pédiatre de garde examine l'enfant, qui est hospitalisé trois jours en observation avec bilan d'imagerie. Les examens se révèlent rassurants, sans fracture ni hématome.",
+ alarm:{
+   patient:["Mère habituée au co-dodo lors de grossesses précédentes."],
+   tache:["Dispositif de cododo (berceau attenant) disponible dans le service mais non proposé."],
+   professionnel:["Professionnels peu formés à l'installation du dispositif de cododo."],
+   equipe:["Absence d'échange formalisé avec la patiente sur les risques du partage du lit."],
+   environnement:["Disponibilité limitée des dispositifs de cododo dans le service."]
+ },
+ actions:["Information systématique sur les risques, avec check-list de l'entretien.","Achat prioritaire de dispositifs de cododo supplémentaires.","Vidéo pédagogique sur l'installation du cododo, visionnage tracé.","Soutien psychologique proposé à la mère."],
+ source:{name:"La Prévention Médicale (MACSF)", date:"", url:"https://www.prevention-medicale.org/cas-cliniques-et-retours-d-experience/Tous-les-cas-cliniques/Sage-femme/chute-nouveau-ne-lit"}},
+
+{id:"sacha", prenom:"Sacha", age:"5 ans", lieu:"pediatrie", gravite:"vital", tracks:["ap","inf"],
+ hook:"De la morphine administrée deux fois trop souvent.",
+ situation:"Un enfant de 5 ans porteur d'un syndrome d'Angelman, dont l'expression de la douleur est plus difficile à évaluer du fait de son handicap, est traité par morphine dans le cadre d'une prise en charge de la douleur. La prescription, faite par un médecin qui enchaîne son 6ᵉ jour de travail consécutif, n'est pas saisie dans le logiciel de prescription informatisé habituel du service ; aucune alerte de fréquence d'administration n'est donc déclenchée côté pharmacie. Le traitement est administré toutes les 3 heures au lieu des 6 heures prévues. L'enfant entre dans un état de coma et doit être réadmis en réanimation pédiatrique.",
+ alarm:{
+   patient:["Syndrome d'Angelman : communication et expression de la douleur rendues plus difficiles."],
+   tache:["Logiciel de prescription non utilisé pour cette administration.","Absence d'alerte du pharmacien sur la fréquence d'administration."],
+   professionnel:["Fatigue du prescripteur (6 jours de travail consécutifs signalés)."],
+   equipe:["Communication insuffisante autour du rythme d'administration."],
+   environnement:["Interruptions de tâche répétées."]
+ },
+ actions:["Formulations et doses adaptées à l'âge/au poids, vigilance protocolée pour les enfants vulnérables.","Double vérification systématique pour les médicaments à risque (opioïdes).","Outils de référence : tables de conversion, calculateurs de dose.","Utilisation systématique du logiciel de prescription avec alertes actives."],
+ source:{name:"HAS — Flash Sécurité Patient, médicaments en pédiatrie", date:"09.03.2023", url:"https://www.has-sante.fr/upload/docs/application/pdf/2023-03/flash_securite_patient_medicaments_pediatrie.pdf",
+   note:"Ce document présente 3 situations avec une liste commune de facteurs contributifs, sans détailler lequel s'applique à quel cas précisément. La répartition ci-dessus est une proposition plausible, pas une attribution confirmée cas par cas dans la source."}},
+
+{id:"rose", prenom:"Rose", age:"3 ans et demi", lieu:"pediatrie", gravite:"vital", tracks:["ap","inf"],
+ hook:"Un surdosage d'anticonvulsivant après la sortie d'hospitalisation.",
+ situation:"Un enfant de 3 ans et demi, suivi pour épilepsie, sort d'hospitalisation avec une prescription d'anticonvulsivant. À la sortie, les modalités de préparation de la dose à domicile ne sont pas revues en détail avec les parents. À domicile, l'enfant reçoit un surdosage du traitement — lié à une erreur de conversion entre milligrammes et gouttes — et présente des symptômes neurologiques sévères, nécessitant une réadmission en réanimation.",
+ alarm:{
+   patient:["Épilepsie connue, sortie récente d'hospitalisation."],
+   tache:["Erreur de conversion d'unité (mg / gouttes) lors de la préparation à domicile."],
+   equipe:["Communication insuffisante avec les parents au moment de la sortie sur le mode de préparation du traitement."]
+ },
+ actions:["Expliquer la prescription aux parents et s'assurer de leur compréhension (leur faire reformuler).","Outils de conversion et calculateurs de dose remis à la sortie.","Standardiser la préparation des formes buvables à domicile."],
+ source:{name:"HAS — Flash Sécurité Patient, médicaments en pédiatrie", date:"09.03.2023", url:"https://www.has-sante.fr/upload/docs/application/pdf/2023-03/flash_securite_patient_medicaments_pediatrie.pdf",
+   note:"Ce document présente 3 situations avec une liste commune de facteurs contributifs, sans détailler lequel s'applique à quel cas précisément. La répartition ci-dessus est une proposition plausible, pas une attribution confirmée cas par cas dans la source."}},
+
+{id:"malo", prenom:"Malo", age:"nouveau-né", lieu:"neonat", gravite:"temp", tracks:["ap","inf"],
+ hook:"Une formulation adulte utilisée faute de stock pédiatrique.",
+ situation:"Dans un contexte de rupture de stock de la forme pédiatrique d'amoxicilline/acide clavulanique, non signalée à l'ensemble de l'équipe, un nouveau-né reçoit une préparation à partir de la formulation adulte du médicament, plus concentrée. Un surdosage en acide clavulanique est constaté, nécessitant une surveillance clinique renforcée.",
+ alarm:{
+   environnement:["Rupture de stock de la forme pédiatrique du médicament."],
+   organisation:["Communication insuffisante sur la rupture de stock au sein de l'équipe et vers la pharmacie."]
+ },
+ actions:["Communiquer systématiquement les ruptures de stock à l'ensemble de l'équipe.","Prioriser les formulations pédiatriques dans la gestion des stocks.","Outils de référence disponibles en cas de rupture (équivalences, dilutions)."],
+ source:{name:"HAS — Flash Sécurité Patient, médicaments en pédiatrie", date:"09.03.2023", url:"https://www.has-sante.fr/upload/docs/application/pdf/2023-03/flash_securite_patient_medicaments_pediatrie.pdf",
+   note:"Ce document présente 3 situations avec une liste commune de facteurs contributifs, sans détailler lequel s'applique à quel cas précisément. La répartition ci-dessus est une proposition plausible, pas une attribution confirmée cas par cas dans la source."}},
+
+{id:"gabriel", prenom:"Gabriel", age:"nouveau-né", lieu:"neonat", gravite:"temp", tracks:["ap","inf"],
+ hook:"Une poche de nutrition parentérale mal préparée.",
+ situation:"En néonatologie, une infirmière (IDE 1) commence la préparation d'une poche de nutrition parentérale Pediaven® — composée de deux compartiments séparés par une soudure qu'il faut rompre avant utilisation, sans qu'aucune mention de cette étape ne figure sur l'emballage — en retirant le suremballage, avant d'être appelée pour s'occuper d'un autre nouveau-né. Une seconde infirmière (IDE 2) prend le relais pour terminer la préparation et la mise en route. À son retour, IDE 1 constate que la soudure entre les deux compartiments de la poche n'a jamais été rompue. La perfusion est arrêtée et un médecin est prévenu : le nouveau-né présente une hyperglycémie.",
+ alarm:{
+   tache:["Aucune indication sur la poche rappelant la nécessité de rompre la soudure avant administration."],
+   professionnel:["Absence de vérification de la rupture de la soudure avant la mise en route."],
+   equipe:["Deux infirmières différentes ont préparé puis administré la même poche (relais en cours de préparation)."],
+   environnement:["Interruption de tâche : IDE 1 appelée pour un autre nouveau-né en cours de préparation."],
+   organisation:["Organisation ne garantissant pas que l'IDE qui prépare est aussi celle qui administre."]
+ },
+ actions:["Organiser le circuit pour que l'IDE qui prépare la nutrition parentérale soit aussi celle qui l'administre.","Retirer le suremballage seulement juste avant l'administration.","Appliquer la « règle des 5B » pour toute manipulation de nutrition parentérale.","Double vérification / check-list avant administration.","Audits de pratique et formation sur les risques liés à la NP."],
+ source:{name:"OMEDIT Normandie — Fiche RETEX (version animateur)", date:"", url:"https://www.omedit-normandie.fr/media-files/42625/fiche-retex-np-animateur.pdf"}},
+
+{id:"ines", prenom:"Inès", age:"3 semaines", lieu:"pediatrie", gravite:"deces", tracks:["ap","inf"],
+ hook:"Une hospitalisation recommandée puis écartée par un second avis.",
+ situation:"Une petite fille de 3 semaines présente de la fièvre depuis 48 heures et des signes respiratoires discrets. Un premier médecin recommande une hospitalisation pour bilan. La mère consulte un autre médecin généraliste, qui n'a pas connaissance de cette recommandation formulée la veille ; ne retrouvant pas de signe de gravité à son examen, il ne l'adresse pas à l'hôpital. Le lendemain, l'état du nourrisson se dégrade brutalement : détresse respiratoire sévère et convulsions. Transférée en réanimation pédiatrique, elle est diagnostiquée d'un sepsis à Staphylococcus aureus avec atteinte pleuro-pulmonaire. Elle survit, avec des séquelles neurologiques (retard de développement, épilepsie).",
+ alarm:{
+   patient:["Âge (21 jours), fièvre depuis 48h, terrain néonatal à risque infectieux."],
+   tache:["Recommandation d'hospitalisation initiale non suivie d'effet."],
+   professionnel:["Non-reconnaissance par le second médecin de la nécessité d'hospitaliser un nourrisson de moins d'un mois fébrile."],
+   equipe:["Le second médecin n'était pas informé de la recommandation d'hospitalisation formulée la veille (rupture de transmission)."]
+ },
+ actions:["Hospitaliser systématiquement pour bilan tout nourrisson de moins d'1 mois fébrile.","Évaluer prudemment les paramètres sociofamiliaux avant toute prise en charge ambulatoire d'un nourrisson fébrile de moins de 3 mois.","Renforcer l'information des parents et le suivi rapproché."],
+ source:{name:"La Prévention Médicale (MACSF)", date:"", url:"https://www.prevention-medicale.org/cas-cliniques-et-retours-d-experience/Tous-les-cas-cliniques/Medecin/retard-hospitalisation-nourrisson"}},
+
+{id:"ethan", prenom:"Ethan", age:"4 mois", lieu:"pediatrie", gravite:"ecart", tracks:["ap","inf"],
+ hook:"Deux erreurs de traitement, deux nuits de suite.",
+ situation:"Un nourrisson de 4 mois est hospitalisé pour bronchiolite sévère dans un service de pédiatrie très sollicité (19 enfants, dont 15 pour bronchiolite), qui vient de basculer sur un nouveau dossier patient informatisé quatre semaines plus tôt. La mère, très présente dans le service, sollicite fréquemment les soignants, qui se sentent pressés dans leurs vérifications. Deux nuits de suite, des erreurs surviennent lors des soins : la première nuit, un médicament est administré à une dose insuffisante ; la nuit suivante, un autre soignant administre un corticoïde différent de celui prescrit (Bécotide® à la place de Flixotide®). Aucune des deux erreurs n'entraîne de conséquence clinique, mais les parents expriment une forte inquiétude.",
+ alarm:{
+   tache:["Dossier patient informatisé déployé seulement 4 semaines auparavant."],
+   professionnel:["Vérifications d'identité et de concordance prescription-médicament insuffisantes, dans la précipitation."],
+   equipe:["Mère très présente, sollicitant fréquemment l'équipe, créant une pression continue."],
+   environnement:["Service au maximum de sa capacité d'accueil."],
+   organisation:["Absence de politique interne claire sur la gestion de la présence parentale prolongée."]
+ },
+ actions:["Auditer la maîtrise du nouveau logiciel par l'ensemble du personnel paramédical.","Renforcer la vérification d'identité et la concordance prescription/médicament.","Intervention managériale proactive dès qu'une difficulté relationnelle avec une famille émerge.","Formuler une politique interne sur la présence parentale en pédiatrie.","Former les équipes à la gestion relationnelle avec les familles."],
+ source:{name:"La Prévention Médicale (MACSF)", date:"", url:"https://www.prevention-medicale.org/cas-cliniques-et-retours-d-experience/Tous-les-retours-d-experience/retour-experience-soins-relations-familles"}},
+
+{id:"bernard", prenom:"Bernard", age:"85 ans", lieu:"bloc", gravite:"deces", tracks:["as","inf"],
+ hook:"Une pince chirurgicale oubliée, découverte six mois plus tard.",
+ situation:"Un patient de 85 ans bénéficie d'une cure d'éventration. En fin d'intervention, le comptage des instruments chirurgicaux ne permet pas de détecter qu'une pince de 13 cm manque à l'appel ; aucune vérification radiologique systématique n'est prévue en fin de procédure, alors qu'un cliché pré-opératoire existait déjà pour ce patient. Six mois plus tard, il se présente aux urgences pour un tableau d'occlusion intestinale. Les examens révèlent la présence de la pince chirurgicale oubliée dans l'abdomen lors de l'intervention initiale. Une nouvelle intervention en urgence est réalisée, suivie d'une prise en charge en réanimation. Le patient décède 25 jours plus tard d'un choc septique avec défaillance multi-organes.",
+ alarm:{
+   tache:["Comptage des instruments insuffisant à la fermeture.","Pas de vérification radiologique systématique en fin d'intervention."],
+   equipe:["Communication insuffisante entre membres de l'équipe sur la traçabilité des instruments."],
+   organisation:["Absence d'alerte systématique lorsqu'un instrument manque lors du reconditionnement."]
+ },
+ actions:["Renforcer le comptage des instruments à chaque temps opératoire.","Rendre obligatoire la check-list bloc (3 temps).","Alerte systématique auprès de l'encadrement en cas d'instrument manquant en stérilisation.","Listes de comptage spécifiques par spécialité chirurgicale.","Renforcer la vigilance collective de toute l'équipe opératoire."],
+ source:{name:"La Prévention Médicale (MACSF)", date:"16.04.2026", url:"https://www.prevention-medicale.org/cas-cliniques-et-retours-d-experience/Tous-les-retours-d-experience/oubli-instrument-bloc-operatoire"}},
+
+{id:"monique", prenom:"Monique", age:"64 ans", lieu:"imagerie", gravite:"temp", tracks:["as","inf"],
+ hook:"Le mauvais flacon, injecté pendant une biopsie.",
+ situation:"Une femme de 64 ans bénéficie de microbiopsies mammaires échoguidées. Pendant la préparation de l'anesthésique local, le radiologue est interrompu par une sollicitation annexe. Il injecte à la patiente le contenu d'un flacon de formol — utilisé pour la conservation des prélèvements — au lieu de l'anesthésiant. La patiente ressent immédiatement une sensation de brûlure intense. Le radiologue constate son erreur ; l'anesthésique est administré secondairement. La patiente présente une réaction inflammatoire prolongée et des douleurs importantes.",
+ alarm:{
+   tache:["Préparation du médicament interrompue par une tâche annexe."],
+   professionnel:["Confusion entre deux flacons d'apparence proche (anesthésiant / formol)."],
+   environnement:["Interruptions de tâche fréquentes dans l'environnement de préparation."]
+ },
+ actions:["Communication institutionnelle sur ce type d'erreur pour sensibiliser les équipes.","Organisation limitant les interruptions de tâche pendant la préparation des médicaments.","Revoir les effectifs pour fluidifier le déroulement des actes.","Renforcer les points de vérification lors de la préparation de médicaments injectables.","Procédure de prise en charge multidisciplinaire en cas d'erreur avérée."],
+ source:{name:"La Prévention Médicale (MACSF)", date:"16.03.2026", url:"https://www.prevention-medicale.org/cas-cliniques-et-retours-d-experience/Tous-les-retours-d-experience/erreur-medicamenteuse-en-imagerie"}},
+
+{id:"jacqueline", prenom:"Jacqueline", age:"87 ans", lieu:"ehpad", gravite:"temp", tracks:["as","aes","inf"],
+ hook:"Deux plateaux, deux résidentes, les mêmes sachets.",
+ situation:"En EHPAD, pendant une période d'épidémie de gastro-entérite avec plusieurs résidents isolés en chambre, la distribution des médicaments est assurée par une étudiante infirmière récemment arrivée dans le service, sans qu'elle ait été informée des incidents déjà survenus. La charge de travail, alourdie par la gestion de l'épidémie, n'a pas été réajustée pour cette distribution, régulièrement interrompue par d'autres sollicitations, et aucune double vérification n'est prévue au poste de préparation des plateaux. Les sachets de médicaments de deux résidentes sont déposés par erreur sur le même plateau-repas. Mme J., 87 ans, reçoit à la fois ses médicaments et ceux de Mme L. L'erreur est détectée lorsque l'aide-soignante de Mme L. ne retrouve pas ses sachets. Mme J. est transférée aux urgences pour surveillance ; elle récupère sans complication.",
+ alarm:{
+   patient:["Période d'isolement (gastro-entérite) modifiant l'organisation habituelle des soins."],
+   tache:["Absence de double vérification au poste de distribution des médicaments."],
+   professionnel:["Étudiante infirmière manquant de connaissance du contexte du service."],
+   equipe:["Nouveaux arrivants non informés des évènements indésirables déjà survenus dans le service."],
+   environnement:["Interruptions de tâche non protégées lors de la préparation des plateaux."],
+   organisation:["Charge de travail non réajustée face à une situation inhabituelle (isolement de plusieurs résidents)."]
+ },
+ actions:["Protéger la préparation des médicaments des interruptions de tâche.","Réajuster la charge de travail lors d'évènements imprévus (épidémie, isolement).","Informer systématiquement les nouveaux arrivants des incidents récents du service.","Vérification systématique au point de distribution.","Renforcer le « droit au doute » : consulter un collègue en cas d'anomalie perçue."],
+ source:{name:"La Prévention Médicale (MACSF)", date:"01.04.2026", url:"https://www.prevention-medicale.org/cas-cliniques-et-retours-d-experience/Tous-les-retours-d-experience/erreur-medicamenteuse-en-ehpad"}},
+
+{id:"yvonne", prenom:"Yvonne", age:"87 ans", lieu:"ehpad", gravite:"vital", tracks:["as","aes","inf"],
+ hook:"Un doute exprimé, mais la distribution continue.",
+ situation:"En EHPAD, une réunion d'équipe et un audit interne mobilisent une partie du personnel habituel ce jour-là ; les rôles de chacun sont moins clairement définis du fait de la présence d'une résidente en chambre d'isolement. Le chariot de repas, mal adapté à cette organisation, présente des plateaux empilés de façon désordonnée faute de place. Pendant la distribution du soir, une résidente de 87 ans en chambre d'isolement reçoit ses médicaments ainsi que ceux d'une autre résidente : l'aide-soignante remarque un nombre de comprimés inhabituel dans le pilulier, mais poursuit la distribution sans en référer à l'infirmière. L'erreur est découverte lorsque l'autre résidente s'étonne de l'absence de son traitement. La résidente bénéficie d'une surveillance neurologique et respiratoire renforcée suite à l'ingestion des médicaments supplémentaires.",
+ alarm:{
+   patient:["Résidente en chambre d'isolement."],
+   tache:["Procédure d'identification du patient non suivie avant administration."],
+   professionnel:["Doute exprimé par l'aide-soignante sur la quantité de comprimés, mais administration réalisée sans en référer à l'infirmière."],
+   equipe:["Communication insuffisante entre membres de l'équipe."],
+   environnement:["Chariot repas mal conçu : plateaux empilés de façon désordonnée faute de place."],
+   organisation:["Réunion d'équipe et audit en cours perturbant le circuit habituel de travail.","Rôles mal définis en situation inhabituelle (isolement)."]
+ },
+ actions:["Revoir le protocole de distribution des médicaments pour tous les contextes, y compris l'isolement.","Piluliers individuels nominatifs, avec photo du résident.","Réorganiser la distribution des repas et médicaments en chambre.","Formation obligatoire à l'administration médicamenteuse.","Protocole formalisé et adapté aux situations inhabituelles.","Ajuster le calendrier des réunions pour ne pas percuter les temps de soin."],
+ source:{name:"SRA Grand Est — Fiche RETEX erreur médicamenteuse", date:"", url:"https://sragrandest.org/wp/wp-content/uploads/2021/02/Fiche_Retex_Erreur_Medicamenteuse_1_VF.pdf"}},
+
+{id:"odette", prenom:"Odette", age:"81 ans", lieu:"ehpad", gravite:"deces", tracks:["as","aes","inf"],
+ hook:"Un repas de midi qui tourne mal, malgré les gestes de secours.",
+ situation:"En EHPAD, une résidente de 81 ans, suivie en psychiatrie pour des troubles anxieux avec idées délirantes de persécution, présente un mauvais état dentaire et un traitement par neuroleptique ; elle a déjà présenté un épisode de fausse route neuf mois plus tôt. Un bilan de la déglutition avait alors été prescrit, mais n'a jamais été réalisé, faute de disponibilité d'orthophoniste dans la région ; son plan de soins personnalisé mentionne toujours une texture alimentaire « normale ». Le jour des faits, la surveillance de son repas, servi dans l'une des salles à manger de l'établissement, est assurée par du personnel non spécifiquement formé à ce risque ; aucun matériel d'aspiration n'est disponible sur place, l'établissement ne disposant que d'un chariot d'urgence unique et partagé pour l'ensemble des unités. La résidente s'étouffe pendant le repas de midi. Malgré plusieurs manœuvres de Heimlich, des tentatives d'extraction manuelle et une ventilation au masque, les secours ne parviennent pas à désobstruer les voies aériennes. Elle fait un arrêt cardiaque et décède.",
+ alarm:{
+   patient:["Antécédent de fausse route, mauvais état dentaire, traitement par neuroleptique connu pour altérer la déglutition."],
+   tache:["Bilan de déglutition prescrit mais jamais réalisé.","Plan de soins personnalisé mentionnant une texture alimentaire « normale » malgré la dysphagie repérée."],
+   professionnel:["Surveillance du repas assurée par du personnel non qualifié pour ce risque."],
+   equipe:["Coordination floue des rôles pendant le service des repas."],
+   environnement:["Repas répartis sur plusieurs lieux, rendant la surveillance difficile.","Absence de matériel d'aspiration sur place ; chariot d'urgence unique et partagé."],
+   organisation:["Pénurie régionale d'orthophonistes.","Absence de procédure de repérage et de gestion des résidents à risque de fausse route."]
+ },
+ actions:["Réserver la surveillance des repas à risque au personnel qualifié.","Équiper les salles de repas de matériel d'aspiration fonctionnel, avec formation du personnel.","Mettre en place un protocole d'identification et de gestion des troubles de déglutition.","Formation obligatoire : repérage, évaluation, textures alimentaires, surveillance.","Réorganiser les horaires de repas et la surveillance dédiée.","Clarifier les rôles et la traçabilité des observations.","Assurer la maintenance tracée du matériel d'urgence."],
+ source:{name:"CCECQA — Analyse approfondie de cas n°90", date:"", url:"https://www.ccecqa.fr/wp-content/uploads/2024/05/REX-90.pdf"}},
+
+{id:"denise", prenom:"Denise", age:"personne âgée", lieu:"domicile", gravite:"deces", tracks:["as","inf"],
+ hook:"Une sangle qui lâche pendant un transfert au lève-malade.",
+ situation:"À domicile, une patiente âgée, fragile et de forte corpulence, est prise en charge par un service de soins infirmiers à domicile. Le soignant qui intervient ce jour-là, très expérimenté, réalise seul le transfert au lève-malade, loué pour le domicile, dont la maintenance n'est suivie par aucune procédure formalisée entre la famille — propriétaire du contrat de location — et le service de soins. Le logement, exigu, complique la manœuvre. Une sangle du harnais, dont la fixation n'a pas été revérifiée avant le levage, se détache. La patiente chute et se cogne la tête et l'épaule au sol, avec une plaie crânienne importante. Hospitalisée, elle décède douze jours plus tard.",
+ alarm:{
+   patient:["Patiente obèse et fragile, nécessitant une manutention à risque."],
+   tache:["Absence de vérification des sangles et fixations avant le levage."],
+   professionnel:["Excès de confiance de l'aidant, lié à son expérience."],
+   equipe:["Un seul soignant présent malgré la corpulence et la fragilité de la patiente."],
+   environnement:["Défaut du lève-malade inconnu de l'équipe.","Logement exigu compliquant la manipulation du dispositif."],
+   organisation:["Absence de suivi organisé de la maintenance de l'appareil loué (pas de communication entre la famille, propriétaire du matériel, et le service)."]
+ },
+ actions:["Formaliser une procédure d'utilisation du lève-malade.","Exiger la présence de deux soignants pour les transferts à risque.","Double vérification systématique des sangles et fixations avant chaque levage.","Audit annuel du cycle de maintenance des dispositifs de manutention."],
+ source:{name:"SRA Grand Est — Fiche RETEX n°16 (lève-malade)", date:"", url:"https://sragrandest.org/files/pdf/2022/retex/Fiche%20RETEX%2016%20l%C3%A8ve-malade.pdf"}},
+
+{id:"henri", prenom:"Henri", age:"91 ans", lieu:"hospitalier", gravite:"deces", tracks:["as","inf"],
+ hook:"Un fauteuil roulant qui bascule pendant un soin.",
+ situation:"Un patient de 91 ans, polypathologique et présentant des troubles cognitifs, est amené en fauteuil roulant — sans frein ni dispositif anti-bascule — par le service de transport, pour une consultation externe de plaie. Les délais de consultation sont allongés ce jour-là ; le temps d'attendre son tour, il est laissé seul dans le couloir. Au moment des soins, une infirmière, seule pour assurer les soins de plusieurs patients dépendants, tente de surélever sa jambe alors qu'il est toujours installé dans le fauteuil : celui-ci bascule en arrière. Le patient se cogne la tête au sol. Une plaie est suturée et son état paraît stable, mais quelques heures plus tard, il présente une faiblesse du côté gauche et un syndrome de négligence. Le scanner révèle un hématome intracrânien ; au vu de son âge et de ses comorbidités, aucune intervention chirurgicale n'est proposée. Il décède six jours après la chute, en soins palliatifs.",
+ alarm:{
+   patient:["Âge avancé, poly-pathologique, troubles cognitifs."],
+   tache:["Patient laissé seul, en fauteuil roulant, dans un couloir."],
+   professionnel:["Infirmière seule face à un patient dépendant."],
+   equipe:["Communication insuffisante entre le service de consultation et l'EHPAD d'origine."],
+   environnement:["Locaux ne permettant pas un positionnement sûr du patient pour le soin.","Fauteuil roulant sans frein ni dispositif anti-bascule, laissé non sécurisé par le transport."],
+   organisation:["Délais de consultation entraînant une attente prolongée du patient."]
+ },
+ actions:["Réaménagement architectural des espaces de consultation.","Adapter les fauteuils roulants (freins, dispositifs anti-bascule).","Protocoles pour le personnel assurant les transports internes.","Renforcer les formulaires de liaison entre établissements.","Réunions de coordination structurées entre le service de consultation et l'EHPAD."],
+ source:{name:"CCECQA — Fiche REX, chute lors d'un acte de consultation externe", date:"", url:"https://www.ccecqa.fr/wp-content/uploads/2024/05/REX-60.pdf"}},
+
+{id:"marcelle", prenom:"Marcelle", age:"résidente EHPAD", lieu:"ehpad", gravite:"deces", tracks:["as","aes","inf"],
+ hook:"Des signes de fragilité alimentaire jamais évalués.",
+ situation:"En EHPAD, une résidente présente une dentition dégradée et des difficultés lors des repas, signes évocateurs de troubles de la déglutition, sans qu'aucune évaluation formalisée de sa déglutition n'ait été demandée. Elle décède des suites d'une fausse route alimentaire.",
+ alarm:{
+   patient:["Signes de dysphagie déjà présents avant l'incident (dentition, difficultés alimentaires)."],
+   tache:["Absence d'évaluation formalisée des troubles de déglutition."],
+   equipe:["Documentation et communication insuffisantes sur les difficultés de déglutition repérées."],
+   organisation:["Absence de procédure d'évaluation systématique du risque de fausse route à l'admission."]
+ },
+ actions:["Évaluation systématique du risque de fausse route à l'admission et pendant le séjour.","Tracer les troubles de déglutition dans le dossier de soins.","Former le personnel au repérage des signes de dysphagie.","Protocoles de texture alimentaire standardisés."],
+ source:{name:"HAS — Flash Sécurité Patient, fausses routes", date:"02.2026", url:"https://www.has-sante.fr/upload/docs/application/pdf/2026-02/dir1/fsp_fausses_routes_-_lorsquune_petite_boulette_devient_un_tres_gros_pepin.pdf",
+   note:"Ce document présente 3 situations avec une liste commune de facteurs contributifs, sans détailler lequel s'applique à quel cas précisément. La répartition ci-dessus est une proposition plausible, pas une attribution confirmée cas par cas dans la source."}},
+
+{id:"roger", prenom:"Roger", age:"résident EHPAD", lieu:"ehpad", gravite:"deces", tracks:["as","aes","inf"],
+ hook:"Un repas insuffisamment surveillé.",
+ situation:"En EHPAD, un résident dont le trouble de la déglutition est connu et documenté dans son dossier ne bénéficie d'aucun protocole de surveillance renforcée pendant les repas ; l'équipe en poste ce jour-là, réduite, n'a pas reçu de formation aux gestes de premiers secours en cas d'étouffement. Il décède d'une fausse route survenue pendant un repas insuffisamment surveillé.",
+ alarm:{
+   patient:["Trouble de déglutition connu et documenté."],
+   professionnel:["Personnel non formé aux gestes de premiers secours en cas d'étouffement."],
+   equipe:["Défaut de coordination de la surveillance pendant le service des repas."],
+   environnement:["Contraintes d'effectifs affectant la qualité de la surveillance des repas."]
+ },
+ actions:["Former l'ensemble du personnel aux gestes de premiers secours (désobstruction).","Assurer la maintenance et la disponibilité du matériel d'urgence.","Procédures d'alerte avec numéros dédiés en cas d'incident.","Surveillance renforcée et priorisée pour les résidents à risque identifié."],
+ source:{name:"HAS — Flash Sécurité Patient, fausses routes", date:"02.2026", url:"https://www.has-sante.fr/upload/docs/application/pdf/2026-02/dir1/fsp_fausses_routes_-_lorsquune_petite_boulette_devient_un_tres_gros_pepin.pdf",
+   note:"Ce document présente 3 situations avec une liste commune de facteurs contributifs, sans détailler lequel s'applique à quel cas précisément. La répartition ci-dessus est une proposition plausible, pas une attribution confirmée cas par cas dans la source."}},
+
+{id:"edouard", prenom:"Édouard", age:"patient hospitalier, Parkinson", lieu:"hospitalier", gravite:"deces", tracks:["as","inf"],
+ hook:"Une texture de repas qui ne correspondait pas à la prescription.",
+ situation:"À l'hôpital, un patient atteint de la maladie de Parkinson bénéficie d'une prescription de texture alimentaire mixée en raison de ses troubles de déglutition. Le plateau qui lui est servi contient un repas à texture normale. Il présente une fausse route mortelle.",
+ alarm:{
+   patient:["Maladie de Parkinson, texture alimentaire spécifique prescrite (mixée)."],
+   tache:["Erreur de préparation du repas : texture normale servie au lieu de la texture mixée prescrite."],
+   organisation:["Vigilance insuffisante sur la concordance entre prescription et texture réellement servie."]
+ },
+ actions:["Protocoles de texture alimentaire standardisés et vérifiés avant le service.","Renforcer la vigilance sur la concordance prescription/plateau servi.","Restreindre l'accès aux plateaux destinés à d'autres patients.","Sensibiliser et former les équipes de restauration et de soin."],
+ source:{name:"HAS — Flash Sécurité Patient, fausses routes", date:"02.2026", url:"https://www.has-sante.fr/upload/docs/application/pdf/2026-02/dir1/fsp_fausses_routes_-_lorsquune_petite_boulette_devient_un_tres_gros_pepin.pdf",
+   note:"Ce document présente 3 situations avec une liste commune de facteurs contributifs, sans détailler lequel s'applique à quel cas précisément. La répartition ci-dessus est une proposition plausible, pas une attribution confirmée cas par cas dans la source."}}
+];
+
+/* ===================== FEI (déclaration) ===================== */
+
+const FEI_PERSONNE = [
+  ["patient","Patient"],
+  ["personnel","Personnel"],
+  ["visiteur","Visiteur"],
+  ["stagiaire","Stagiaire"]
+];
+
+const FEI_TYPOLOGIE = [
+  ["accueil","Accueil / Transport"],
+  ["hygiene","Hygiène / Risque infectieux"],
+  ["identitovigilance","Identitovigilance"],
+  ["information","Information / Communication"],
+  ["medicament","Médicament"],
+  ["locaux","Locaux / Matériel"],
+  ["comportement","Comportement"],
+  ["securite","Sécurité des biens et des personnes"],
+  ["hotellerie","Hôtellerie / Restauration"]
+];
+
+/* Corrigé FEI par cas — personne/typologie dérivées des faits du cas (voir "situation" ci-dessus),
+   pas d'attribution officielle : ce sont les cases attendues pour l'exercice, avec la logique
+   du choix unique justifiée. faits/consequences = repères tirés du récit, pour guider la rédaction. */
+const FEI_DATA = {
+  camille:{
+    personne:"patient",
+    typologie:"identitovigilance",
+    typoNote:"Erreur de personne — la patiente a reçu le produit prévu pour une autre, confondue à cause de l'homonymie des prénoms des nouveau-nés. C'est l'identité qui a été mal vérifiée, pas la prescription : Identitovigilance, pas Médicament.",
+    faits:[
+      "Une injection de Rhophylac® est prescrite pour Mme D., patiente Rh négatif.",
+      "La sage-femme référente, occupée à la surveillance d'une transfusion, délègue la préparation et l'administration à une étudiante infirmière de 1ʳᵉ année, seule.",
+      "L'étudiante réalise l'injection puis complète les documents de traçabilité après le geste.",
+      "En apportant les documents à la sage-femme, elle constate que l'injection a été faite à Mme Z. et non à Mme D."
+    ],
+    consequences:["Erreur détectée par l'étudiante elle-même, immédiatement après le geste.","Sage-femme référente informée sans délai.","Suites cliniques pour Mme Z. non précisées dans la source."]
+  },
+  adam:{
+    personne:"patient",
+    typologie:"medicament",
+    typoNote:"Erreur de réglage d'un traitement administré à la bonne patiente (confusion d'unité mUI/min vs ml/h) : Médicament.",
+    faits:[
+      "Patiente sous perfusion d'ocytocine (Syntocinon®) pour déclenchement du travail.",
+      "La sage-femme remplaçante, peu familière de ce modèle de pompe, la règle sur « 12 » en pensant régler un débit en ml/h, alors que l'appareil est paramétré en mUI/min.",
+      "Aucun collègue sollicité pour vérifier le réglage avant la mise en route (service en sous-effectif ce soir-là).",
+      "Le monitoring objective une hyperactivité utérine puis une bradycardie fœtale à 80 bpm, avec liquide amniotique méconial."
+    ],
+    consequences:["Perfusion arrêtée, traitement administré ; le rythme se normalise.","Accouchement une heure plus tard, Apgar 10/10."]
+  },
+  nael:{
+    personne:"patient",
+    typologie:"medicament",
+    typoNote:"Erreur de dosage liée à l'utilisation d'une formulation inadaptée pour la bonne patiente : Médicament.",
+    faits:[
+      "Rupture de stock de la forme pédiatrique d'amoxicilline habituellement utilisée ; livraison possible seulement le lendemain.",
+      "Une infirmière récemment arrivée dans le service emprunte un flacon à l'unité adulte voisine pour préparer l'injection prescrite.",
+      "Environ dix minutes après l'injection, le nouveau-né présente une bradycardie, une hypotension et des marbrures."
+    ],
+    consequences:["Oxygénothérapie et remplissage vasculaire mis en place, avec récupération complète.","Contrôle a posteriori : dose administrée dix fois supérieure à la prescription (formulation adulte plus concentrée)."]
+  },
+  louna:{
+    personne:"patient",
+    typologie:"securite",
+    typoNote:"Chute accidentelle du nouveau-né : Sécurité des biens et des personnes — pas de dispositif médical en cause, pas de comportement à signaler.",
+    faits:[
+      "La mère, habituée au co-dodo lors de grossesses précédentes, accueille son nouveau-né pour l'allaiter la nuit.",
+      "Aucun berceau de cododo n'est proposé à la mère ; les risques du partage du lit ne sont pas abordés avec elle.",
+      "Vers 3h du matin, la mère découvre son bébé au sol : il est tombé du lit."
+    ],
+    consequences:["Examen par le pédiatre de garde.","Hospitalisation de trois jours en observation avec bilan d'imagerie.","Examens rassurants, sans fracture ni hématome."]
+  },
+  sacha:{
+    personne:"patient",
+    typologie:"medicament",
+    typoNote:"Rythme d'administration non respecté pour la bonne patiente : Médicament.",
+    faits:[
+      "Enfant de 5 ans, syndrome d'Angelman, traité par morphine pour la douleur.",
+      "La prescription n'est pas saisie dans le logiciel de prescription informatisé du service.",
+      "Le traitement est administré toutes les 3 heures au lieu des 6 heures prévues."
+    ],
+    consequences:["L'enfant entre dans un état de coma.","Réadmission en réanimation pédiatrique."]
+  },
+  rose:{
+    personne:"patient",
+    typologie:"medicament",
+    typoNote:"Surdosage par erreur de conversion d'unité, chez le bon patient : Médicament.",
+    faits:[
+      "Enfant de 3 ans et demi, suivi pour épilepsie, sort d'hospitalisation avec une prescription d'anticonvulsivant.",
+      "Les modalités de préparation de la dose à domicile ne sont pas revues en détail avec les parents à la sortie.",
+      "À domicile, surdosage lié à une erreur de conversion entre milligrammes et gouttes."
+    ],
+    consequences:["Symptômes neurologiques sévères.","Réadmission en réanimation."]
+  },
+  malo:{
+    personne:"patient",
+    typologie:"medicament",
+    typoNote:"Préparation à partir d'une formulation inadaptée pour le bon patient : Médicament.",
+    faits:[
+      "Rupture de stock de la forme pédiatrique d'amoxicilline/acide clavulanique, non signalée à l'ensemble de l'équipe.",
+      "La préparation est réalisée à partir de la formulation adulte du médicament, plus concentrée."
+    ],
+    consequences:["Surdosage en acide clavulanique constaté.","Surveillance clinique renforcée mise en place."]
+  },
+  gabriel:{
+    personne:"patient",
+    typologie:"medicament",
+    typoNote:"Défaut de préparation d'un produit administré au bon nouveau-né (soudure non rompue) : Médicament.",
+    faits:[
+      "IDE 1 commence la préparation d'une poche de nutrition parentérale Pediaven® (deux compartiments séparés par une soudure à rompre avant utilisation, non mentionnée sur l'emballage).",
+      "IDE 1 est appelée pour un autre nouveau-né ; IDE 2 prend le relais pour terminer la préparation et la mise en route.",
+      "Au retour d'IDE 1 : la soudure entre les deux compartiments n'a jamais été rompue."
+    ],
+    consequences:["Perfusion arrêtée, médecin prévenu.","Le nouveau-né présente une hyperglycémie."]
+  },
+  ines:{
+    personne:"patient",
+    typologie:"information",
+    typoNote:"La défaillance se situe dans la transmission entre deux professionnels, pas dans un soin réalisé : Information/Communication.",
+    faits:[
+      "Nourrisson de 3 semaines, fièvre depuis 48h et signes respiratoires discrets.",
+      "Un premier médecin recommande une hospitalisation pour bilan.",
+      "La mère consulte un second médecin généraliste, non informé de cette recommandation ; il ne l'adresse pas à l'hôpital.",
+      "Le lendemain, dégradation brutale : détresse respiratoire sévère et convulsions."
+    ],
+    consequences:["Transfert en réanimation pédiatrique.","Diagnostic de sepsis à Staphylococcus aureus avec atteinte pleuro-pulmonaire.","Survie, avec séquelles neurologiques (retard de développement, épilepsie)."]
+  },
+  ethan:{
+    personne:"patient",
+    typologie:"medicament",
+    typoNote:"Deux erreurs d'administration (dose, puis produit) chez le bon patient : Médicament.",
+    faits:[
+      "Nourrisson de 4 mois hospitalisé pour bronchiolite sévère, service très sollicité, nouveau dossier patient informatisé déployé 4 semaines plus tôt.",
+      "Première nuit : un médicament est administré à une dose insuffisante.",
+      "Nuit suivante : un corticoïde différent de celui prescrit est administré (Bécotide® à la place de Flixotide®)."
+    ],
+    consequences:["Aucune conséquence clinique pour l'enfant.","Forte inquiétude exprimée par les parents."]
+  },
+  bernard:{
+    personne:"patient",
+    typologie:"locaux",
+    typoNote:"Défaut de traçabilité d'un instrument chirurgical — Locaux/Matériel, pas Sécurité des biens et des personnes (pas de chute ici).",
+    faits:[
+      "Patient de 85 ans, cure d'éventration ; le comptage des instruments en fin d'intervention ne détecte pas l'absence d'une pince de 13 cm.",
+      "Aucune vérification radiologique systématique n'est prévue en fin de procédure, alors qu'un cliché pré-opératoire existait déjà pour ce patient.",
+      "Six mois plus tard, présentation aux urgences pour un tableau d'occlusion intestinale ; la pince est retrouvée dans l'abdomen."
+    ],
+    consequences:["Nouvelle intervention en urgence, puis prise en charge en réanimation.","Décès 25 jours plus tard d'un choc septique avec défaillance multi-organes."]
+  },
+  monique:{
+    personne:"patient",
+    typologie:"medicament",
+    typoNote:"Confusion entre deux produits injectés à la bonne patiente : Médicament.",
+    faits:[
+      "Patiente de 64 ans, microbiopsies mammaires échoguidées.",
+      "Le radiologue est interrompu pendant la préparation de l'anesthésique local par une sollicitation annexe.",
+      "Il injecte le contenu d'un flacon de formol (destiné à la conservation des prélèvements) au lieu de l'anesthésiant."
+    ],
+    consequences:["Sensation de brûlure intense ressentie immédiatement.","Erreur constatée par le radiologue ; anesthésique administré secondairement.","Réaction inflammatoire prolongée et douleurs importantes."]
+  },
+  jacqueline:{
+    personne:"patient",
+    typologie:"identitovigilance",
+    typoNote:"Les médicaments d'une résidente arrivent sur le plateau d'une autre : erreur d'identification, pas de dosage — Identitovigilance.",
+    faits:[
+      "Période d'épidémie de gastro-entérite, plusieurs résidents isolés en chambre.",
+      "La distribution des médicaments est assurée par une étudiante infirmière récemment arrivée, non informée des incidents déjà survenus dans le service.",
+      "Les sachets de médicaments de deux résidentes sont déposés par erreur sur le même plateau-repas ; Mme J. reçoit ses médicaments et ceux de Mme L.",
+      "L'erreur est détectée lorsque l'aide-soignante de Mme L. ne retrouve pas ses sachets."
+    ],
+    consequences:["Mme J. transférée aux urgences pour surveillance.","Récupération sans complication."]
+  },
+  yvonne:{
+    personne:"patient",
+    typologie:"identitovigilance",
+    typoNote:"Même logique que pour Jacqueline : une résidente reçoit les médicaments d'une autre — Identitovigilance, malgré le doute exprimé sur la quantité.",
+    faits:[
+      "Réunion d'équipe et audit interne mobilisant une partie du personnel ; rôles moins clairement définis (résidente en chambre d'isolement).",
+      "Pendant la distribution du soir, une résidente de 87 ans en isolement reçoit ses médicaments et ceux d'une autre résidente.",
+      "L'aide-soignante remarque un nombre de comprimés inhabituel dans le pilulier mais poursuit la distribution sans en référer à l'infirmière.",
+      "L'erreur est découverte lorsque l'autre résidente s'étonne de l'absence de son traitement."
+    ],
+    consequences:["Surveillance neurologique et respiratoire renforcée mise en place suite à l'ingestion des médicaments supplémentaires."]
+  },
+  odette:{
+    personne:"patient",
+    typologie:"hotellerie",
+    typoNote:"Texture alimentaire inadaptée au risque de fausse route : Hôtellerie/Restauration, même si l'issue est vitale.",
+    faits:[
+      "Résidente de 81 ans, suivie en psychiatrie, antécédent de fausse route neuf mois plus tôt ; un bilan de déglutition avait alors été prescrit mais jamais réalisé.",
+      "Le plan de soins personnalisé mentionne toujours une texture alimentaire « normale ».",
+      "La surveillance du repas est assurée par du personnel non spécifiquement formé à ce risque ; aucun matériel d'aspiration n'est disponible sur place.",
+      "La résidente s'étouffe pendant le repas de midi."
+    ],
+    consequences:["Manœuvres de Heimlich, tentatives d'extraction manuelle, ventilation au masque.","Arrêt cardiaque ; décès."]
+  },
+  denise:{
+    personne:"patient",
+    typologie:"securite",
+    typoNote:"Chute pendant un transfert : Sécurité des biens et des personnes — même si le défaut initial est matériel (sangle). Attention : la « personne concernée » reste la patiente, pas le soignant, même si c'est lui qui a réalisé le geste.",
+    faits:[
+      "Patiente âgée, fragile et de forte corpulence, prise en charge à domicile par un service de soins infirmiers.",
+      "Le transfert au lève-malade (loué pour le domicile) est réalisé seul par le soignant intervenant ce jour-là.",
+      "Une sangle du harnais, non revérifiée avant le levage, se détache."
+    ],
+    consequences:["Chute de la patiente ; plaie crânienne importante (tête et épaule cognées au sol).","Hospitalisation ; décès douze jours plus tard."]
+  },
+  henri:{
+    personne:"patient",
+    typologie:"securite",
+    typoNote:"Chute du fauteuil pendant un soin : Sécurité des biens et des personnes, même si le fauteuil était mal équipé (facteur à documenter côté ALARM, pas dans la typologie FEI).",
+    faits:[
+      "Patient de 91 ans, polypathologique, troubles cognitifs, amené en fauteuil roulant sans frein ni dispositif anti-bascule pour une consultation externe.",
+      "Il est laissé seul dans le couloir en raison de délais de consultation allongés.",
+      "Une infirmière, seule pour plusieurs patients dépendants, tente de surélever sa jambe alors qu'il est toujours dans le fauteuil ; celui-ci bascule en arrière."
+    ],
+    consequences:["Plaie suturée, état initialement stable.","Quelques heures plus tard : faiblesse du côté gauche, syndrome de négligence ; scanner révélant un hématome intracrânien.","Décès six jours après la chute, en soins palliatifs."]
+  },
+  marcelle:{
+    personne:"patient",
+    typologie:"hotellerie",
+    typoNote:"Signes de dysphagie non évalués, texture non adaptée : Hôtellerie/Restauration.",
+    faits:[
+      "La résidente présente une dentition dégradée et des difficultés lors des repas, signes évocateurs de troubles de la déglutition.",
+      "Aucune évaluation formalisée de la déglutition n'a été demandée."
+    ],
+    consequences:["Décès des suites d'une fausse route alimentaire."]
+  },
+  roger:{
+    personne:"patient",
+    typologie:"hotellerie",
+    typoNote:"Trouble de déglutition connu, repas insuffisamment surveillé : Hôtellerie/Restauration.",
+    faits:[
+      "Le trouble de la déglutition du résident est connu et documenté au dossier.",
+      "Aucun protocole de surveillance renforcée n'est en place pendant les repas ; l'équipe en poste, réduite, n'a pas reçu de formation aux gestes de premiers secours en cas d'étouffement."
+    ],
+    consequences:["Décès d'une fausse route survenue pendant un repas insuffisamment surveillé."]
+  },
+  edouard:{
+    personne:"patient",
+    typologie:"hotellerie",
+    typoNote:"Écart entre la texture prescrite et la texture réellement servie : Hôtellerie/Restauration.",
+    faits:[
+      "Patient atteint de la maladie de Parkinson, prescription de texture alimentaire mixée en raison de troubles de déglutition.",
+      "Le plateau servi contient un repas à texture normale."
+    ],
+    consequences:["Fausse route mortelle."]
+  }
+};
+
+const REPORTS = [
+  {tracks:["ap","as","aes","inf"], pinned:true, title:"HAS — Fiche mémo : analyser un événement indésirable par la méthode ALARM", url:"https://www.has-sante.fr/upload/docs/application/pdf/2012-04/fiche23.pdf"},
+  {tracks:["ap","inf"], title:"HAS — EIGS survenus chez les nouveau-nés (328 déclarations analysées)", url:"https://www.has-sante.fr/upload/docs/application/pdf/2025-04/evenements_indesirables_graves_associes_aux_soins_eigs_survenus_chez_les_nouveau-nes.pdf"},
+  {tracks:["ap","inf"], title:"HAS — Flash Sécurité Patient, peau à peau et allaitement du nouveau-né", url:"https://www.has-sante.fr/jcms/p_3927545/fr/flash-securite-patient-peau-a-peau-et-allaitement-du-nouveau-ne-a-la-maternite-la-douceur-n-exclut-pas-la-vigilance"},
+  {tracks:["as","aes","inf"], title:"HAS — Analyse des EIGS en lien avec une chute de patients", url:"https://www.has-sante.fr/upload/docs/application/pdf/2021-11/spa-141_rapport_eigs_chute_20211119_vdef.pdf"}
+];
+
+/* ===================== ÉTAT & NAVIGATION ===================== */
+
+let state = {track:null, lieu:null, gravFilter:null, caseId:null};
+let godmode = true; /* démo : godmode forcé */
+
+function showToast(msg){
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(()=> t.classList.add("show"));
+  setTimeout(()=>{ t.classList.remove("show"); setTimeout(()=> t.remove(), 300); }, 1400);
+}
+
+function toggleGodmode(){
+  godmode = !godmode;
+  if(godmode) sessionStorage.setItem("alarmotron_godmode","1"); else sessionStorage.removeItem("alarmotron_godmode");
+  showToast(godmode ? "Mode formateur activé" : "Mode formateur désactivé");
+  renderCase();
+}
+
+/* Déclenchement discret : taper "godmode" au clavier (hors champ de saisie) */
+let _keyBuffer = "";
+window.addEventListener("keydown", (e)=>{
+  const tag = (e.target && e.target.tagName) || "";
+  if(tag === "TEXTAREA" || tag === "INPUT") return;
+  if(e.key && e.key.length === 1 && /[a-zA-Z]/.test(e.key)){
+    _keyBuffer = (_keyBuffer + e.key.toLowerCase()).slice(-7);
+    if(_keyBuffer === "godmode"){ _keyBuffer = ""; toggleGodmode(); }
+  } else if(e.key !== "Shift"){
+    _keyBuffer = "";
+  }
+});
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+function renderCrumbs(){
+  const el = document.getElementById("crumbs");
+  let parts = [];
+  if(state.track){ parts.push(`<button class="link" onclick="goHome()">Accueil</button>`); parts.push(`<span>/</span>`); parts.push(`<button class="link" onclick="goLieux()">${TRACKS[state.track].label}</button>`); }
+  if(state.lieu){ parts.push(`<span>/</span>`); parts.push(`<button class="link" onclick="goListe()">${LIEUX[state.lieu]}</button>`); }
+  if(state.caseId){ const c = CASES.find(x=>x.id===state.caseId); parts.push(`<span>/</span>`); parts.push(`<span>${c.prenom}</span>`); }
+  el.innerHTML = parts.join(" ");
+}
+
+function goHome(){ state = {track:null, lieu:null, gravFilter:null, caseId:null}; renderCrumbs(); showScreen("screen-home"); }
+function goLieux(){ state.lieu=null; state.gravFilter=null; state.caseId=null; renderCrumbs(); renderLieux(); showScreen("screen-lieux"); }
+function goListe(){ state.caseId=null; renderCrumbs(); renderListe(); showScreen("screen-liste"); }
+function backToListe(){ goListe(); }
+
+function casesForTrack(track){ return CASES.filter(c => c.tracks.includes(track)); }
+function casesForLieu(track, lieu){ return casesForTrack(track).filter(c => c.lieu === lieu); }
+
+/* ---- home ---- */
+function renderHome(){
+  const grid = document.getElementById("track-grid");
+  grid.innerHTML = Object.entries(TRACKS).map(([key,t])=>{
+    const n = casesForTrack(key).length;
+    return `<button class="track-card ${t.cls}" onclick="selectTrack('${key}')">
+      <span class="t-name">${t.label}</span>
+      <span class="t-desc">${t.desc}</span>
+      <span class="t-count">${n} cas disponible${n>1?"s":""}</span>
+    </button>`;
+  }).join("");
+}
+function selectTrack(track){ state.track = track; state.lieu=null; state.gravFilter=null; renderCrumbs(); renderLieux(); showScreen("screen-lieux"); }
+
+/* ---- lieux ---- */
+function renderLieux(){
+  const t = TRACKS[state.track];
+  document.getElementById("lieux-banner").innerHTML =
+    `<span class="name">${t.label}</span><span class="n">${casesForTrack(state.track).length} cas au total</span>`;
+  document.getElementById("lieux-banner").className = "track-banner " + t.cls;
+
+  const lieuKeys = TRACK_LIEUX[state.track];
+  const grid = document.getElementById("lieu-grid");
+  grid.innerHTML = lieuKeys.map(lk=>{
+    const n = casesForLieu(state.track, lk).length;
+    const empty = n===0;
+    return `<button class="lieu-card ${empty?"empty":""}" onclick="selectLieu('${lk}')">
+      <span class="l-name">${LIEUX[lk]}</span>
+      <span class="l-n">${empty? "0 cas publié" : n+" cas"}</span>
+    </button>`;
+  }).join("");
+
+  const reports = REPORTS.filter(r=>r.tracks.includes(state.track));
+  const docbox = document.getElementById("doc-box");
+  if(reports.length){
+    docbox.innerHTML = `<div class="d-label">Ressources documentaires complémentaires</div>
+      <ul>${reports.map(r=> r.pinned
+        ? `<li class="pinned">📌 <a href="${r.url}" target="_blank" rel="noopener"><strong>${r.title}</strong></a></li>`
+        : `<li><a href="${r.url}" target="_blank" rel="noopener">${r.title}</a></li>`
+      ).join("")}</ul>`;
+    docbox.style.display = "block";
+  } else { docbox.style.display = "none"; }
+}
+function selectLieu(lieu){ state.lieu = lieu; state.gravFilter = null; renderCrumbs(); renderListe(); showScreen("screen-liste"); }
+
+/* ---- liste ---- */
+function renderListe(){
+  const t = TRACKS[state.track];
+  document.getElementById("liste-banner").innerHTML =
+    `<span class="name">${t.label} — ${LIEUX[state.lieu]}</span><span class="n">${casesForLieu(state.track,state.lieu).length} cas</span>`;
+  document.getElementById("liste-banner").className = "track-banner " + t.cls;
+
+  const all = casesForLieu(state.track, state.lieu);
+  const gravPresent = [...new Set(all.map(c=>c.gravite))];
+  const filterRow = document.getElementById("filter-row");
+  filterRow.innerHTML = [`<button class="chip ${state.gravFilter===null?"active":""}" onclick="setGravFilter(null)">Toutes gravités</button>`]
+    .concat(gravPresent.map(g=>`<button class="chip ${state.gravFilter===g?"active":""}" onclick="setGravFilter('${g}')">${GRAVITE[g].label}</button>`))
+    .join("");
+
+  const filtered = state.gravFilter ? all.filter(c=>c.gravite===state.gravFilter) : all;
+  const grid = document.getElementById("patient-grid");
+  const emptyNote = document.getElementById("liste-empty");
+
+  if(filtered.length===0){
+    grid.innerHTML = "";
+    emptyNote.style.display = "block";
+    emptyNote.innerHTML = state.lieu==="creche"
+      ? `Aucun cas publié et analysé (facteurs + actions) n'a été trouvé pour la crèche / collectivité petite enfance : ce n'est pas un oubli, ce type de retour d'expérience n'est simplement pas publié pour ce secteur. Voir la <a href="https://claude.ai/code/artifact/d248e188-d0e4-48de-8c14-69a5580c16e4" target="_blank" rel="noopener">revue de sources dédiée</a> pour plus de détails, ou construire un cas avec le groupe à partir d'une situation vécue en stage.`
+      : `Aucun cas ne correspond à ce filtre pour le moment.`;
+  } else {
+    emptyNote.style.display = "none";
+    grid.innerHTML = filtered.map(c=>{
+      const g = GRAVITE[c.gravite];
+      return `<button class="patient-card" style="--sc:var(--sev-${g.cls}); --sbg:var(--sev-${g.cls}-bg);" onclick="openCase('${c.id}')">
+        <div class="p-name">${c.prenom}</div>
+        <div class="p-meta">${c.age || ""}</div>
+        <div class="p-hook">${c.hook}</div>
+        <span class="p-sev">${g.label}</span>
+      </button>`;
+    }).join("");
+  }
+}
+function setGravFilter(g){ state.gravFilter = g; renderListe(); }
+
+/* ---- case ---- */
+function openCase(id){ state.caseId = id; renderCrumbs(); renderCase(); showScreen("screen-case"); }
+
+function lsKey(id, field){ return `alarmotron:${id}:${field}`; }
+function feiKey(id, field){ return lsKey(id, "fei_"+field); }
+function feiLabel(list, key){ const f = list.find(x=>x[0]===key); return f ? f[1] : ""; }
+
+function selectFei(id, group, value){
+  localStorage.setItem(feiKey(id,group), value);
+  renderFei(CASES.find(x=>x.id===id));
+}
+function saveFei(id, field, value){ localStorage.setItem(feiKey(id,field), value); }
+
+function renderFei(c){
+  const data = FEI_DATA[c.id] || {faits:[], consequences:[]};
+  const savedPersonne = localStorage.getItem(feiKey(c.id,"personne")) || "";
+  const savedTypo = localStorage.getItem(feiKey(c.id,"typologie")) || "";
+
+  const personneOpts = FEI_PERSONNE.map(([key,label])=>{
+    const sel = savedPersonne===key;
+    const correct = godmode && data.personne===key;
+    return `<label class="fei-opt ${sel?"sel":""} ${correct?"correct":""}" onclick="selectFei('${c.id}','personne','${key}')"><span class="box-sq"></span><span class="lbl">${label}</span></label>`;
+  }).join("");
+
+  const typoOpts = FEI_TYPOLOGIE.map(([key,label])=>{
+    const sel = savedTypo===key;
+    const correct = godmode && data.typologie===key;
+    return `<label class="fei-opt ${sel?"sel":""} ${correct?"correct":""}" onclick="selectFei('${c.id}','typologie','${key}')"><span class="box-sq"></span><span class="lbl">${label}</span></label>`;
+  }).join("");
+
+  const godHtml = godmode ? `<div class="godpanel">
+      <div class="g-label">🔓 Corrigé FEI — d'après les faits du cas</div>
+      <h4>Personne concernée</h4>
+      <ul><li><strong>${feiLabel(FEI_PERSONNE, data.personne)}</strong> — la personne qui a subi l'événement (ici la patiente/le patient/le résident pris en charge), jamais le professionnel auteur du geste.</li></ul>
+      <h4>Typologie</h4>
+      <ul><li><strong>${feiLabel(FEI_TYPOLOGIE, data.typologie)}</strong> — ${data.typoNote || ""}</li></ul>
+      <h4>Repères chronologiques attendus dans la description des faits</h4>
+      <ul>${data.faits.map(f=>`<li>${f}</li>`).join("")}</ul>
+      <h4>Conséquences immédiates attendues</h4>
+      <ul>${data.consequences.map(cq=>`<li>${cq}</li>`).join("")}</ul>
+    </div>` : "";
+
+  document.getElementById("fei-content").innerHTML = `
+    <div class="fei-tip"><span class="fei-tip-icon">🗂️</span><span><strong>Une seule croix par rubrique à cases.</strong> Personne concernée et Typologie ne prennent chacune qu'une seule réponse : c'est cette croix unique qui permet le classement et l'exploitation statistique des fiches. Si plusieurs catégories semblent correspondre, choisissez celle qui domine la situation.</span></div>
+
+    <div class="fei-section">
+      <div class="f-label">Personne concernée</div>
+      <div class="fei-options">${personneOpts}</div>
+    </div>
+
+    <div class="fei-section">
+      <div class="f-label">Typologie</div>
+      <div class="fei-options">${typoOpts}</div>
+    </div>
+
+    <div class="fei-section">
+      <div class="f-label">Lieu / Date / Heure de l'événement</div>
+      <div class="fei-meta">
+        <div><label>Lieu</label><input type="text" id="fei-lieu"></div>
+        <div><label>Date</label><input type="text" id="fei-date"></div>
+        <div><label>Heure</label><input type="text" id="fei-heure"></div>
+      </div>
+    </div>
+
+    <div class="fei-section fei-textbox">
+      <div class="f-label">Description des faits</div>
+      <div class="f-sub">Chronologique, concis, précis, factuel — les faits, rien que les faits.</div>
+      <textarea id="fei-faits" placeholder="Que s'est-il passé, dans l'ordre ?"></textarea>
+    </div>
+
+    <div class="fei-section fei-textbox">
+      <div class="f-label">Conséquences immédiates</div>
+      <div class="f-sub">Ce qui a été constaté et fait juste après : état de la personne, mesures prises, qui a été prévenu.</div>
+      <textarea id="fei-conseq" placeholder="Conséquences constatées, mesures immédiates…"></textarea>
+    </div>
+
+    ${godHtml}
+  `;
+
+  document.getElementById("fei-lieu").value = localStorage.getItem(feiKey(c.id,"lieu")) || "";
+  document.getElementById("fei-date").value = localStorage.getItem(feiKey(c.id,"date")) || "";
+  document.getElementById("fei-heure").value = localStorage.getItem(feiKey(c.id,"heure")) || "";
+  document.getElementById("fei-faits").value = localStorage.getItem(feiKey(c.id,"faits")) || "";
+  document.getElementById("fei-conseq").value = localStorage.getItem(feiKey(c.id,"consequences")) || "";
+  document.getElementById("fei-lieu").oninput = function(){ saveFei(c.id,"lieu",this.value); };
+  document.getElementById("fei-date").oninput = function(){ saveFei(c.id,"date",this.value); };
+  document.getElementById("fei-heure").oninput = function(){ saveFei(c.id,"heure",this.value); };
+  document.getElementById("fei-faits").oninput = function(){ saveFei(c.id,"faits",this.value); };
+  document.getElementById("fei-conseq").oninput = function(){ saveFei(c.id,"consequences",this.value); };
+}
+
+function renderCase(){
+  const c = CASES.find(x=>x.id===state.caseId);
+  if(!c) return;
+  const g = GRAVITE[c.gravite];
+  document.getElementById("case-name").textContent = c.prenom + (c.age ? ` — ${c.age}` : "");
+  document.getElementById("case-tags").innerHTML =
+    `<span class="tag">${LIEUX[c.lieu]}</span><span class="tag sev" style="--sc:var(--sev-${g.cls}); --sbg:var(--sev-${g.cls}-bg); background:var(--sbg); color:var(--sc);">${g.label}</span>`;
+  document.getElementById("case-situation").textContent = c.situation;
+
+  renderFei(c);
+
+  const alarmGrid = document.getElementById("alarm-grid");
+  alarmGrid.innerHTML = ALARM_CATS.map(([key,label,q])=>{
+    const saved = localStorage.getItem(lsKey(c.id,key)) || "";
+    return `<div class="alarm-item">
+      <div class="a-label">${label}</div>
+      <div class="a-q">${q}</div>
+      <textarea data-key="${key}" oninput="saveField('${c.id}','${key}',this.value)">${saved}</textarea>
+    </div>`;
+  }).join("");
+
+  const actionsEl = document.getElementById("actions-input");
+  actionsEl.value = localStorage.getItem(lsKey(c.id,"actions")) || "";
+  actionsEl.oninput = ()=> saveField(c.id,"actions",actionsEl.value);
+
+  const godArea = document.getElementById("god-area");
+  if(godmode){
+    const catsHtml = ALARM_CATS.filter(([key])=> c.alarm[key] && c.alarm[key].length)
+      .map(([key,label])=> `<h4>${label}</h4><ul>${c.alarm[key].map(f=>`<li>${f}</li>`).join("")}</ul>`).join("");
+    godArea.innerHTML = `<div class="godpanel">
+      <div class="g-label">🔓 Corrigé — d'après la source</div>
+      ${catsHtml}
+      <h4>Actions proposées dans la source</h4>
+      <ul>${c.actions.map(a=>`<li>${a}</li>`).join("")}</ul>
+      <div class="g-source">Source : ${c.source.name}${c.source.date? " — "+c.source.date:""} — <a href="${c.source.url}" target="_blank" rel="noopener">consulter le document original →</a>${c.source.note? `<br><em>⚠ ${c.source.note}</em>`:""}</div>
+    </div>`;
+  } else {
+    godArea.innerHTML = "";
+  }
+}
+function saveField(id, field, value){ localStorage.setItem(lsKey(id,field), value); }
+
+/* ===================== IMPRESSION ===================== */
+/* Les <textarea> ne s'agrandissent pas tout seuls à l'impression : si le texte saisi
+   dépasse la hauteur visible, il est tronqué dans le PDF. On les redimensionne à leur
+   contenu juste avant l'impression, puis on remet la hauteur d'origine après. */
+function fitTextareasForPrint(){
+  document.querySelectorAll("textarea").forEach(ta=>{
+    ta.dataset.printPrevHeight = ta.style.height || "";
+    ta.style.height = "auto";
+    ta.style.height = (ta.scrollHeight + 4) + "px";
+  });
+}
+function restoreTextareasAfterPrint(){
+  document.querySelectorAll("textarea").forEach(ta=>{
+    ta.style.height = ta.dataset.printPrevHeight || "";
+    delete ta.dataset.printPrevHeight;
+  });
+}
+window.addEventListener("beforeprint", fitTextareasForPrint);
+window.addEventListener("afterprint", restoreTextareasAfterPrint);
+
+/* ===================== INIT ===================== */
+renderHome();
+</script>
+</body>
+</html>

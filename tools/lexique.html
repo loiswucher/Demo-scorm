@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Lexique — construire les mots du soin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#22383F; --ground2:#2C4750; --ground3:#1A2C32;
+  --card:#E2D9C3; --card2:#D3C8AE; --cardEdge:#B8AB8C;
+  --ink:#262119; --ink2:#5C5346; --inkFaint:#8C8271;
+  --amber:#E0A32E; --amberDeep:#B87F14;
+  --ok:#4E9E7E; --bad:#C25742;
+  --paper:#F0EADC;
+  --disp:'Zilla Slab',Georgia,serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --sans:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--sans); color:var(--paper);
+  background:var(--ground);
+  background-image:radial-gradient(ellipse at 50% -10%, #31505A 0%, var(--ground) 55%, var(--ground3) 100%);
+  background-attachment:fixed;
+  min-height:100vh; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+/* ---------- CHROME ---------- */
+header{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;gap:14px;
+  padding:10px 18px;
+  background:rgba(26,44,50,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(226,217,195,.16);
+}
+.logo{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:.01em;white-space:nowrap}
+.logo span{color:var(--amber)}
+.compteur{
+  font-family:var(--mono);font-size:12px;color:#B9C7CB;
+  display:flex;align-items:center;gap:8px;margin-left:auto;white-space:nowrap;
+}
+.jauge{width:110px;height:5px;background:rgba(226,217,195,.18);border-radius:3px;overflow:hidden}
+.jauge i{display:block;height:100%;background:var(--amber);width:0;transition:width .5s}
+.navbtn{
+  font-size:13px;font-weight:600;padding:7px 13px;border-radius:7px;
+  border:1px solid rgba(226,217,195,.28);color:#DCE5E7;transition:.15s;
+}
+.navbtn:hover{background:rgba(226,217,195,.12)}
+.navbtn.on{background:var(--card);color:var(--ink);border-color:var(--card)}
+main{max-width:880px;margin:0 auto;padding:26px 18px 90px}
+
+/* ---------- ACCUEIL ---------- */
+.hero{text-align:center;padding:26px 0 34px}
+.hero h1{font-family:var(--disp);font-size:clamp(30px,5.4vw,46px);font-weight:700;line-height:1.1}
+.hero h1 em{font-style:normal;color:var(--amber)}
+.hero p{color:#B9C7CB;margin-top:12px;font-size:16px;max-width:520px;margin-inline:auto}
+.demo{
+  display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-top:24px;font-family:var(--mono);font-size:15px;
+}
+.demo .t{padding:7px 12px;border-radius:6px;background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 2px 0 var(--cardEdge)}
+.demo .t.hl{background:var(--amber);box-shadow:0 2px 0 var(--amberDeep);animation:pulse 2.4s ease-in-out infinite}
+.demo .op{color:#8FA3A9;font-weight:600}
+.demo .res{font-family:var(--disp);font-weight:700;font-size:18px;color:var(--paper)}
+@keyframes pulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+.niveaux{display:grid;gap:11px;margin-top:34px}
+.niv{
+  display:flex;align-items:center;gap:16px;text-align:left;width:100%;
+  padding:15px 18px;border-radius:11px;
+  background:var(--card);color:var(--ink);
+  box-shadow:0 3px 0 var(--cardEdge);transition:.15s;
+}
+.niv:hover:not(.lock){transform:translateY(-2px);box-shadow:0 5px 0 var(--cardEdge)}
+.niv.lock{background:rgba(226,217,195,.09);color:#8FA3A9;box-shadow:none;cursor:not-allowed;border:1px dashed rgba(226,217,195,.24)}
+.niv .num{
+  font-family:var(--mono);font-weight:600;font-size:13px;
+  width:32px;height:32px;flex:none;border-radius:8px;
+  display:grid;place-items:center;background:var(--ground);color:var(--card);
+}
+.niv.lock .num{background:rgba(226,217,195,.14);color:#8FA3A9}
+.niv .txt{flex:1;min-width:0}
+.niv .txt b{font-family:var(--disp);font-size:17px;display:block}
+.niv .txt small{font-size:13px;color:var(--ink2);display:block;margin-top:1px}
+.niv.lock .txt small{color:#7C8F95}
+.niv .etat{font-family:var(--mono);font-size:12px;color:var(--ink2);flex:none;text-align:right}
+.niv.lock .etat{color:#7C8F95}
+.niv .etat b{display:block;color:var(--ok);font-family:var(--sans);font-size:12px}
+
+/* ---------- FICHE (exercice) ---------- */
+.fiche{
+  background:var(--card);color:var(--ink);border-radius:13px;
+  padding:26px 24px;box-shadow:0 5px 0 var(--cardEdge);
+  position:relative;overflow:hidden;
+}
+.fiche::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--sysCol,var(--ground))}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--inkFaint);font-weight:600;margin-bottom:12px;
+}
+.consigne{font-family:var(--disp);font-size:15px;color:var(--ink2);margin-bottom:6px}
+.cible{font-family:var(--disp);font-size:clamp(21px,3.6vw,27px);font-weight:600;line-height:1.28}
+.motcible{font-family:var(--disp);font-size:clamp(30px,6vw,44px);font-weight:700;letter-spacing:-.01em}
+
+.rappel{
+  display:flex;align-items:center;gap:11px;flex-wrap:wrap;
+  background:rgba(224,163,46,.17);border:1px solid rgba(224,163,46,.5);
+  border-radius:9px;padding:11px 14px;margin-bottom:18px;font-size:14px;
+}
+.rappel .glow{
+  font-family:var(--mono);font-weight:600;padding:5px 10px;border-radius:6px;
+  background:var(--amber);color:var(--ink);box-shadow:0 0 0 0 rgba(224,163,46,.7);
+  animation:halo 1.8s ease-out 2;
+}
+@keyframes halo{0%{box-shadow:0 0 0 0 rgba(224,163,46,.75)}100%{box-shadow:0 0 0 16px rgba(224,163,46,0)}}
+
+.slots{display:flex;gap:9px;flex-wrap:wrap;margin:22px 0 6px;min-height:60px;align-items:center}
+.slot{
+  min-width:104px;height:58px;border-radius:9px;
+  border:2px dashed var(--cardEdge);background:rgba(38,33,25,.045);
+  display:grid;place-items:center;transition:.14s;
+}
+.slot.plein{border-style:solid;border-color:transparent;background:none;padding:0}
+.slot.fixe{border-style:solid;border-color:var(--cardEdge);background:rgba(38,33,25,.09)}
+.slot.fixe span{font-family:var(--mono);font-size:13px;color:var(--inkFaint)}
+.plus{font-family:var(--mono);font-weight:600;color:var(--inkFaint);font-size:17px}
+
+.tuile{
+  font-family:var(--mono);text-align:center;line-height:1.2;
+  padding:9px 13px;border-radius:8px;min-width:104px;height:58px;
+  background:var(--paper);color:var(--ink);
+  box-shadow:0 3px 0 var(--cardEdge);border:1px solid var(--cardEdge);
+  display:flex;flex-direction:column;justify-content:center;gap:2px;transition:.12s;
+}
+.tuile b{font-size:15px;font-weight:600;display:block}
+.tuile small{font-size:10.5px;color:var(--ink2);font-family:var(--sans);display:block;line-height:1.15}
+.tuile:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--cardEdge)}
+.tuile:active{transform:translateY(1px);box-shadow:0 1px 0 var(--cardEdge)}
+.tuile.sel{background:var(--ground);color:var(--card);border-color:var(--ground3);box-shadow:0 3px 0 var(--ground3)}
+.tuile.sel small{color:#A9BCC2}
+.tuile.cle{background:var(--amber);border-color:var(--amberDeep);box-shadow:0 3px 0 var(--amberDeep)}
+.tuile.faux{animation:shake .35s}
+.tuile.ghost{opacity:.28;pointer-events:none}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.banque{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px;padding-top:18px;border-top:1px solid var(--cardEdge)}
+.banque .lbl{width:100%;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--inkFaint);margin-bottom:2px}
+
+.choix{display:grid;gap:9px;margin-top:20px}
+.opt{
+  text-align:left;padding:13px 15px;border-radius:9px;
+  background:var(--paper);border:1px solid var(--cardEdge);color:var(--ink);
+  box-shadow:0 2px 0 var(--cardEdge);transition:.12s;font-size:15px;
+}
+.opt:hover{transform:translateY(-1px);box-shadow:0 4px 0 var(--cardEdge)}
+.opt.bon{background:#D6EBE0;border-color:var(--ok);box-shadow:0 2px 0 var(--ok)}
+.opt.mauvais{background:#F0D9D3;border-color:var(--bad);box-shadow:0 2px 0 var(--bad)}
+
+.actions{display:flex;gap:10px;margin-top:22px;align-items:center;flex-wrap:wrap}
+.btn{
+  font-weight:600;font-size:15px;padding:12px 22px;border-radius:9px;
+  background:var(--ground);color:var(--card);box-shadow:0 3px 0 var(--ground3);transition:.12s;
+}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 0 var(--ground3)}
+.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:0 3px 0 var(--ground3)}
+.btn.or{background:var(--amber);color:var(--ink);box-shadow:0 3px 0 var(--amberDeep)}
+.btn.or:hover{box-shadow:0 5px 0 var(--amberDeep)}
+.btn.ghost{background:none;color:var(--ink2);box-shadow:none;border:1px solid var(--cardEdge)}
+.btn.ghost:hover{background:rgba(38,33,25,.06);transform:none;box-shadow:none}
+
+.msg{font-size:14px;font-weight:600;margin-left:auto}
+.msg.ko{color:var(--bad)}
+.msg.ok{color:var(--ok)}
+
+/* ---------- REVELATION ---------- */
+.reveal{animation:pop .3s cubic-bezier(.2,1.3,.5,1)}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+.sysTag{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+  padding:4px 10px;border-radius:20px;background:var(--sysCol,var(--ground));color:#fff;margin-bottom:12px;
+}
+.decomp{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:16px 0}
+.definition{
+  font-size:16px;line-height:1.55;padding:15px 17px;border-radius:9px;
+  background:var(--paper);border-left:4px solid var(--sysCol,var(--ground));
+}
+.indice{margin-top:12px;font-size:14px;color:var(--ink2);font-style:italic}
+.ajout{
+  margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--ok);font-weight:600;
+  display:flex;align-items:center;gap:6px;
+}
+
+/* ---------- LEXIQUE ---------- */
+.tiroir{margin-bottom:14px;background:var(--card);border-radius:11px;overflow:hidden;box-shadow:0 3px 0 var(--cardEdge)}
+.tiroirTete{
+  display:flex;align-items:center;gap:12px;width:100%;padding:14px 17px;color:var(--ink);text-align:left;
+}
+.tiroirTete:hover{background:var(--card2)}
+.tiroirTete .ic{font-size:19px}
+.tiroirTete b{font-family:var(--disp);font-size:16px;flex:1}
+.tiroirTete .cpt{font-family:var(--mono);font-size:12.5px;color:var(--ink2)}
+.tiroirTete .bg{
+  width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;
+  background:rgba(38,33,25,.12);color:var(--inkFaint);
+}
+.tiroirTete .bg.won{background:var(--amber);color:var(--ink)}
+.barre{height:4px;background:rgba(38,33,25,.13)}
+.barre i{display:block;height:100%;background:var(--sysCol);transition:width .4s}
+.corps{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:8px;padding:14px 17px 17px}
+.mc{
+  padding:9px 11px;border-radius:8px;background:var(--paper);border:1px solid var(--cardEdge);
+  text-align:left;color:var(--ink);transition:.12s;
+}
+.mc:hover{transform:translateY(-1px)}
+.mc b{font-family:var(--disp);font-size:14.5px;display:block}
+.mc small{font-size:11px;color:var(--ink2);font-family:var(--mono)}
+.mc.vide{background:rgba(38,33,25,.05);border-style:dashed;color:var(--inkFaint)}
+.mc.vide b{font-family:var(--mono);letter-spacing:.13em;font-weight:500;font-size:13px}
+
+/* ---------- BADGES ---------- */
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:11px}
+.bd{
+  background:var(--card);border-radius:11px;padding:17px 12px;text-align:center;color:var(--ink);
+  box-shadow:0 3px 0 var(--cardEdge);
+}
+.bd .ic{font-size:31px;display:block;filter:grayscale(1);opacity:.3}
+.bd.won{background:var(--amber);box-shadow:0 3px 0 var(--amberDeep)}
+.bd.won .ic{filter:none;opacity:1}
+.bd b{display:block;font-family:var(--disp);font-size:13.5px;margin-top:8px;line-height:1.25}
+.bd small{font-family:var(--mono);font-size:11px;color:var(--ink2)}
+.bd.grand{grid-column:1/-1;background:var(--ground);color:var(--card);box-shadow:0 3px 0 var(--ground3)}
+.bd.grand small{color:#A9BCC2}
+.bd.grand.won{background:var(--amber);color:var(--ink);box-shadow:0 3px 0 var(--amberDeep)}
+.bd.grand.won small{color:var(--ink2)}
+
+/* ---------- DIVERS ---------- */
+.h2{font-family:var(--disp);font-size:23px;font-weight:700;margin:6px 0 16px}
+.sub{color:#B9C7CB;font-size:14px;margin-bottom:20px}
+.retour{font-size:13.5px;color:#B9C7CB;margin-bottom:16px;display:inline-flex;gap:6px;align-items:center}
+.retour:hover{color:var(--paper)}
+.progress{font-family:var(--mono);font-size:12px;color:#8FA3A9;margin-bottom:12px}
+.fin{text-align:center;padding:34px 22px}
+.fin .big{font-family:var(--disp);font-size:30px;font-weight:700;margin-bottom:8px}
+.transmission{
+  background:var(--paper);border-radius:9px;padding:17px;font-size:15.5px;line-height:1.7;
+  border-left:4px solid var(--ground);margin:16px 0;color:var(--ink);
+}
+.transmission b{
+  font-weight:600;background:rgba(224,163,46,.3);padding:1px 5px;border-radius:4px;cursor:pointer;
+  border-bottom:2px solid var(--amber);
+}
+.transmission b:hover{background:var(--amber)}
+.transmission b.done{background:#D6EBE0;border-color:var(--ok);cursor:default}
+.transmission b.rate{background:#F0D9D3;border-color:var(--bad)}
+.formLink{
+  position:fixed;bottom:9px;right:11px;font-family:var(--mono);font-size:10px;
+  color:rgba(226,217,195,.22);z-index:50;
+}
+.formLink:hover{color:rgba(226,217,195,.6)}
+.formBar{
+  background:var(--amber);color:var(--ink);text-align:center;padding:5px;
+  font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.06em;
+}
+@media (max-width:560px){
+  main{padding:20px 13px 80px}
+  .tuile,.slot{min-width:88px;height:54px}
+  .compteur .jauge{display:none}
+  .niv{padding:13px 14px;gap:12px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="formBar"></div>
+<header>
+  <div class="logo">Le <span>Lexique</span></div>
+  <button class="navbtn" id="nAccueil">Niveaux</button>
+  <button class="navbtn" id="nLex">Lexique</button>
+  <button class="navbtn" id="nBadges">Badges</button>
+  <div class="compteur"><span id="cpt">0 / 0</span><span class="jauge"><i id="jauge"></i></span></div>
+</header>
+<main id="app"></main>
+<button class="formLink" id="formLink">·</button>
+<script>
+/* ================= CORPUS ÉTYMOLOGIQUE — AS 2021 =================
+   E = éléments (préfixes / racines / suffixes)
+   P = mots-passerelles (langue courante) -> duo
+   M = mots médicaux (lexique + badges)
+   Niveau d'un mot = max(niveau de ses éléments) -> garantit qu'aucun mot
+   n'apparaît avant que toutes ses briques soient connues.
+================================================================== */
+
+const SYSTEMES = {
+  neuro:      { nom: "Neurologie",              icone: "🧠", couleur: "#7C5CFF" },
+  cardio:     { nom: "Cardio-vasculaire",       icone: "❤️", couleur: "#E5484D" },
+  respi:      { nom: "Respiratoire & ORL",     icone: "🫁", couleur: "#3E9DD8" },
+  digestif:   { nom: "Digestif & Nutrition",    icone: "🍽️", couleur: "#E8A33D" },
+  urinaire:   { nom: "Urinaire & Rénal",        icone: "💧", couleur: "#2FB6A8" },
+  loco:       { nom: "Locomoteur",              icone: "🦴", couleur: "#9C8B72" },
+  peau:       { nom: "Peau & Téguments",        icone: "🩹", couleur: "#EE8F7A" },
+  sang:       { nom: "Sang & Cancérologie",     icone: "🩸", couleur: "#B23A48" },
+  infect:     { nom: "Infectieux & Hygiène",    icone: "🦠", couleur: "#5FA855" },
+  endo:       { nom: "Endocrinien & Métabolisme", icone: "⚖️", couleur: "#C77DBB" },
+  mental:     { nom: "Santé mentale",           icone: "💭", couleur: "#6B8FBF" }
+};
+
+const NIVEAUX = [
+  { n:1, titre:"Vous savez déjà",        sous:"Six mots que vous connaissez. Et six que vous croyiez ne pas connaître." },
+  { n:2, titre:"Les organes",            sous:"Nommer ce qu'il y a dedans : cœur, foie, rein, vessie, côlon, bronche…" },
+  { n:3, titre:"Tissus, sang & couleurs",sous:"L'os, le muscle, la peau, le sang, le sucre, la chaleur. Et le rouge, le bleu, le noir." },
+  { n:4, titre:"Ce qui ne va pas",       sous:"Les suffixes de la maladie : inflammation, douleur, écoulement, volume." },
+  { n:5, titre:"Ce qu'on fait au patient", sous:"Les suffixes des actes : regarder, enregistrer, couper, aboucher." },
+  { n:6, titre:"Trop, ou pas assez",     sous:"Les préfixes de quantité. Le cœur de la surveillance AS." },
+  { n:7, titre:"Où ça ?",                sous:"Les préfixes de position. Autour, dedans, dessous, à travers." },
+  { n:8, titre:"L'invisible",            sous:"Germes, tumeurs, humeurs. Le vocabulaire du dossier et de l'hygiène." },
+  { n:9, titre:"Terrain",                sous:"Des mots que vous n'avez jamais vus. Décodez-les seuls, puis lisez de vraies transmissions." }
+];
+
+/* ---------------- ÉLÉMENTS ---------------- */
+/* type: pre | rac | suf   |   pass: passerelle (mot courant) ou null */
+const E = [
+/* ===== NIVEAU 1 ===== */
+{id:"hemi",   f:"hémi",    t:"pre", sens:"la moitié",                        niv:1, pass:"hemisphere"},
+{id:"plegie", f:"plégie",  t:"suf", sens:"paralysie",                        niv:1, pass:"paraplegie"},
+{id:"pneum",  f:"pneum(o)",t:"rac", sens:"l'air, le poumon",                 niv:1, pass:"pneu"},
+{id:"pathie", f:"pathie",  t:"suf", sens:"la maladie, la souffrance",        niv:1, pass:"telepathie"},
+{id:"algie",  f:"algie",   t:"suf", sens:"la douleur",                       niv:1, pass:"antalgique"},
+{id:"gastr",  f:"gastr(o)",t:"rac", sens:"l'estomac, le ventre",             niv:1, pass:"gastronomie"},
+{id:"cardi",  f:"cardi(o)",t:"rac", sens:"le cœur",                          niv:1, pass:"cardio"},
+{id:"tachy",  f:"tachy",   t:"pre", sens:"rapide, accéléré",                 niv:1, pass:"tachymetre"},
+{id:"neur",   f:"neur/névr",t:"rac",sens:"le nerf",                          niv:1, pass:"neurone"},
+{id:"ite",    f:"ite",     t:"suf", sens:"inflammation",                     niv:1, pass:"bronchite"},
+
+/* ===== NIVEAU 2 — racines ===== */
+{id:"hepat",  f:"hépat(o)", t:"rac", sens:"le foie",                         niv:2, pass:"hepatite"},
+{id:"nephr",  f:"néphr(o)", t:"rac", sens:"le rein",                         niv:2, pass:null},
+{id:"ur",     f:"ur(o)",    t:"rac", sens:"l'urine, l'urée",                 niv:2, pass:null},
+{id:"por",    f:"por(o)",   t:"rac", sens:"le pore, le petit trou",           niv:3, pass:"pore"},
+{id:"electro",f:"électro",  t:"rac", sens:"l'électricité",                    niv:6, pass:"electricien"},
+{id:"cyst",   f:"cyst(o)",  t:"rac", sens:"la vessie",                       niv:2, pass:"cystite"},
+{id:"oste",   f:"osté(o)",  t:"rac", sens:"l'os",                            niv:3, pass:"osteopathe"},
+{id:"arthr",  f:"arthr(o)", t:"rac", sens:"l'articulation",                  niv:3, pass:"arthropode"},
+{id:"my",     f:"my(o)",    t:"rac", sens:"le muscle",                       niv:3, pass:"myopathie_telethon"},
+{id:"tendin", f:"tendin",   t:"rac", sens:"le tendon",                       niv:3, pass:null},
+{id:"derm",   f:"derm(ato)",t:"rac", sens:"la peau",                         niv:3, pass:"dermatologue"},
+{id:"hemat",  f:"hém(ato)", t:"rac", sens:"le sang",                         niv:3, pass:"hematome_bleu"},
+{id:"rhin",   f:"rhin(o)",  t:"rac", sens:"le nez",                          niv:2, pass:"rhinoceros"},
+{id:"col",    f:"col(o)",   t:"rac", sens:"le côlon (gros intestin)",        niv:2, pass:"colon"},
+{id:"enter",  f:"entér(o)", t:"rac", sens:"l'intestin",                      niv:2, pass:"gastroenterite_courant"},
+{id:"bronch", f:"bronch(o)",t:"rac", sens:"la bronche",                      niv:2, pass:null},
+{id:"laryng", f:"laryng(o)",t:"rac", sens:"le larynx",                       niv:2, pass:null},
+{id:"phleb",  f:"phléb(o)", t:"rac", sens:"la veine",                        niv:2, pass:null},
+{id:"arter",  f:"artér(io)",t:"rac", sens:"l'artère",                        niv:2, pass:"artere"},
+{id:"angi",   f:"angi(o)",  t:"rac", sens:"le vaisseau",                     niv:2, pass:null},
+{id:"splen",  f:"splén(o)", t:"rac", sens:"la rate",                         niv:2, pass:null},
+{id:"thromb", f:"thromb(o)",t:"rac", sens:"le caillot",                      niv:2, pass:null},
+{id:"stomat", f:"stomat(o)",t:"rac", sens:"la bouche",                       niv:2, pass:null},
+{id:"oesoph", f:"œsophag",  t:"rac", sens:"l'œsophage",                      niv:2, pass:null},
+{id:"encephal",f:"encéphal(o)",t:"rac",sens:"le cerveau (ce qui est DANS la tête)", niv:2, pass:null},
+{id:"trache", f:"trachéo",   t:"rac", sens:"la trachée",                     niv:2, pass:null},
+{id:"laparo", f:"laparo",    t:"rac", sens:"l'abdomen, le ventre",           niv:2, pass:null},
+{id:"cephal", f:"céphal(o)",t:"rac", sens:"la tête",                         niv:2, pass:"cephalopode"},
+{id:"eryth",  f:"éryth(ro)",t:"rac", sens:"rouge",                           niv:3, pass:"erytheme_soleil"},
+{id:"melan",  f:"mélan(o)", t:"rac", sens:"noir, foncé",                     niv:3, pass:"melanine"},
+{id:"cyan",   f:"cyan(o)",  t:"rac", sens:"bleu",                            niv:3, pass:null},
+{id:"logie",  f:"logie",    t:"suf", sens:"l'étude de, la science de",       niv:2, pass:"biologie"},
+
+/* ===== NIVEAU 3 — suffixes pathologiques ===== */
+{id:"ose",    f:"ose",     t:"suf", sens:"état chronique, dégénérescence (sans inflammation)", niv:4, pass:"arthrose"},
+{id:"ome",    f:"ome",     t:"suf", sens:"une masse, une tumeur",            niv:4, pass:"hematome_bleu"},
+{id:"megalie",f:"mégalie", t:"suf", sens:"augmentation de volume",           niv:4, pass:"megalomane"},
+{id:"emie",   f:"émie",    t:"suf", sens:"présence dans le sang",            niv:4, pass:"leucemie"},
+{id:"urie",   f:"urie",    t:"suf", sens:"présence dans les urines",         niv:4, pass:"urine"},
+{id:"orragie",f:"orragie", t:"suf", sens:"écoulement abondant, brutal (sang)", niv:4, pass:"hemorragie"},
+{id:"orrhee", f:"orrhée",  t:"suf", sens:"écoulement continu",               niv:4, pass:"diarrhee_courant"},
+{id:"pnee",   f:"pnée",    t:"suf", sens:"la respiration",                   niv:4, pass:"apnee_plongee"},
+{id:"phagie", f:"phagie",  t:"suf", sens:"avaler, manger",                   niv:4, pass:"anthropophage"},
+{id:"phasie", f:"phasie",  t:"suf", sens:"la parole",                        niv:4, pass:null},
+{id:"paresie",f:"parésie", t:"suf", sens:"paralysie partielle, faiblesse",   niv:4, pass:null},
+{id:"lyse",   f:"lyse",    t:"suf", sens:"destruction, décomposition",       niv:4, pass:"analyse"},
+{id:"sclerose",f:"sclérose",t:"suf",sens:"durcissement des tissus",          niv:4, pass:"sclerose_plaques"},
+{id:"penie",  f:"pénie",   t:"suf", sens:"manque, diminution",               niv:4, pass:null},
+{id:"trophie",f:"trophie", t:"suf", sens:"le développement, la nutrition du tissu", niv:4, pass:null},
+
+/* ===== NIVEAU 4 — suffixes d'actes ===== */
+{id:"scopie", f:"scopie",  t:"suf", sens:"regarder, explorer visuellement",  niv:5, pass:"microscope"},
+{id:"graphie",f:"graphie", t:"suf", sens:"écrire, enregistrer une image",    niv:5, pass:"photographie"},
+{id:"gramme", f:"gramme",  t:"suf", sens:"le tracé obtenu",                  niv:5, pass:null},
+{id:"tomie",  f:"tomie",   t:"suf", sens:"couper, inciser",                  niv:5, pass:"lobotomie"},
+{id:"ectomie",f:"ectomie", t:"suf", sens:"ablation, on retire l'organe",     niv:5, pass:null},
+{id:"stomie", f:"stomie",  t:"suf", sens:"aboucher à la peau, créer une ouverture", niv:5, pass:null},
+{id:"plastie",f:"plastie", t:"suf", sens:"réparer, remodeler",               niv:5, pass:"chirurgie_plastique"},
+{id:"metrie", f:"métrie",  t:"suf", sens:"mesurer",                          niv:5, pass:"thermometre"},
+{id:"synthese",f:"synthèse",t:"suf",sens:"reconstituer, remettre ensemble",  niv:5, pass:"synthetique"},
+
+/* ===== NIVEAU 5 — préfixes de quantité ===== */
+{id:"hyper",  f:"hyper",   t:"pre", sens:"au-dessus, en excès",              niv:6, pass:"hypermarche"},
+{id:"hypo",   f:"hypo",    t:"pre", sens:"en dessous, insuffisant",          niv:6, pass:"hypoallergenique"},
+{id:"a",      f:"a / an",  t:"pre", sens:"absence totale, privation",        niv:6, pass:"anonyme"},
+{id:"dys",    f:"dys",     t:"pre", sens:"difficulté, mauvais fonctionnement", niv:6, pass:"dysfonctionnement"},
+{id:"poly",   f:"poly",    t:"pre", sens:"plusieurs, beaucoup",              niv:6, pass:"polyglotte"},
+{id:"oligo",  f:"oligo",   t:"pre", sens:"peu, en petite quantité",          niv:6, pass:"oligoelements"},
+{id:"brady",  f:"brady",   t:"pre", sens:"lent, ralenti",                    niv:6, pass:null},
+{id:"normo",  f:"normo",   t:"pre", sens:"normal",                           niv:6, pass:null},
+{id:"tension",f:"tension", t:"suf", sens:"la pression du sang",              niv:6, pass:null},
+
+/* ===== NIVEAU 6 — préfixes de position ===== */
+{id:"peri",   f:"péri",    t:"pre", sens:"autour de",                        niv:7, pass:"perimetre"},
+{id:"endo",   f:"endo",    t:"pre", sens:"à l'intérieur de",                 niv:7, pass:null},
+{id:"intra",  f:"intra",   t:"pre", sens:"dans, à l'intérieur",              niv:7, pass:"intranet"},
+{id:"extra",  f:"extra",   t:"pre", sens:"en dehors de",                     niv:7, pass:"extraordinaire"},
+{id:"sub",    f:"sub / sous",t:"pre",sens:"sous, en dessous",                niv:7, pass:"sousmarin"},
+{id:"epi",    f:"épi",     t:"pre", sens:"sur, au-dessus de",                niv:7, pass:"epicentre"},
+{id:"dia",    f:"dia",     t:"pre", sens:"à travers",                        niv:7, pass:"diametre"},
+{id:"anti",   f:"anti",    t:"pre", sens:"contre",                           niv:7, pass:"antivol"},
+{id:"micro",  f:"micro",   t:"pre", sens:"petit",                            niv:7, pass:"microscope"},
+{id:"post",   f:"post",    t:"pre", sens:"après",                            niv:7, pass:"postscriptum"},
+{id:"ante",   f:"anté / pré",t:"pre",sens:"avant",                           niv:7, pass:"antecedent"},
+
+/* ===== NIVEAU 7 — l'invisible ===== */
+{id:"sept",   f:"sept(i)",  t:"rac", sens:"l'infection, la putréfaction",    niv:8, pass:"antiseptique"},
+{id:"nos",    f:"nos(o)",   t:"rac", sens:"la maladie",                      niv:8, pass:null},
+{id:"iatr",   f:"iatr(o)",  t:"rac", sens:"le médecin, le soin",             niv:8, pass:null},
+{id:"gene",   f:"gène",     t:"suf", sens:"qui engendre, qui provoque",      niv:8, pass:"pathogene"},
+{id:"bacteri",f:"bactéri",  t:"rac", sens:"la bactérie",                     niv:8, pass:"bacterie"},
+{id:"vir",    f:"vir(u)",   t:"rac", sens:"le virus",                        niv:8, pass:"virus"},
+{id:"myc",    f:"myc(o)",   t:"rac", sens:"le champignon",                   niv:8, pass:"mycose"},
+{id:"fong",   f:"fong(i)",  t:"rac", sens:"le champignon (latin)",           niv:8, pass:null},
+{id:"cide",   f:"cide",     t:"suf", sens:"qui tue",                         niv:8, pass:"insecticide"},
+{id:"leuc",   f:"leuc(o)",  t:"rac", sens:"blanc",                           niv:3, pass:null},
+{id:"cyt",    f:"cyt(e/o)", t:"rac", sens:"la cellule",                      niv:3, pass:null},
+{id:"onc",    f:"onc(o)",   t:"rac", sens:"la masse, la tumeur",             niv:8, pass:null},
+{id:"carcin", f:"carcin(o)",t:"rac", sens:"le cancer",                       niv:8, pass:null},
+{id:"aden",   f:"adén(o)",  t:"rac", sens:"le ganglion, la glande",          niv:3, pass:null},
+{id:"lip",    f:"lip(o)",   t:"rac", sens:"la graisse",                      niv:3, pass:"lipide"},
+{id:"glyc",   f:"glyc(o)",  t:"rac", sens:"le sucre",                        niv:3, pass:"glucide"},
+{id:"therm",  f:"therm(o)", t:"rac", sens:"la chaleur, la température",      niv:3, pass:"thermometre"},
+{id:"thyr",   f:"thyroïd",  t:"rac", sens:"la thyroïde",                     niv:2, pass:null},
+{id:"ox",     f:"ox(y)",    t:"rac", sens:"l'oxygène",                       niv:3, pass:"oxygene"},
+{id:"stase",  f:"stase",    t:"suf", sens:"arrêt, stagnation",               niv:8, pass:null},
+{id:"meta",   f:"méta",     t:"pre", sens:"au-delà, qui se déplace",         niv:8, pass:null},
+{id:"psych",  f:"psych(o)", t:"rac", sens:"l'esprit, le psychisme",          niv:8, pass:"psychologie"},
+{id:"thym",   f:"thym(ie)", t:"rac", sens:"l'humeur",                        niv:8, pass:null},
+{id:"manie",  f:"manie",    t:"suf", sens:"obsession, passion excessive",    niv:8, pass:"melomane"},
+{id:"phobie", f:"phobie",   t:"suf", sens:"la peur",                         niv:8, pass:"claustrophobie"},
+{id:"sthenie",f:"sthénie",  t:"suf", sens:"la force",                        niv:4, pass:null},
+{id:"orexie", f:"orexie",   t:"suf", sens:"l'appétit",                       niv:4, pass:"anorexie"},
+{id:"dipsie", f:"dipsie",   t:"suf", sens:"la soif",                         niv:4, pass:null},
+{id:"agora",  f:"agora",    t:"rac", sens:"la place publique, la foule",     niv:8, pass:null},
+{id:"claustr",f:"claustr(o)",t:"rac",sens:"l'espace clos",                   niv:8, pass:"claustrophobie"},
+{id:"mytho",  f:"mytho",    t:"rac", sens:"le récit, le mensonge",           niv:8, pass:null},
+{id:"klepto", f:"klepto",   t:"rac", sens:"le vol",                          niv:8, pass:null},
+{id:"cyclo",  f:"cyclo",    t:"rac", sens:"le cycle, qui tourne",            niv:8, pass:"cyclone"},
+{id:"nevr",   f:"névr(o)",  t:"rac", sens:"le nerf (variante)",              niv:8, pass:null},
+{id:"biotique",f:"biotique",t:"suf", sens:"relatif à la vie",                niv:8, pass:null},
+{id:"lytique",f:"lytique",  t:"suf", sens:"qui dissout, qui apaise",         niv:8, pass:null},
+{id:"anxio",  f:"anxio",    t:"rac", sens:"l'anxiété",                       niv:8, pass:null},
+{id:"nutri",  f:"nutri",    t:"rac", sens:"la nutrition",                    niv:8, pass:null},
+{id:"ot",     f:"ot(o)",    t:"rac", sens:"l'oreille",                        niv:2, pass:"otorhino"},
+{id:"lingu",  f:"lingu",    t:"rac", sens:"la langue",                        niv:2, pass:"linguistique"},
+{id:"mamm",   f:"mamm",     t:"rac", sens:"le sein, la mamelle",              niv:2, pass:"mammifere"},
+{id:"radi",   f:"radi(o)",  t:"rac", sens:"le rayon",                         niv:5, pass:"radio"},
+{id:"de",     f:"dé",       t:"pre", sens:"privation, en moins",             niv:8, pass:null}
+];
+
+/* ---------------- PASSERELLES (mots courants) ---------------- */
+/* pieces: [{f:"forme", sens:"…"}] — la pièce marquée cle:true est l'élément partagé */
+const P = {
+  hemisphere:  {mot:"hémisphère", pieces:[{f:"hémi",sens:"la moitié",cle:1},{f:"sphère",sens:"la boule"}], def:"La moitié d'une sphère. La moitié du globe terrestre.", indice:"L'hémisphère nord, l'hémisphère sud."},
+  paraplegie:  {mot:"paraplégie", pieces:[{f:"para",sens:"à côté, les deux"},{f:"plégie",sens:"la paralysie",cle:1}], def:"Paralysie des deux membres inférieurs.", indice:"Vous connaissez aussi tétraplégie : les quatre membres."},
+  pneu:        {mot:"pneumatique", pieces:[{f:"pneum",sens:"l'air",cle:1},{f:"atique",sens:"qui fonctionne avec"}], def:"Qui fonctionne à l'air comprimé. Un pneu, c'est de l'air enfermé.", indice:"Le pneu de votre voiture. Le marteau-piqueur pneumatique."},
+  telepathie:  {mot:"télépathie", pieces:[{f:"télé",sens:"à distance"},{f:"pathie",sens:"ce qu'on ressent, ce qu'on souffre",cle:1}], def:"Ressentir ce qu'éprouve quelqu'un à distance.", indice:"Comme la sym-pathie : ressentir AVEC l'autre."},
+  antalgique:  {mot:"antalgique", pieces:[{f:"ant(i)",sens:"contre"},{f:"algique",sens:"la douleur",cle:1}], def:"Qui agit contre la douleur.", indice:"C'est écrit sur la boîte de paracétamol."},
+  gastronomie: {mot:"gastronomie", pieces:[{f:"gastro",sens:"le ventre, l'estomac",cle:1},{f:"nomie",sens:"la règle, l'art"}], def:"L'art de bien manger. Littéralement : les lois du ventre.", indice:"Et « la gastro » ? Une inflammation… du ventre."},
+  cardio:      {mot:"cardio-training", pieces:[{f:"cardio",sens:"le cœur",cle:1},{f:"training",sens:"l'entraînement"}], def:"L'entraînement qui fait travailler le cœur.", indice:"« Je fais du cardio » : vous faisiez déjà de la terminologie médicale."},
+  tachymetre:  {mot:"tachymètre", pieces:[{f:"tachy",sens:"la vitesse, rapide",cle:1},{f:"mètre",sens:"mesurer"}], def:"L'appareil qui mesure la vitesse. Le compteur du tableau de bord.", indice:"Rapide."},
+  neurone:     {mot:"neurone", pieces:[{f:"neur",sens:"le nerf",cle:1},{f:"one",sens:"l'unité, la cellule"}], def:"La cellule de base du système nerveux.", indice:"Tout le monde connaît le neurone."},
+  bronchite:   {mot:"bronchite", pieces:[{f:"bronch",sens:"la bronche"},{f:"ite",sens:"l'inflammation",cle:1}], def:"Inflammation des bronches.", indice:"Appendicite, otite, angine… le -ite, c'est toujours une inflammation."},
+
+  hepatite:    {mot:"hépatite", pieces:[{f:"hépat",sens:"le foie",cle:1},{f:"ite",sens:"l'inflammation"}], def:"Inflammation du foie.", indice:"Hépatite A, B, C : vous l'avez déjà entendu."},
+  cystite:     {mot:"cystite", pieces:[{f:"cyst",sens:"la vessie",cle:1},{f:"ite",sens:"l'inflammation"}], def:"Inflammation de la vessie.", indice:"L'infection urinaire la plus fréquente."},
+  osteopathe:  {mot:"ostéopathe", pieces:[{f:"ostéo",sens:"l'os",cle:1},{f:"pathe",sens:"qui soigne la souffrance"}], def:"Le praticien qui manipule le squelette.", indice:"Vous y êtes peut-être déjà allé pour le dos."},
+  arthropode:  {mot:"arthropode", pieces:[{f:"arthro",sens:"l'articulation",cle:1},{f:"pode",sens:"le pied, la patte"}], def:"Animal à pattes articulées : insectes, araignées, crabes.", indice:"Regardez une patte de crabe : que des articulations."},
+  myopathie_telethon:{mot:"myopathie", pieces:[{f:"myo",sens:"le muscle",cle:1},{f:"pathie",sens:"la maladie"}], def:"Maladie des muscles.", indice:"Le Téléthon, chaque année : la myopathie."},
+  dermatologue:{mot:"dermatologue", pieces:[{f:"dermato",sens:"la peau",cle:1},{f:"logue",sens:"le spécialiste"}], def:"Le médecin spécialiste de la peau.", indice:"Le derma­tologue, pour les grains de beauté."},
+  hematome_bleu:{mot:"hématome", pieces:[{f:"hémat",sens:"le sang",cle:1},{f:"ome",sens:"la masse, l'amas"}], def:"Un amas de sang sous la peau. Le « bleu ».", indice:"Vous vous cognez : hématome."},
+  rhinoceros:  {mot:"rhinocéros", pieces:[{f:"rhino",sens:"le nez",cle:1},{f:"céros",sens:"la corne"}], def:"L'animal qui porte une corne sur le nez.", indice:"Une corne. Sur le nez."},
+  colon:       {mot:"côlon", pieces:[{f:"côlon",sens:"le gros intestin",cle:1}], def:"Le gros intestin.", indice:"Le dépistage du cancer du côlon : une campagne que vous avez vue."},
+  gastroenterite_courant:{mot:"gastro-entérite", pieces:[{f:"gastro",sens:"l'estomac"},{f:"entér",sens:"l'intestin",cle:1},{f:"ite",sens:"l'inflammation"}], def:"Inflammation de l'estomac ET de l'intestin. « La gastro ».", indice:"Chaque hiver."},
+  artere:      {mot:"artère", pieces:[{f:"artère",sens:"le vaisseau qui part du cœur",cle:1}], def:"Vaisseau qui conduit le sang DU cœur vers les organes.", indice:"« Les grandes artères de la ville » : les axes qui distribuent."},
+  cephalopode: {mot:"céphalopode", pieces:[{f:"céphalo",sens:"la tête",cle:1},{f:"pode",sens:"le pied"}], def:"Animal dont les pieds partent de la tête : la pieuvre, le calmar.", indice:"Le poulpe : ses bras sortent directement de sa tête."},
+  erytheme_soleil:{mot:"érythème", pieces:[{f:"éryth",sens:"rouge",cle:1},{f:"ème",sens:"l'état, le résultat"}], def:"Rougeur de la peau. Le coup de soleil, c'est un érythème.", indice:"Rouge."},
+  melanine:    {mot:"mélanine", pieces:[{f:"mélan",sens:"noir, foncé",cle:1},{f:"ine",sens:"la substance"}], def:"Le pigment qui fonce la peau. Le bronzage, c'est de la mélanine.", indice:"Plus vous en avez, plus la peau est foncée."},
+  biologie:    {mot:"biologie", pieces:[{f:"bio",sens:"la vie"},{f:"logie",sens:"l'étude de",cle:1}], def:"L'étude du vivant.", indice:"Géologie, psychologie, sociologie… -logie, c'est toujours « l'étude de »."},
+
+  arthrose:    {mot:"arthrose", pieces:[{f:"arthr",sens:"l'articulation"},{f:"ose",sens:"l'usure chronique, sans inflammation",cle:1}], def:"Usure du cartilage articulaire. Chronique, dégénérative.", indice:"Attention : arthrOSE (usure) ≠ arthrITE (inflammation)."},
+  megalomane:  {mot:"mégalomane", pieces:[{f:"mégalo",sens:"grand, augmenté",cle:1},{f:"mane",sens:"l'obsession"}], def:"Celui qui se croit immensément grand.", indice:"« Grand » — au sens du volume."},
+  leucemie:    {mot:"leucémie", pieces:[{f:"leuc",sens:"blanc"},{f:"émie",sens:"dans le sang",cle:1}], def:"Prolifération des globules blancs dans le sang.", indice:"Anémie, glycémie, septicémie… -émie, c'est toujours « dans le sang »."},
+  urine:       {mot:"urine", pieces:[{f:"urine",sens:"l'urine",cle:1}], def:"L'urine.", indice:"Aucune difficulté ici : ce qu'on retrouve dans les urines finit en -urie."},
+  hemorragie:  {mot:"hémorragie", pieces:[{f:"hémo",sens:"le sang"},{f:"rragie",sens:"l'écoulement brutal et abondant",cle:1}], def:"Écoulement de sang abondant et brutal.", indice:"Brutal. Abondant. À distinguer de -orrhée, qui coule doucement."},
+  diarrhee_courant:{mot:"diarrhée", pieces:[{f:"dia",sens:"à travers"},{f:"rrhée",sens:"l'écoulement continu",cle:1}], def:"Écoulement qui traverse. Selles liquides répétées.", indice:"Ça coule, mais ça coule doucement et longtemps."},
+  apnee_plongee:{mot:"apnée", pieces:[{f:"a",sens:"l'absence"},{f:"pnée",sens:"la respiration",cle:1}], def:"Arrêt de la respiration. La plongée en apnée.", indice:"Sans respirer."},
+  anthropophage:{mot:"anthropophage", pieces:[{f:"anthropo",sens:"l'homme"},{f:"phage",sens:"qui mange",cle:1}], def:"Qui mange des hommes. Le cannibale.", indice:"Manger."},
+  analyse:     {mot:"analyse", pieces:[{f:"ana",sens:"de haut en bas"},{f:"lyse",sens:"décomposer, détruire",cle:1}], def:"Décomposer un tout en ses parties.", indice:"C'est exactement ce que vous faites depuis le début de ce jeu."},
+  sclerose_plaques:{mot:"sclérose en plaques", pieces:[{f:"sclér",sens:"dur"},{f:"ose",sens:"l'état chronique",cle:1}], def:"Durcissement de zones du système nerveux.", indice:"Durcir."},
+
+  microscope:  {mot:"microscope", pieces:[{f:"micro",sens:"petit"},{f:"scope",sens:"regarder",cle:1}], def:"L'instrument pour regarder le tout petit.", indice:"Télescope, microscope, périscope : on regarde."},
+  photographie:{mot:"photographie", pieces:[{f:"photo",sens:"la lumière"},{f:"graphie",sens:"écrire, enregistrer",cle:1}], def:"Écrire avec la lumière.", indice:"Orthographe, calligraphie, biographie : on écrit, on enregistre."},
+  lobotomie:   {mot:"lobotomie", pieces:[{f:"lobo",sens:"le lobe du cerveau"},{f:"tomie",sens:"couper, inciser",cle:1}], def:"Section chirurgicale d'un lobe cérébral.", indice:"Couper."},
+  chirurgie_plastique:{mot:"chirurgie plastique", pieces:[{f:"plastique",sens:"qui se modèle, qui se remodèle",cle:1}], def:"La chirurgie qui remodèle les formes.", indice:"La pâte à modeler est « plastique » : on lui donne une forme."},
+  thermometre: {mot:"thermomètre", pieces:[{f:"thermo",sens:"la chaleur"},{f:"mètre",sens:"mesurer",cle:1}], def:"L'appareil qui mesure la chaleur.", indice:"Mesurer. Vous en tenez un tous les matins."},
+
+  hypermarche: {mot:"hypermarché", pieces:[{f:"hyper",sens:"au-dessus, en excès",cle:1},{f:"marché",sens:"le magasin"}], def:"Le magasin plus grand que le supermarché.", indice:"Plus. Toujours plus."},
+  hypoallergenique:{mot:"hypoallergénique", pieces:[{f:"hypo",sens:"en dessous, moins",cle:1},{f:"allergénique",sens:"qui provoque des allergies"}], def:"Qui provoque MOINS d'allergies. C'est écrit sur les crèmes.", indice:"Hyper = trop. Hypo = pas assez. Ne les confondez jamais."},
+  anonyme:     {mot:"anonyme", pieces:[{f:"an",sens:"sans, absence totale",cle:1},{f:"onyme",sens:"le nom"}], def:"Sans nom.", indice:"Amoral, apolitique, athée : le a- efface tout."},
+  dysfonctionnement:{mot:"dysfonctionnement", pieces:[{f:"dys",sens:"difficulté, mauvais fonctionnement",cle:1},{f:"fonctionnement",sens:"le fonctionnement"}], def:"Un fonctionnement qui marche mal — mais qui marche encore.", indice:"Attention : dys- = ça marche mal. a- = ça ne marche plus du tout."},
+  polyglotte:  {mot:"polyglotte", pieces:[{f:"poly",sens:"plusieurs",cle:1},{f:"glotte",sens:"la langue"}], def:"Qui parle plusieurs langues.", indice:"Polygone, polyvalent, polygame : plusieurs."},
+  oligoelements:{mot:"oligo-éléments", pieces:[{f:"oligo",sens:"peu, en petite quantité",cle:1},{f:"éléments",sens:"les substances"}], def:"Substances nécessaires en très petite quantité. Sur la boîte de compléments alimentaires.", indice:"Peu. Des traces."},
+
+  perimetre:   {mot:"périmètre", pieces:[{f:"péri",sens:"autour",cle:1},{f:"mètre",sens:"la mesure"}], def:"La mesure du tour. Le contour.", indice:"Périphérie, périscope : autour."},
+  intranet:    {mot:"intranet", pieces:[{f:"intra",sens:"à l'intérieur",cle:1},{f:"net",sens:"le réseau"}], def:"Le réseau interne d'une entreprise.", indice:"Dedans."},
+  extraordinaire:{mot:"extraordinaire", pieces:[{f:"extra",sens:"en dehors de",cle:1},{f:"ordinaire",sens:"l'ordinaire"}], def:"Qui sort de l'ordinaire.", indice:"Dehors."},
+  sousmarin:   {mot:"sous-marin", pieces:[{f:"sous",sens:"en dessous",cle:1},{f:"marin",sens:"la mer"}], def:"Qui navigue sous la mer.", indice:"Dessous. En médecine, on écrira sub- ou sous-."},
+  epicentre:   {mot:"épicentre", pieces:[{f:"épi",sens:"au-dessus de",cle:1},{f:"centre",sens:"le centre"}], def:"Le point situé au-dessus du foyer d'un séisme.", indice:"Au-dessus."},
+  diametre:    {mot:"diamètre", pieces:[{f:"dia",sens:"à travers",cle:1},{f:"mètre",sens:"la mesure"}], def:"La mesure qui traverse le cercle de part en part.", indice:"Traverser. Diagonale aussi : elle traverse."},
+  antivol:     {mot:"antivol", pieces:[{f:"anti",sens:"contre",cle:1},{f:"vol",sens:"le vol"}], def:"Le dispositif qui protège contre le vol.", indice:"Contre."},
+  postscriptum:{mot:"post-scriptum", pieces:[{f:"post",sens:"après",cle:1},{f:"scriptum",sens:"ce qui est écrit"}], def:"Ce qu'on écrit après avoir fini. Le fameux « P.S. ».", indice:"Après."},
+  antecedent:  {mot:"antécédent", pieces:[{f:"anté",sens:"avant",cle:1},{f:"cédent",sens:"qui va, qui vient"}], def:"Ce qui vient avant. Vous le notez chaque jour dans le recueil de données.", indice:"Avant."},
+
+  antiseptique:{mot:"antiseptique", pieces:[{f:"anti",sens:"contre"},{f:"septique",sens:"l'infection, la putréfaction",cle:1}], def:"Qui agit contre les germes, sur les tissus vivants.", indice:"La fosse septique : là où ça pourrit."},
+  pathogene:   {mot:"pathogène", pieces:[{f:"patho",sens:"la maladie"},{f:"gène",sens:"qui engendre",cle:1}], def:"Qui engendre la maladie.", indice:"-gène : qui provoque. Comme « cancérigène »."},
+  bacterie:    {mot:"bactérie", pieces:[{f:"bactéri",sens:"la bactérie",cle:1},{f:"ie",sens:"l'être"}], def:"Micro-organisme vivant, souvent responsable d'infections.", indice:"Vous savez déjà ce que c'est."},
+  virus:       {mot:"virus", pieces:[{f:"virus",sens:"le virus",cle:1}], def:"Agent infectieux qui ne vit qu'en parasitant une cellule.", indice:"Grippe, Covid, gastro."},
+  mycose:      {mot:"mycose", pieces:[{f:"myc",sens:"le champignon",cle:1},{f:"ose",sens:"l'état chronique"}], def:"Infection due à un champignon. Le pied d'athlète, le muguet.", indice:"Un champignon. Vous en verrez beaucoup entre les orteils."},
+  insecticide: {mot:"insecticide", pieces:[{f:"insecti",sens:"l'insecte"},{f:"cide",sens:"qui tue",cle:1}], def:"Le produit qui tue les insectes.", indice:"Sui-cide, homi-cide, insecti-cide : -cide, ça tue."},
+  lipide:      {mot:"lipide", pieces:[{f:"lip",sens:"la graisse",cle:1},{f:"ide",sens:"la substance"}], def:"Les graisses. Glucides, lipides, protides : le trio de la nutrition.", indice:"Le gras."},
+  glucide:     {mot:"glucide", pieces:[{f:"gluc/glyc",sens:"le sucre",cle:1},{f:"ide",sens:"la substance"}], def:"Les sucres. Vous les comptez déjà chez le patient diabétique.", indice:"Le sucre."},
+  oxygene:     {mot:"oxygène", pieces:[{f:"oxy",sens:"l'oxygène",cle:1},{f:"gène",sens:"qui engendre"}], def:"Le gaz vital.", indice:"Ce que vous mesurez avec le saturomètre."},
+  psychologie: {mot:"psychologie", pieces:[{f:"psycho",sens:"l'esprit",cle:1},{f:"logie",sens:"l'étude de"}], def:"L'étude de l'esprit.", indice:"L'esprit."},
+  melomane:    {mot:"mélomane", pieces:[{f:"mélo",sens:"la musique"},{f:"mane",sens:"l'obsession, la passion",cle:1}], def:"Le passionné de musique.", indice:"Kleptomane, mythomane, pyromane : une obsession."},
+  claustrophobie:{mot:"claustrophobie", pieces:[{f:"claustro",sens:"l'espace clos",cle:1},{f:"phobie",sens:"la peur"}], def:"La peur des espaces fermés.", indice:"L'ascenseur, l'IRM, la chambre porte fermée."},
+  anorexie:    {mot:"anorexie", pieces:[{f:"an",sens:"l'absence"},{f:"orexie",sens:"l'appétit",cle:1}], def:"Perte de l'appétit. Un signe majeur de dénutrition.", indice:"L'appétit — que vous surveillez à chaque repas."},
+  otorhino:    {mot:"oto-rhino", pieces:[{f:"oto",sens:"l'oreille",cle:1},{f:"rhino",sens:"le nez"},{f:"laryngo",sens:"la gorge"}], def:"Le spécialiste de l'oreille, du nez et de la gorge.", indice:"Vous dites déjà « je vais chez l'ORL »."},
+  linguistique:{mot:"linguistique", pieces:[{f:"lingu",sens:"la langue",cle:1},{f:"istique",sens:"l'étude de"}], def:"L'étude des langues.", indice:"La langue : l'organe, et la parole."},
+  mammifere:   {mot:"mammifère", pieces:[{f:"mamm",sens:"la mamelle, le sein",cle:1},{f:"fère",sens:"qui porte"}], def:"L'animal qui porte des mamelles et allaite ses petits.", indice:"Le sein."},
+  radio:       {mot:"radio", pieces:[{f:"radio",sens:"le rayon",cle:1}], def:"Les rayons X. « Passer une radio ».", indice:"Un rayon qui traverse."},
+  pore:        {mot:"pore", pieces:[{f:"pore",sens:"le petit trou de la peau",cle:1}], def:"Les minuscules orifices de la peau. « Resserrer les pores ».", indice:"Poreux : plein de petits trous. L'os ostéoporotique est devenu poreux."},
+  electricien: {mot:"électricien", pieces:[{f:"électro",sens:"l'électricité",cle:1},{f:"icien",sens:"le métier"}], def:"Celui qui travaille sur les installations électriques.", indice:"Électro : partout où il y a du courant."},
+  synthetique: {mot:"synthétique", pieces:[{f:"syn",sens:"ensemble, avec"},{f:"thèse",sens:"poser, assembler",cle:1}], def:"Fabriqué en assemblant des éléments. Une matière synthétique reconstitue le naturel.", indice:"Faire la synthèse : remettre ensemble."},
+  cyclone:     {mot:"cyclone", pieces:[{f:"cyclo",sens:"le cercle, qui tourne",cle:1},{f:"one",sens:"le phénomène"}], def:"Le vent qui tourne en cercle.", indice:"Qui tourne. Qui revient."}
+};
+
+/* ---------------- MOTS MÉDICAUX ---------------- */
+/* d = décomposition (ids d'éléments, dans l'ordre) */
+const M = [
+/* --- NEURO --- */
+{m:"hémiplégie",      s:"neuro",   d:["hemi","plegie"],            def:"Paralysie complète d'une moitié du corps (droite ou gauche)."},
+{m:"neuropathie",     s:"neuro",   d:["neur","pathie"],            def:"Maladie touchant les nerfs."},
+{m:"névralgie",       s:"neuro",   d:["neur","algie"],             def:"Douleur ressentie sur le trajet d'un nerf."},
+{m:"céphalalgie",     s:"neuro",   d:["cephal","algie"],           def:"Mal de tête.", note:"En service, personne ne dit « céphalalgie » : on dit <b>céphalée</b>. C'est ce mot-là que vous lirez dans les transmissions et que vous écrirez. Retenez la construction — elle est exacte — mais employez le terme d'usage."},
+{m:"neurologie",      s:"neuro",   d:["neur","logie"],             def:"Spécialité qui étudie le système nerveux."},
+{m:"hémiparésie",     s:"neuro",   d:["hemi","paresie"],           def:"Faiblesse (paralysie partielle) d'une moitié du corps."},
+{m:"aphasie",         s:"neuro",   d:["a","phasie"],               def:"Perte totale de la parole. Fréquente après un AVC."},
+{m:"dysphasie",       s:"neuro",   d:["dys","phasie"],             def:"Trouble de la parole : elle existe, mais elle est altérée."},
+{m:"encéphalopathie", s:"neuro",   d:["encephal","pathie"],        def:"Atteinte diffuse du cerveau."},
+{m:"encéphalite",     s:"neuro",   d:["encephal","ite"],           def:"Inflammation du cerveau."},
+{m:"polynévrite",     s:"neuro",   d:["poly","nevr","ite"],        def:"Inflammation de plusieurs nerfs à la fois."},
+{m:"méningite",       s:"neuro",   d:["ite"],                      def:"Inflammation des méninges (enveloppes du cerveau).", libre:"méning"},
+
+/* --- CARDIO --- */
+{m:"tachycardie",     s:"cardio",  d:["tachy","cardi"],            def:"Accélération du rythme cardiaque (> 100 batt./min chez l'adulte)."},
+{m:"bradycardie",     s:"cardio",  d:["brady","cardi"],            def:"Ralentissement du rythme cardiaque (< 50 batt./min)."},
+{m:"cardiopathie",    s:"cardio",  d:["cardi","pathie"],           def:"Toute maladie du cœur."},
+{m:"cardiologie",     s:"cardio",  d:["cardi","logie"],            def:"Spécialité du cœur."},
+{m:"cardiomégalie",   s:"cardio",  d:["cardi","megalie"],          def:"Augmentation du volume du cœur."},
+{m:"péricardite",     s:"cardio",  d:["peri","cardi","ite"],       def:"Inflammation du péricarde, l'enveloppe autour du cœur."},
+{m:"endocardite",     s:"cardio",  d:["endo","cardi","ite"],       def:"Inflammation de la paroi interne du cœur."},
+{m:"myocarde",        s:"cardio",  d:["my","cardi"],               def:"Le muscle du cœur."},
+{m:"phlébite",        s:"cardio",  d:["phleb","ite"],              def:"Inflammation d'une veine avec formation d'un caillot."},
+{m:"thrombose",       s:"cardio",  d:["thromb","ose"],             def:"Formation d'un caillot obstruant un vaisseau."},
+{m:"angiopathie",     s:"cardio",  d:["angi","pathie"],            def:"Maladie des vaisseaux sanguins."},
+{m:"artériopathie",   s:"cardio",  d:["arter","pathie"],           def:"Maladie des artères."},
+{m:"hypertension",    s:"cardio",  d:["hyper","tension"],          def:"Pression artérielle trop élevée."},
+{m:"hypotension",     s:"cardio",  d:["hypo","tension"],           def:"Pression artérielle trop basse. Attention au risque de chute au lever."},
+{m:"angioplastie",    s:"cardio",  d:["angi","plastie"],           def:"Intervention qui remodèle et rouvre un vaisseau."},
+{m:"électrocardiogramme", s:"cardio", d:["electro","cardi","gramme"], def:"Le tracé de l'activité électrique du cœur."},
+
+/* --- RESPI --- */
+{m:"apnée",           s:"respi",   d:["a","pnee"],                 def:"Arrêt de la respiration."},
+{m:"dyspnée",         s:"respi",   d:["dys","pnee"],               def:"Respiration difficile, essoufflement. Le patient « a du mal à respirer »."},
+{m:"polypnée",        s:"respi",   d:["poly","pnee"],              def:"Respiration rapide et superficielle."},
+{m:"bradypnée",       s:"respi",   d:["brady","pnee"],             def:"Respiration anormalement lente."},
+{m:"tachypnée",       s:"respi",   d:["tachy","pnee"],             def:"Fréquence respiratoire accélérée."},
+{m:"pneumopathie",    s:"respi",   d:["pneum","pathie"],           def:"Toute maladie du poumon."},
+{m:"pneumologie",     s:"respi",   d:["pneum","logie"],            def:"Spécialité du poumon."},
+{m:"bronchite",       s:"respi",   d:["bronch","ite"],             def:"Inflammation des bronches."},
+{m:"bronchopneumopathie", s:"respi", d:["bronch","pneum","pathie"],def:"Maladie touchant à la fois les bronches et le poumon (BPCO)."},
+{m:"rhinite",         s:"respi",   d:["rhin","ite"],               def:"Inflammation de la muqueuse du nez."},
+{m:"laryngite",       s:"respi",   d:["laryng","ite"],             def:"Inflammation du larynx."},
+{m:"hypoxie",         s:"respi",   d:["hypo","ox"],                def:"Manque d'oxygène dans les tissus."},
+{m:"oxymétrie",       s:"respi",   d:["ox","metrie"],              def:"Mesure de la saturation en oxygène. Le saturomètre au bout du doigt."},
+
+/* --- DIGESTIF --- */
+{m:"gastrite",        s:"digestif",d:["gastr","ite"],              def:"Inflammation de la muqueuse de l'estomac."},
+{m:"gastralgie",      s:"digestif",d:["gastr","algie"],            def:"Douleur à l'estomac."},
+{m:"gastro-entérite", s:"digestif",d:["gastr","enter","ite"],      def:"Inflammation de l'estomac et de l'intestin."},
+{m:"épigastre",       s:"digestif",d:["epi","gastr"],              def:"La région située au-dessus de l'estomac (le creux de l'estomac)."},
+{m:"gastrostomie",    s:"digestif",d:["gastr","stomie"],           def:"Ouverture chirurgicale de l'estomac à la peau, pour l'alimentation."},
+{m:"dysphagie",       s:"digestif",d:["dys","phagie"],             def:"Difficulté à avaler. Risque majeur de fausse route."},
+{m:"aphagie",         s:"digestif",d:["a","phagie"],               def:"Impossibilité totale d'avaler."},
+{m:"hépatite",        s:"digestif",d:["hepat","ite"],              def:"Inflammation du foie."},
+{m:"hépatomégalie",   s:"digestif",d:["hepat","megalie"],          def:"Augmentation du volume du foie."},
+{m:"colite",          s:"digestif",d:["col","ite"],                def:"Inflammation du côlon."},
+{m:"coloscopie",      s:"digestif",d:["col","scopie"],             def:"Exploration visuelle du côlon par endoscope."},
+{m:"colostomie",      s:"digestif",d:["col","stomie"],             def:"Abouchement du côlon à la peau. La « poche »."},
+{m:"stomatite",       s:"digestif",d:["stomat","ite"],             def:"Inflammation de la muqueuse buccale."},
+{m:"œsophagite",      s:"digestif",d:["oesoph","ite"],             def:"Inflammation de l'œsophage."},
+{m:"anorexie",        s:"digestif",d:["a","orexie"],               def:"Perte de l'appétit. Signe d'alerte de dénutrition."},
+{m:"dénutrition",     s:"digestif",d:["de","nutri"],               def:"État de déficit nutritionnel. Surveillance AS prioritaire.", libre:"tion"},
+
+/* --- URINAIRE --- */
+{m:"hématurie",       s:"urinaire",d:["hemat","urie"],             def:"Présence de sang dans les urines."},
+{m:"polyurie",        s:"urinaire",d:["poly","urie"],              def:"Urines trop abondantes. Signe du diabète."},
+{m:"oligurie",        s:"urinaire",d:["oligo","urie"],             def:"Urines en trop faible quantité."},
+{m:"anurie",          s:"urinaire",d:["a","urie"],                 def:"Absence totale d'urine. Urgence."},
+{m:"dysurie",         s:"urinaire",d:["dys","urie"],               def:"Difficulté à uriner : douleur, lenteur, effort."},
+{m:"cystite",         s:"urinaire",d:["cyst","ite"],               def:"Inflammation de la vessie."},
+{m:"cystoscopie",     s:"urinaire",d:["cyst","scopie"],            def:"Exploration visuelle de la vessie."},
+{m:"néphropathie",    s:"urinaire",d:["nephr","pathie"],           def:"Maladie du rein."},
+{m:"néphrectomie",    s:"urinaire",d:["nephr","ectomie"],          def:"Ablation chirurgicale d'un rein."},
+{m:"urémie",          s:"urinaire",d:["ur","emie"],                def:"Taux d'urée dans le sang."},
+{m:"glycosurie",      s:"urinaire",d:["glyc","urie"],              def:"Présence de sucre dans les urines."},
+
+/* --- LOCOMOTEUR --- */
+{m:"arthrose",        s:"loco",    d:["arthr","ose"],              def:"Usure chronique du cartilage. Dégénérative, non inflammatoire."},
+{m:"arthrite",        s:"loco",    d:["arthr","ite"],              def:"Inflammation d'une articulation. Chaude, rouge, gonflée."},
+{m:"arthralgie",      s:"loco",    d:["arthr","algie"],            def:"Douleur articulaire."},
+{m:"polyarthrite",    s:"loco",    d:["poly","arthr","ite"],       def:"Inflammation de plusieurs articulations."},
+{m:"ostéoporose",     s:"loco",    d:["oste","por","ose"],         def:"Raréfaction du tissu osseux. L'os devient poreux : risque de fracture."},
+{m:"ostéosynthèse",   s:"loco",    d:["oste","synthese"],          def:"Chirurgie qui reconstitue un os fracturé (vis, plaques, clous)."},
+{m:"ostéopathie",     s:"loco",    d:["oste","pathie"],            def:"Maladie de l'os."},
+{m:"myopathie",       s:"loco",    d:["my","pathie"],              def:"Maladie du muscle."},
+{m:"myalgie",         s:"loco",    d:["my","algie"],               def:"Douleur musculaire."},
+{m:"tendinite",       s:"loco",    d:["tendin","ite"],             def:"Inflammation d'un tendon."},
+{m:"amyotrophie",     s:"loco",    d:["a","my","trophie"],         def:"Fonte musculaire. Conséquence classique du décubitus prolongé."},
+
+/* --- PEAU --- */
+{m:"dermatose",       s:"peau",    d:["derm","ose"],               def:"Toute maladie chronique de la peau."},
+{m:"dermatite",       s:"peau",    d:["derm","ite"],               def:"Inflammation de la peau."},
+{m:"dermatologie",    s:"peau",    d:["derm","logie"],             def:"Spécialité de la peau."},
+{m:"épiderme",        s:"peau",    d:["epi","derm"],               def:"La couche la plus superficielle de la peau, celle qu'on voit."},
+{m:"hypoderme",       s:"peau",    d:["hypo","derm"],              def:"La couche profonde, sous le derme. Là où l'on injecte l'héparine."},
+{m:"intradermique",   s:"peau",    d:["intra","derm"],             def:"Injection réalisée dans l'épaisseur de la peau."},
+{m:"érythème",        s:"peau",    d:["eryth"],                    def:"Rougeur de la peau. Premier stade de l'escarre.", libre:"ème"},
+{m:"cyanose",         s:"peau",    d:["cyan","ose"],               def:"Coloration bleutée de la peau et des muqueuses. Signe de manque d'oxygène."},
+{m:"mélanome",        s:"peau",    d:["melan","ome"],              def:"Tumeur maligne développée à partir des cellules pigmentaires."},
+{m:"mycose",          s:"peau",    d:["myc","ose"],                def:"Infection cutanée due à un champignon."},
+
+/* --- SANG & CANCERO --- */
+{m:"anémie",          s:"sang",    d:["a","emie"],                 def:"Baisse du taux d'hémoglobine. Pâleur, fatigue, essoufflement."},
+{m:"hématome",        s:"sang",    d:["hemat","ome"],              def:"Amas de sang collecté dans les tissus."},
+{m:"leucémie",        s:"sang",    d:["leuc","emie"],              def:"Cancer du sang : prolifération de globules blancs anormaux."},
+{m:"hémolyse",        s:"sang",    d:["hemat","lyse"],             def:"Destruction des globules rouges."},
+{m:"hémostase",       s:"sang",    d:["hemat","stase"],            def:"Arrêt du saignement. L'ensemble des mécanismes qui stoppent l'hémorragie."},
+{m:"hémorragie",      s:"sang",    d:["hemat","orragie"],          def:"Écoulement de sang abondant et brutal."},
+{m:"thrombopénie",    s:"sang",    d:["thromb","penie"],           def:"Diminution des plaquettes. Risque hémorragique."},
+{m:"adénopathie",     s:"sang",    d:["aden","pathie"],            def:"Ganglion augmenté de volume, anormal."},
+{m:"carcinome",       s:"sang",    d:["carcin","ome"],             def:"Tumeur maligne développée à partir d'un épithélium."},
+{m:"oncologie",       s:"sang",    d:["onc","logie"],              def:"Spécialité des tumeurs et des cancers."},
+{m:"lipome",          s:"sang",    d:["lip","ome"],                def:"Tumeur bénigne formée de graisse."},
+{m:"splénomégalie",   s:"sang",    d:["splen","megalie"],          def:"Augmentation du volume de la rate."},
+{m:"métastase",       s:"sang",    d:["meta","stase"],             def:"Foyer tumoral secondaire, à distance de la tumeur d'origine."},
+{m:"érythrocyte",     s:"sang",    d:["eryth","cyt"],              def:"La cellule rouge du sang : le globule rouge."},
+{m:"leucocyte",       s:"sang",    d:["leuc","cyt"],               def:"La cellule blanche du sang : le globule blanc."},
+
+/* --- INFECTIEUX --- */
+{m:"asepsie",         s:"infect",  d:["a","sept"],                 def:"Absence de germes. L'ensemble des mesures qui EMPÊCHENT leur arrivée."},
+{m:"antisepsie",      s:"infect",  d:["anti","sept"],              def:"Destruction des germes déjà présents sur les tissus vivants."},
+{m:"septicémie",      s:"infect",  d:["sept","emie"],              def:"Infection généralisée : les germes sont passés dans le sang."},
+{m:"nosocomial",      s:"infect",  d:["nos"],                      def:"Infection contractée à l'hôpital (nosos = maladie + komeîn = soigner). Contractée là où l'on soigne.", libre:"comial"},
+{m:"iatrogène",       s:"infect",  d:["iatr","gene"],              def:"Provoqué par le soin lui-même (médicament, geste, hospitalisation)."},
+{m:"pathogène",       s:"infect",  d:["pathie","gene"],            def:"Qui provoque la maladie."},
+{m:"bactéricide",     s:"infect",  d:["bacteri","cide"],           def:"Qui tue les bactéries."},
+{m:"virucide",        s:"infect",  d:["vir","cide"],               def:"Qui tue les virus."},
+{m:"fongicide",       s:"infect",  d:["fong","cide"],              def:"Qui tue les champignons."},
+{m:"bactériémie",     s:"infect",  d:["bacteri","emie"],           def:"Présence de bactéries dans le sang."},
+{m:"antibiotique",    s:"infect",  d:["anti","biotique"],          def:"Qui agit contre la vie… des bactéries."},
+
+/* --- ENDOCRINIEN --- */
+{m:"glycémie",        s:"endo",    d:["glyc","emie"],              def:"Taux de sucre dans le sang. Le paramètre du diabétique."},
+{m:"hyperglycémie",   s:"endo",    d:["hyper","glyc","emie"],      def:"Taux de sucre trop élevé dans le sang."},
+{m:"hypoglycémie",    s:"endo",    d:["hypo","glyc","emie"],       def:"Taux de sucre trop bas. Sueurs, tremblements, malaise. Urgence."},
+{m:"polydipsie",      s:"endo",    d:["poly","dipsie"],            def:"Soif excessive. Avec la polyurie, signe cardinal du diabète."},
+{m:"hypothyroïdie",   s:"endo",    d:["hypo","thyr"],              def:"Insuffisance de la thyroïde : fatigue, frilosité, prise de poids."},
+{m:"hyperthyroïdie",  s:"endo",    d:["hyper","thyr"],             def:"Excès de thyroïde : nervosité, amaigrissement, tachycardie."},
+{m:"hyperthermie",    s:"endo",    d:["hyper","therm"],            def:"Température corporelle trop élevée."},
+{m:"hypothermie",     s:"endo",    d:["hypo","therm"],             def:"Température corporelle trop basse. Fréquente chez la personne âgée."},
+{m:"normothermie",    s:"endo",    d:["normo","therm"],            def:"Température normale."},
+{m:"thermorégulation",s:"endo",    d:["therm"],                    def:"La capacité du corps à maintenir sa température. Altérée chez le sujet âgé.", libre:"régulation"},
+
+/* --- MENTAL --- */
+{m:"asthénie",        s:"mental",  d:["a","sthenie"],              def:"Fatigue intense, sans force. Ce n'est pas de la paresse."},
+{m:"apathie",         s:"mental",  d:["a","pathie"],               def:"Absence de réaction, d'émotion, d'intérêt."},
+{m:"dysthymie",       s:"mental",  d:["dys","thym"],               def:"Trouble persistant de l'humeur, d'intensité modérée."},
+{m:"cyclothymie",     s:"mental",  d:["cyclo","thym"],             def:"Humeur qui alterne cycliquement entre exaltation et abattement."},
+{m:"agoraphobie",     s:"mental",  d:["agora","phobie"],           def:"Peur des espaces découverts et de la foule."},
+{m:"claustrophobie",  s:"mental",  d:["claustr","phobie"],         def:"Peur des espaces clos."},
+{m:"mythomanie",      s:"mental",  d:["mytho","manie"],            def:"Tendance pathologique au mensonge."},
+{m:"kleptomanie",     s:"mental",  d:["klepto","manie"],           def:"Impulsion irrépressible à voler."},
+{m:"psychose",        s:"mental",  d:["psych","ose"],              def:"Trouble grave altérant le rapport à la réalité."},
+{m:"trachéotomie",    s:"respi",   d:["trache","tomie"],           def:"Ouverture chirurgicale de la trachée. Le patient respire par la canule."},
+{m:"trachéite",       s:"respi",   d:["trache","ite"],             def:"Inflammation de la trachée."},
+{m:"laparotomie",     s:"digestif",d:["laparo","tomie"],           def:"Ouverture chirurgicale de la paroi abdominale."},
+{m:"otite",           s:"respi",   d:["ot","ite"],                 def:"Inflammation de l'oreille."},
+{m:"otalgie",         s:"respi",   d:["ot","algie"],               def:"Douleur de l'oreille."},
+{m:"otorrhée",        s:"respi",   d:["ot","orrhee"],              def:"Écoulement continu par l'oreille."},
+{m:"rhinorrhée",      s:"respi",   d:["rhin","orrhee"],            def:"Écoulement continu par le nez. Le « nez qui coule »."},
+{m:"artériosclérose", s:"cardio",  d:["arter","sclerose"],         def:"Durcissement et perte d'élasticité des artères."},
+{m:"angiographie",    s:"cardio",  d:["angi","graphie"],           def:"Enregistrement en image des vaisseaux sanguins."},
+{m:"radiographie",    s:"loco",    d:["radi","graphie"],           def:"Image obtenue par les rayons X."},
+{m:"mammographie",    s:"sang",    d:["mamm","graphie"],           def:"Radiographie du sein. L'examen de dépistage."},
+{m:"mammectomie",     s:"sang",    d:["mamm","ectomie"],           def:"Ablation chirurgicale du sein."},
+{m:"diarrhée",        s:"digestif",d:["dia","orrhee"],             def:"Écoulement qui traverse : selles liquides et répétées."},
+{m:"sublingual",      s:"digestif",d:["sub","lingu"],              def:"Sous la langue. La voie d'administration du comprimé qui fond."},
+{m:"dialyse",         s:"urinaire",d:["dia","lyse"],               def:"Filtration du sang à travers une membrane, quand le rein ne le fait plus."},
+{m:"extracellulaire", s:"endo",    d:["extra","cyt"],              def:"En dehors des cellules. Déshydratation extracellulaire : pli cutané, hypotension."},
+{m:"intracellulaire", s:"endo",    d:["intra","cyt"],              def:"À l'intérieur des cellules. Déshydratation intracellulaire : soif, langue sèche."},
+{m:"microangiopathie",s:"endo",    d:["micro","angi","pathie"],    def:"Atteinte des tout petits vaisseaux. Complication majeure du diabète."},
+{m:"postprandial",    s:"endo",    d:["post"],                     def:"Après le repas. La glycémie postprandiale se mesure 2 h après.", libre:"prandial (le repas)"},
+{m:"préprandial",     s:"endo",    d:["ante"],                     def:"Avant le repas. La glycémie préprandiale se mesure à jeun.", libre:"prandial (le repas)"},
+{m:"postopératoire",  s:"loco",    d:["post"],                     def:"Après l'intervention chirurgicale.", libre:"opératoire"},
+{m:"anxiolytique",    s:"mental",  d:["anxio","lytique"],          def:"Médicament qui dissout l'anxiété."}
+];
+
+/* ---------------- NIVEAU 8 — TRANSFERT (mots jamais vus) ---------------- */
+const TRANSFERT = [
+  {m:"hépatalgie",     d:["hepat","algie"],        def:"Douleur du foie."},
+  {m:"splénectomie",   d:["splen","ectomie"],      def:"Ablation de la rate."},
+  {m:"bradyphagie",    d:["brady","phagie"],       def:"Déglutition anormalement lente."},
+  {m:"périostite",     d:["peri","oste","ite"],    def:"Inflammation de la membrane qui entoure l'os."},
+  {m:"myocardite",     d:["my","cardi","ite"],     def:"Inflammation du muscle cardiaque."},
+  {m:"dermatomycose",  d:["derm","myc","ose"],     def:"Infection de la peau par un champignon."},
+  {m:"polyadénopathie",d:["poly","aden","pathie"], def:"Ganglions augmentés de volume en plusieurs endroits."},
+  {m:"hypodermique",   d:["hypo","derm"],          def:"Qui se situe sous la peau."},
+  {m:"cardiotomie",    d:["cardi","tomie"],        def:"Incision chirurgicale du cœur."},
+  {m:"leucopénie",     d:["leuc","penie"],         def:"Diminution du nombre de globules blancs."},
+  {m:"gastroscopie",   d:["gastr","scopie"],       def:"Exploration visuelle de l'estomac."},
+  {m:"thermalgie",     d:["therm","algie"],        def:"Douleur provoquée par la chaleur."}
+];
+
+/* ---------------- TRANSMISSIONS (niveau 8, contexte réel) ---------------- */
+const TRANSMISSIONS = [
+  {texte:"M. B., J5 post-AVC. Ce matin : <b>hyperthermie</b> à 38,6 °C. <b>Aphasie</b> complète, ne peut exprimer sa douleur. <b>Hémiplégie</b> droite. Surveillance rapprochée.", mots:["hyperthermie","aphasie","hémiplégie"]},
+  {texte:"Mme L., GIR 2. <b>Anorexie</b> depuis 3 jours, refus des repas. Perte de 2 kg. <b>Érythème</b> stade 1 au niveau du sacrum. Risque de <b>dénutrition</b>.", mots:["anorexie","érythème","dénutrition"]},
+  {texte:"Patient diabétique. Signale une <b>polydipsie</b> et une <b>polyurie</b> nocturne. <b>Glycémie</b> capillaire à 2,8 g/L ce matin. Alerte IDE.", mots:["polydipsie","polyurie","glycémie"]},
+  {texte:"Mme D., 82 ans. <b>Dyspnée</b> au moindre effort, <b>cyanose</b> des lèvres. Saturation 88 %. <b>Tachycardie</b> à 112. Appel médecin.", mots:["dyspnée","cyanose","tachycardie"]},
+  {texte:"Post-opératoire J2. Pansement propre. Pas de signe d'infection. Mobilisation précoce pour prévenir la <b>thrombose</b> et l'<b>amyotrophie</b> liée au décubitus.", mots:["thrombose","amyotrophie"]}
+];
+/* ================= MOTEUR ================= */
+const EL = {}; E.forEach(e => EL[e.id] = e);
+const NIV_MAX = 9;
+const CODE_FORMATEUR = "JesuisDieu";
+
+/* niveau d'un mot = max(niveau de ses briques) — un mot n'apparaît jamais
+   avant que toutes ses briques aient été rencontrées. */
+const MOTS = M.map(w => ({ ...w, niv: Math.max(...w.d.map(id => EL[id].niv)) }));
+const TOTAL = MOTS.length;
+
+const app = document.getElementById('app');
+const shuffle = a => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(v => v[1]);
+const sysCol = s => SYSTEMES[s] ? SYSTEMES[s].couleur : 'var(--ground)';
+
+/* ---------- ÉTAT ---------- */
+const VIDE = { maitrise: {}, trouves: [], vus: [], nivMax: 1, nivFaits: [], form: false };
+let S = { ...VIDE, form: true, nivMax: NIV_MAX }; /* démo : godmode forcé */
+const CLE = 'lexique_as_v1';
+
+/* ---------------------------------------------------------------
+   SCORM 1.2 — cmi.suspend_data est plafonné à 4096 caractères.
+   Un état JSON ferait ~5 000 caractères : il serait tronqué par le LMS
+   et la progression serait silencieusement perdue.
+   On encode donc l'état en binaire compacté : ~95 caractères.
+   Ordre des bits (dépend de l'ordre des tableaux MOTS et E, figés) :
+     [156 bits] mots trouvés   [126 bits] briques vues
+     [252 bits] maîtrise (2 bits/brique, 0-3)
+     [4 bits] niveau max   [9 bits] niveaux parcourus   [1 bit] mode formateur
+--------------------------------------------------------------- */
+const B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
+const VERSION_SAUVEGARDE = '2';
+function encoderEtat() {
+  const b = [];
+  MOTS.forEach(w => b.push(estTrouve(w.m) ? 1 : 0));
+  E.forEach(x => b.push(estVu(x.id) ? 1 : 0));
+  E.forEach(x => { const m = mait(x.id); b.push((m >> 1) & 1, m & 1); });
+  for (let i = 3; i >= 0; i--) b.push((S.nivMax >> i) & 1);
+  for (let n = 1; n <= 9; n++) b.push(S.nivFaits.includes(n) ? 1 : 0);
+  b.push(S.form ? 1 : 0);
+  let s = '';
+  for (let i = 0; i < b.length; i += 6) {
+    let v = 0; for (let j = 0; j < 6; j++) v = (v << 1) | (b[i + j] || 0);
+    s += B64[v];
+  }
+  return VERSION_SAUVEGARDE + s;
+}
+function decoderEtat(str) {
+  if (!str || str[0] !== VERSION_SAUVEGARDE) return false;   /* corpus modifié : on repart proprement */
+  const b = [];
+  for (const ch of str.slice(1)) {
+    const v = B64.indexOf(ch); if (v < 0) return false;
+    for (let j = 5; j >= 0; j--) b.push((v >> j) & 1);
+  }
+  const n = { ...JSON.parse(JSON.stringify(VIDE)) };
+  let p = 0;
+  MOTS.forEach(w => { if (b[p++]) n.trouves.push(w.m); });
+  E.forEach(x => { if (b[p++]) n.vus.push(x.id); });
+  E.forEach(x => { const m = (b[p++] << 1) | b[p++]; if (m) n.maitrise[x.id] = m; });
+  let nm = 0; for (let i = 0; i < 4; i++) nm = (nm << 1) | b[p++];
+  n.nivMax = Math.max(1, nm);
+  for (let k = 1; k <= 9; k++) if (b[p++]) n.nivFaits.push(k);
+  n.form = !!b[p++];
+  S = n; return true;
+}
+
+/* --- pont SCORM 1.2 --- */
+let API = null, scormOk = false, tDebut = Date.now();
+function chercherAPI(win, prof) {
+  let i = 0;
+  while (win && !win.API && win.parent && win.parent !== win && i < (prof || 10)) { i++; win = win.parent; }
+  return win ? win.API : null;
+}
+function initScorm() {
+  try {
+    API = chercherAPI(window) || (window.opener ? chercherAPI(window.opener) : null);
+    if (!API) return false;
+    if (API.LMSInitialize("") !== "true") return false;
+    scormOk = true;
+    if ((API.LMSGetValue("cmi.core.lesson_status") || "") === "not attempted")
+      API.LMSSetValue("cmi.core.lesson_status", "incomplete");
+    API.LMSSetValue("cmi.core.score.min", "0");
+    API.LMSSetValue("cmi.core.score.max", "100");
+    return true;
+  } catch (e) { return false; }
+}
+function chrono() {
+  const s = Math.floor((Date.now() - tDebut) / 1000);
+  const p = v => String(v).padStart(2, '0');
+  return p(Math.floor(s / 3600)) + ':' + p(Math.floor(s / 60) % 60) + ':' + p(s % 60);
+}
+function pousserScorm(finir) {
+  if (!scormOk) return;
+  try {
+    API.LMSSetValue("cmi.suspend_data", encoderEtat());
+    API.LMSSetValue("cmi.core.score.raw", String(Math.round(100 * S.trouves.length / TOTAL)));
+    /* TERMINÉ = les 9 niveaux parcourus */
+    API.LMSSetValue("cmi.core.lesson_status", S.nivFaits.length >= NIV_MAX ? "completed" : "incomplete");
+    API.LMSSetValue("cmi.core.session_time", chrono());
+    API.LMSSetValue("cmi.core.exit", finir ? "" : "suspend");
+    API.LMSCommit("");
+    if (finir) { API.LMSFinish(""); scormOk = false; }
+  } catch (e) { }
+}
+
+function charger() {
+  if (initScorm()) {
+    const d = API.LMSGetValue("cmi.suspend_data");
+    if (d && decoderEtat(d)) return;
+    return;                                   /* première ouverture : état vierge */
+  }
+  try { const r = localStorage.getItem(CLE); if (r) S = Object.assign({ ...VIDE }, JSON.parse(r)); } catch (e) { }
+}
+function sauver() {
+  if (scormOk) { pousserScorm(false); return; }
+  try { localStorage.setItem(CLE, JSON.stringify(S)); } catch (e) { }
+}
+function raz() {
+  if (!confirm("Effacer toute la progression ? Le lexique repart à zéro.")) return;
+  S = JSON.parse(JSON.stringify(VIDE));
+  if (scormOk) pousserScorm(false);
+  else { try { localStorage.removeItem(CLE); } catch (e) { } }
+  accueil();
+}
+window.addEventListener('beforeunload', () => pousserScorm(true));
+window.addEventListener('pagehide', () => pousserScorm(true));
+
+const estTrouve = m => S.trouves.includes(m);
+const estVu = id => S.vus.includes(id);
+const mait = id => S.maitrise[id] || 0;
+function noteJuste(ids) { ids.forEach(id => { S.maitrise[id] = Math.min(3, mait(id) + 1); }); }
+function noteFausse(ids) { ids.forEach(id => { S.maitrise[id] = Math.max(0, mait(id) - 1); }); }
+function voir(id) { if (!estVu(id)) S.vus.push(id); }
+
+/* badges : un système est acquis quand 100 % de ses mots sont trouvés */
+const motsSys = s => MOTS.filter(w => w.s === s);
+const trouvesSys = s => motsSys(s).filter(w => estTrouve(w.m)).length;
+const badgeAcquis = s => motsSys(s).length > 0 && trouvesSys(s) === motsSys(s).length;
+
+/* niveau : accessible si le précédent est complété à 80 % (ou mode formateur) */
+const motsNiv = n => n === 9 ? [] : MOTS.filter(w => w.niv === n);
+const trouvesNiv = n => motsNiv(n).filter(w => estTrouve(w.m)).length;
+function nivOuvert(n) {
+  if (S.form || n === 1) return true;
+  if (n > S.nivMax) return false;
+  return true;
+}
+function majNivMax() {
+  for (let n = 1; n < NIV_MAX; n++) {
+    const tot = motsNiv(n).length;
+    if (tot === 0 || trouvesNiv(n) / tot >= 0.8) S.nivMax = Math.max(S.nivMax, n + 1);
+  }
+}
+
+/* ---------- CHROME ---------- */
+function majChrome() {
+  const n = S.trouves.length;
+  document.getElementById('cpt').textContent = n + ' / ' + TOTAL;
+  document.getElementById('jauge').style.width = (100 * n / TOTAL) + '%';
+  document.getElementById('formBar').innerHTML = S.form
+    ? '<div class="formBar">MODE FORMATEUR — tous les niveaux ouverts, réponses visibles</div>' : '';
+}
+function actif(id) {
+  ['nAccueil', 'nLex', 'nBadges'].forEach(x => document.getElementById(x).classList.toggle('on', x === id));
+}
+
+/* ================= ACCUEIL ================= */
+function accueil() {
+  majNivMax(); sauver(); majChrome(); actif('nAccueil');
+  window.scrollTo(0, 0);
+  const cartes = NIVEAUX.map(niv => {
+    const ouv = nivOuvert(niv.n);
+    const tot = niv.n === 9 ? TRANSFERT.length + TRANSMISSIONS.length : motsNiv(niv.n).length;
+    const fait = niv.n === 9 ? 0 : trouvesNiv(niv.n);
+    const complet = niv.n < 9 && tot > 0 && fait === tot;
+    return `<button class="niv ${ouv ? '' : 'lock'}" ${ouv ? `onclick="lancerNiveau(${niv.n})"` : 'disabled'}>
+      <span class="num">${ouv ? niv.n : '🔒'}</span>
+      <span class="txt"><b>${niv.titre}</b><small>${niv.sous}</small></span>
+      <span class="etat">${niv.n === 9
+        ? (S.nivFaits.includes(9) ? '<b>✓ parcouru</b>' : (ouv ? 'transfert' : '—'))
+        : (complet ? '<b>✓ complet</b>' : `${fait}/${tot}`)
+      }${niv.n < 9 && S.nivFaits.includes(niv.n) && !complet ? '<br><span style="font-size:11px">parcouru</span>' : ''}</span>
+    </button>`;
+  }).join('');
+
+  app.innerHTML = `
+  <div class="hero">
+    <h1>Vous connaissez déjà<br>les mots du <em>soin</em>.</h1>
+    <p>Vous ne le savez pas encore. Assemblez, décodez, et regardez ce que vous saviez déjà.</p>
+    <div class="demo">
+      <span class="t hl">hémi</span><span class="op">+</span><span class="t">sphère</span>
+      <span class="op">→</span><span class="res">hémisphère</span>
+      <span class="op" style="margin:0 6px">·</span>
+      <span class="t hl">hémi</span><span class="op">+</span><span class="t">plégie</span>
+      <span class="op">→</span><span class="res">hémiplégie</span>
+    </div>
+  </div>
+  <div class="niveaux">${cartes}</div>
+  <div style="text-align:center;margin-top:26px">
+    <button class="btn ghost" style="color:#8FA3A9;border-color:rgba(226,217,195,.2)" onclick="raz()">Réinitialiser ma progression</button>
+  </div>`;
+}
+
+/* ================= FABRIQUE DES EXERCICES ================= */
+/* Un exercice = { type, ... }
+   apprendre  : présentation directe d'un élément sans passerelle
+   passerelle : assemblage d'un mot de la langue courante (temps 1 du duo)
+   construire : sens → mot (slots ordonnés)
+   decoder    : mot → briques + définition
+   transfert  : mot jamais vu, à décoder seul
+   transmission : repérage en situation
+*/
+let Q = [], qi = 0, nivEnCours = 1, sessionNouveaux = [];
+
+function fileNiveau(n) {
+  const file = [];
+  if (n === 9) {
+    shuffle(TRANSFERT).forEach(w => file.push({ type: 'transfert', w }));
+    shuffle(TRANSMISSIONS).forEach(t => file.push({ type: 'transmission', t }));
+    return file;
+  }
+
+  const mots = shuffle(motsNiv(n));
+  /* on ouvre par les mots qui introduisent une passerelle : l'effet « je savais déjà » d'abord */
+  const poids = w => -w.d.filter(id => EL[id].niv === n && !estVu(id) && EL[id].pass).length;
+  mots.sort((a, b) => poids(a) - poids(b));
+
+  const introduits = new Set();
+  let compteur = 0;
+
+  mots.forEach(w => {
+    /* briques neuves de CE mot précisément, triées : apprentissage direct d'abord,
+       duos ensuite — pour que le duo tombe TOUJOURS juste avant le mot médical. */
+    const neuves = w.d.filter(id => !estVu(id) && !introduits.has(id));
+    neuves.forEach(id => introduits.add(id));
+    const directs = neuves.filter(id => !(EL[id].pass && P[EL[id].pass]));
+    const duos = neuves.filter(id => EL[id].pass && P[EL[id].pass]);
+    directs.forEach(id => file.push({ type: 'apprendre', el: EL[id] }));
+    duos.forEach(id => file.push({ type: 'passerelle', p: P[EL[id].pass], cle: id }));
+    /* le halo n'éclaire que la brique dont le duo vient d'être joué */
+    const cle = duos.length ? duos[duos.length - 1] : null;
+    const decodeSeul = !!w.libre;                    /* partie non décomposable → décodage */
+    const alterne = (compteur % 3 === 2);            /* ~1/3 de décodage */
+    file.push({ type: (decodeSeul || alterne) ? 'decoder' : 'construire', w, cle });
+    compteur++;
+  });
+
+  /* SPIRALE — à partir du niveau 3, on rappelle des mots des niveaux précédents,
+     en priorité ceux dont les briques sont les moins maîtrisées. */
+  if (n >= 3) {
+    const anciens = MOTS.filter(w => w.niv < n && estTrouve(w.m));
+    if (anciens.length) {
+      anciens.sort((a, b) => moyMait(a) - moyMait(b));
+      anciens.slice(0, 3).forEach(w => file.push({ type: 'decoder', w, rappel: true }));
+    }
+  }
+  return file;
+}
+const moyMait = w => w.d.reduce((s, id) => s + mait(id), 0) / w.d.length;
+
+/* REMÉDIATION — en fin de niveau, les briques ratées (maîtrise < 2) sont re-servies */
+function fileRemediation(n) {
+  const faibles = E.filter(e => e.niv <= n && estVu(e.id) && mait(e.id) < 2).map(e => e.id);
+  if (!faibles.length) return [];
+  const cand = MOTS.filter(w => w.niv <= n && w.d.some(id => faibles.includes(id)));
+  return shuffle(cand).slice(0, 4).map(w => ({ type: 'decoder', w, remed: true }));
+}
+
+function lancerNiveau(n) {
+  nivEnCours = n; Q = fileNiveau(n); qi = 0; sessionNouveaux = [];
+  if (!Q.length) { accueil(); return; }
+  jouer();
+}
+
+function suivant() {
+  qi++;
+  if (qi >= Q.length) {
+    if (!Q.some(x => x.remed)) {
+      const r = fileRemediation(nivEnCours);
+      if (r.length) { Q = Q.concat([{ type: 'remedInfo' }], r); jouer(); return; }
+    }
+    finNiveau(); return;
+  }
+  jouer();
+}
+
+function jouer() {
+  sauver(); majChrome(); window.scrollTo(0, 0);
+  const ex = Q[qi];
+  const barre = `<div class="progress">Niveau ${nivEnCours} · ${NIVEAUX[nivEnCours - 1].titre} — ${qi + 1} / ${Q.length}</div>
+    <button class="retour" onclick="accueil()">← quitter</button>`;
+  const rendus = {
+    apprendre: exApprendre, passerelle: exPasserelle, construire: exConstruire,
+    decoder: exDecoder, transfert: exTransfert, transmission: exTransmission, remedInfo: exRemedInfo
+  };
+  app.innerHTML = barre + rendus[ex.type](ex);
+  if (ex.type === 'passerelle' || ex.type === 'construire') montageInit(ex);
+  if (ex.type === 'decoder' || ex.type === 'transfert') decodageInit(ex);
+}
+
+/* ---------- distracteurs ---------- */
+const norm = s => (s || '').toLowerCase().split(/[(\/]/)[0].replace(/[^a-zà-ÿ]/g, '');
+function distracteurs(bonsIds, nb, niv, formesInterdites) {
+  const types = bonsIds.filter(id => EL[id]).map(id => EL[id].t);
+  const bloque = (formesInterdites || []).map(norm);
+  /* vivier : toutes les briques déjà atteignables à ce stade — jamais vide, même au niveau 1 */
+  const pool = E.filter(e => !bonsIds.includes(e.id) && e.niv <= (niv || 9) && !bloque.includes(norm(e.f)));
+  const memeType = shuffle(pool.filter(e => types.includes(e.t)));
+  const autres = shuffle(pool.filter(e => !types.includes(e.t)));
+  return memeType.concat(autres).slice(0, nb);
+}
+const tuile = (f, s, cls, attr) => `<button class="tuile ${cls || ''}" ${attr || ''}><b>${f}</b><small>${s}</small></button>`;
+
+/* ================= 1. APPRENDRE (élément sans passerelle) ================= */
+function exApprendre(ex) {
+  const e = ex.el;
+  const lab = { pre: 'préfixe', rac: 'racine', suf: 'suffixe' }[e.t];
+  return `<div class="fiche reveal">
+    <div class="eyebrow">Nouvelle brique · ${lab}</div>
+    <div class="slots" style="margin-top:6px">${tuile(e.f, e.sens, 'cle')}</div>
+    <div class="definition" style="margin-top:18px">Cette brique n'a pas d'équivalent dans la langue courante : il faut la retenir telle quelle.
+    <b>${e.f}</b>, c'est <b>${e.sens}</b>.</div>
+    <div class="actions"><button class="btn" onclick="apprendreOk('${e.id}')">Compris</button></div>
+  </div>`;
+}
+function apprendreOk(id) { voir(id); S.maitrise[id] = Math.max(1, mait(id)); suivant(); }
+
+/* ================= 2. PASSERELLE + 3. CONSTRUCTION ================= */
+let mtg = null;
+function montageInit(ex) {
+  if (ex.type === 'passerelle') {
+    const p = ex.p;
+    const bons = p.pieces.map((pc, i) => ({ k: 'p' + i, f: pc.f, s: pc.sens }));
+    const dist = distracteurs([], 2, EL[ex.cle].niv, p.pieces.map(pc => pc.f))
+      .map(e => ({ k: e.id, f: e.f, s: e.sens }));
+    mtg = { ordre: bons.map(b => b.k), slots: Array(bons.length).fill(null), banque: shuffle(bons.concat(dist)), ex };
+  } else {
+    const w = ex.w;
+    const bons = w.d.map(id => ({ k: id, f: EL[id].f, s: EL[id].sens }));
+    const dist = distracteurs(w.d, Math.min(4, 6 - w.d.length), w.niv).map(e => ({ k: e.id, f: e.f, s: e.sens }));
+    mtg = { ordre: w.d.slice(), slots: Array(w.d.length).fill(null), banque: shuffle(bons.concat(dist)), ex };
+  }
+  dessineMontage();
+}
+function exPasserelle(ex) {
+  return `<div class="fiche" style="--sysCol:var(--amber)">
+    <div class="eyebrow">Temps 1 · un mot que vous connaissez</div>
+    <div class="consigne">Assemblez ce mot de tous les jours :</div>
+    <div class="cible">${ex.p.def}</div>
+    <div id="zone"></div>
+  </div>`;
+}
+function exConstruire(ex) {
+  const w = ex.w, sy = SYSTEMES[w.s];
+  const rappel = ex.cle ? `<div class="rappel">
+      <span class="glow">${EL[ex.cle].f}</span>
+      <span>Vous connaissez déjà cette brique : <b>${EL[ex.cle].sens}</b>. La voici dans un mot du soin.</span>
+    </div>` : '';
+  return `<div class="fiche" style="--sysCol:${sy.couleur}">
+    <div class="eyebrow">${ex.cle ? 'Temps 2 · le même, en médecine' : 'Construction'} · ${sy.icone} ${sy.nom}</div>
+    ${rappel}
+    <div class="consigne">Construisez le mot qui signifie :</div>
+    <div class="cible">${w.def}</div>
+    <div id="zone"></div>
+  </div>`;
+}
+function dessineMontage() {
+  const cle = mtg.ex.type === 'passerelle'
+    ? mtg.ex.p.pieces.findIndex(p => p.cle)
+    : -1;
+  const slots = mtg.slots.map((k, i) => {
+    const sep = i > 0 ? '<span class="plus">+</span>' : '';
+    if (k === null) return sep + `<div class="slot" data-i="${i}"></div>`;
+    const b = mtg.banque.find(x => x.k === k);
+    const estCle = (mtg.ex.type === 'passerelle' && i === cle) || (mtg.ex.type === 'construire' && k === mtg.ex.cle);
+    return sep + `<div class="slot plein">${tuile(b.f, b.s, estCle ? 'cle' : 'sel', `onclick="retire(${i})"`)}</div>`;
+  }).join('');
+  const restants = mtg.banque.filter(b => !mtg.slots.includes(b.k));
+  const banque = restants.map(b => tuile(b.f, b.s, '', `onclick="pose('${b.k}')"`)).join('');
+  const pret = mtg.slots.every(x => x !== null);
+  const sol = S.form ? `<button class="btn ghost" onclick="solution()">Voir la réponse</button>` : '';
+  document.getElementById('zone').innerHTML = `
+    <div class="slots">${slots}</div>
+    <div class="banque"><span class="lbl">Les briques</span>${banque || '<span style="color:var(--inkFaint);font-size:13px">— toutes posées —</span>'}</div>
+    <div class="actions">
+      <button class="btn" id="valider" ${pret ? '' : 'disabled'} onclick="valideMontage()">Valider</button>
+      ${sol}<span class="msg" id="msg"></span>
+    </div>`;
+}
+function pose(k) { const i = mtg.slots.indexOf(null); if (i < 0) return; mtg.slots[i] = k; dessineMontage(); }
+function retire(i) { mtg.slots[i] = null; dessineMontage(); }
+function solution() { mtg.slots = mtg.ordre.slice(); dessineMontage(); }
+function valideMontage() {
+  const juste = mtg.slots.every((k, i) => k === mtg.ordre[i]);
+  const ids = mtg.ex.type === 'construire' ? mtg.ex.w.d : [mtg.ex.cle];
+  if (!juste) {
+    noteFausse(ids); sauver();
+    document.getElementById('msg').className = 'msg ko';
+    document.getElementById('msg').textContent = "Pas encore. Relisez le sens de chaque brique.";
+    document.querySelectorAll('.slot.plein .tuile').forEach(t => { t.classList.add('faux'); setTimeout(() => t.classList.remove('faux'), 400); });
+    return;
+  }
+  noteJuste(ids);
+  if (mtg.ex.type === 'passerelle') { voir(mtg.ex.cle); revelePasserelle(mtg.ex); }
+  else reveleMot(mtg.ex.w, mtg.ex.cle);
+}
+
+/* ================= 4. DÉCODAGE ================= */
+let dec = null;
+function exDecoder(ex) {
+  const w = ex.w, sy = SYSTEMES[w.s];
+  const tag = ex.remed ? 'Rattrapage' : ex.rappel ? 'Rappel — vu précédemment' : 'Décodage';
+  return `<div class="fiche" style="--sysCol:${sy.couleur}">
+    <div class="eyebrow">${tag} · ${sy.icone} ${sy.nom}</div>
+    <div class="consigne">De quelles briques ce mot est-il fait ?</div>
+    <div class="motcible">${w.m}</div>
+    ${w.libre ? `<div class="indice">Le reste du mot — <b>${w.libre}</b> — ne se décompose pas : ne le cherchez pas.</div>` : ''}
+    <div id="zone"></div>
+  </div>`;
+}
+function exTransfert(ex) {
+  return `<div class="fiche" style="--sysCol:var(--amber)">
+    <div class="eyebrow">Terrain · un mot que vous n'avez jamais vu</div>
+    <div class="consigne">Personne ne vous l'a appris. Décodez-le seul.</div>
+    <div class="motcible">${ex.w.m}</div>
+    <div id="zone"></div>
+  </div>`;
+}
+function decodageInit(ex) {
+  const w = ex.w;
+  const dist = distracteurs(w.d, 4, 9).map(e => ({ k: e.id, f: e.f, s: e.sens }));
+  const bons = w.d.map(id => ({ k: id, f: EL[id].f, s: EL[id].sens }));
+  dec = { w, bons: w.d.slice(), choisis: [], banque: shuffle(bons.concat(dist)), etape: 1, ex };
+  dessineDecodage();
+}
+function dessineDecodage() {
+  const banque = dec.banque.map(b =>
+    tuile(b.f, b.s, dec.choisis.includes(b.k) ? 'sel' : '', `onclick="bascule('${b.k}')"`)).join('');
+  const sol = S.form ? `<button class="btn ghost" onclick="solDec()">Voir la réponse</button>` : '';
+  document.getElementById('zone').innerHTML = `
+    <div class="banque" style="margin-top:22px"><span class="lbl">Sélectionnez toutes les briques présentes (${dec.bons.length})</span>${banque}</div>
+    <div class="actions">
+      <button class="btn" ${dec.choisis.length === dec.bons.length ? '' : 'disabled'} onclick="valideDecodage()">Valider</button>
+      ${sol}<span class="msg" id="msg"></span>
+    </div>`;
+}
+function bascule(k) {
+  const i = dec.choisis.indexOf(k);
+  if (i >= 0) dec.choisis.splice(i, 1);
+  else if (dec.choisis.length < dec.bons.length) dec.choisis.push(k);
+  dessineDecodage();
+}
+function solDec() { dec.choisis = dec.bons.slice(); dessineDecodage(); }
+function valideDecodage() {
+  const juste = dec.bons.every(k => dec.choisis.includes(k));
+  if (!juste) {
+    noteFausse(dec.bons); sauver();
+    const m = document.getElementById('msg');
+    m.className = 'msg ko'; m.textContent = "Non. Une brique au moins n'est pas là.";
+    return;
+  }
+  noteJuste(dec.bons);
+  etapeSens();
+}
+/* étape 2 : le sens */
+function etapeSens() {
+  const w = dec.w;
+  const autres = dec.ex.type === 'transfert'
+    ? shuffle(TRANSFERT.filter(x => x.m !== w.m)).slice(0, 2).map(x => x.def)
+    : shuffle(MOTS.filter(x => x.m !== w.m && x.s === w.s)).slice(0, 2).map(x => x.def);
+  const opts = shuffle([{ d: w.def, ok: 1 }].concat(autres.map(d => ({ d, ok: 0 }))));
+  document.getElementById('zone').innerHTML = `
+    <div class="choix" style="margin-top:24px">
+      <div class="eyebrow" style="margin:0">Et maintenant : que veut-il dire ?</div>
+      ${opts.map((o, i) => `<button class="opt" data-ok="${o.ok}" onclick="repSens(this)">${o.d}</button>`).join('')}
+    </div>
+    <div class="actions"><span class="msg" id="msg"></span></div>`;
+}
+function repSens(btn) {
+  const ok = btn.dataset.ok === '1';
+  document.querySelectorAll('.opt').forEach(b => {
+    b.onclick = null;
+    if (b.dataset.ok === '1') b.classList.add('bon');
+    else if (b === btn) b.classList.add('mauvais');
+  });
+  if (!ok) noteFausse(dec.w.d);
+  setTimeout(() => {
+    if (dec.ex.type === 'transfert') reveleTransfert(dec.w);
+    else reveleMot(dec.w, null);
+  }, 900);
+}
+
+/* ================= RÉVÉLATIONS ================= */
+function chipsDe(ids) {
+  return ids.map((id, i) => (i ? '<span class="plus">+</span>' : '') + tuile(EL[id].f, EL[id].sens, 'sel')).join('');
+}
+function revelePasserelle(ex) {
+  const p = ex.p, e = EL[ex.cle];
+  app.innerHTML = `<div class="fiche reveal" style="--sysCol:var(--amber)">
+    <div class="eyebrow">Temps 1 · résolu</div>
+    <div class="motcible">${p.mot}</div>
+    <div class="decomp">${p.pieces.map((pc, i) => (i ? '<span class="plus">+</span>' : '') + tuile(pc.f, pc.sens, pc.cle ? 'cle' : 'sel')).join('')}</div>
+    <div class="definition">${p.def}</div>
+    <div class="indice">${p.indice}</div>
+    <div class="rappel" style="margin:20px 0 0">
+      <span class="glow">${e.f}</span>
+      <span>Retenez cette brique : <b>${e.sens}</b>. Vous en aurez besoin plus tard.</span>
+    </div>
+    <div class="actions"><button class="btn or" onclick="suivant()">Suivant →</button></div>
+  </div>`;
+  sauver(); majChrome();
+}
+function reveleMot(w, cle) {
+  const nouveau = !estTrouve(w.m);
+  if (nouveau) S.trouves.push(w.m);
+  w.d.forEach(voir);
+  const gagne = nouveau && badgeAcquis(w.s);
+  const sy = SYSTEMES[w.s];
+  app.innerHTML = `<div class="fiche reveal" style="--sysCol:${sy.couleur}">
+    <div class="sysTag">${sy.icone} ${sy.nom}</div>
+    <div class="motcible">${w.m}</div>
+    <div class="decomp">${chipsDe(w.d)}${w.libre ? `<span class="plus">+</span><div class="slot fixe"><span>${w.libre}</span></div>` : ''}</div>
+    <div class="definition">${w.def}</div>
+    ${w.note ? `<div class="indice">${w.note}</div>` : ''}
+    ${nouveau ? '<div class="ajout">✦ Ajouté au lexique</div>' : '<div class="indice">Déjà dans votre lexique — mais une révision ne fait pas de mal.</div>'}
+    ${gagne ? `<div class="rappel" style="margin-top:16px"><span class="glow">${sy.icone}</span><span><b>Badge ${sy.nom} obtenu.</b> Vous avez complété ce tiroir du lexique.</span></div>` : ''}
+    <div class="actions"><button class="btn" onclick="suivant()">Continuer →</button></div>
+  </div>`;
+  sauver(); majChrome();
+}
+function reveleTransfert(w) {
+  app.innerHTML = `<div class="fiche reveal" style="--sysCol:var(--amber)">
+    <div class="eyebrow">Vous l'avez décodé seul</div>
+    <div class="motcible">${w.m}</div>
+    <div class="decomp">${chipsDe(w.d)}</div>
+    <div class="definition">${w.def}</div>
+    <div class="indice">Personne ne vous a appris ce mot. Vous l'avez reconstruit. C'est exactement ce qu'on vous demande en stage.</div>
+    <div class="actions"><button class="btn" onclick="suivant()">Continuer →</button></div>
+  </div>`;
+  sauver();
+}
+
+/* ================= 5. REMÉDIATION (écran d'annonce) ================= */
+function exRemedInfo() {
+  const faibles = E.filter(e => e.niv <= nivEnCours && estVu(e.id) && mait(e.id) < 2);
+  return `<div class="fiche reveal" style="--sysCol:var(--bad)">
+    <div class="eyebrow">Rattrapage</div>
+    <div class="cible">Quelques briques ne sont pas encore solides.</div>
+    <div class="decomp" style="margin-top:16px">${faibles.slice(0, 8).map(e => tuile(e.f, e.sens, '')).join('')}</div>
+    <div class="definition" style="margin-top:8px">On les revoit maintenant, dans d'autres mots. Ce n'est pas une punition : c'est comme ça qu'on retient.</div>
+    <div class="actions"><button class="btn" onclick="suivant()">D'accord →</button></div>
+  </div>`;
+}
+
+/* ================= 6. TRANSMISSION ================= */
+let tr = null;
+function exTransmission(ex) {
+  tr = { t: ex.t, restants: ex.t.mots.slice(), rates: 0 };
+  const cible = tr.restants[0];
+  const def = (MOTS.find(w => w.m === cible) || {}).def || '';
+  return `<div class="fiche" style="--sysCol:var(--ground)">
+    <div class="eyebrow">Terrain · transmissions ciblées</div>
+    <div class="consigne">Vous lisez le dossier. Retrouvez le terme.</div>
+    <div class="transmission" id="txt">${ex.t.texte.replace(/<b>(.*?)<\/b>/g, (m, w) => `<b onclick="clicTerme(this,'${w}')">${w}</b>`)}</div>
+    <div class="cible" id="quest" style="font-size:19px">Cliquez sur le terme qui signifie : <b>${def}</b></div>
+    <div class="actions"><span class="msg" id="msg"></span></div>
+  </div>`;
+}
+function clicTerme(el, mot) {
+  if (el.classList.contains('done')) return;
+  const cible = tr.restants[0];
+  const eq = (a, b) => a.toLowerCase() === b.toLowerCase();
+  if (!eq(mot, cible)) {
+    el.classList.add('rate'); tr.rates++;
+    setTimeout(() => el.classList.remove('rate'), 700);
+    document.getElementById('msg').className = 'msg ko';
+    document.getElementById('msg').textContent = 'Non. Décomposez le mot avant de cliquer.';
+    return;
+  }
+  el.classList.add('done'); el.classList.remove('rate');
+  tr.restants.shift();
+  if (!tr.restants.length) {
+    document.getElementById('quest').innerHTML = '<b>Transmission entièrement décodée.</b>';
+    document.querySelector('.actions').innerHTML = '<button class="btn" onclick="suivant()">Continuer →</button>';
+    return;
+  }
+  const suiv = tr.restants[0];
+  const def = (MOTS.find(w => w.m === suiv) || {}).def || '';
+  document.getElementById('quest').innerHTML = `Cliquez sur le terme qui signifie : <b>${def}</b>`;
+  document.getElementById('msg').textContent = '';
+}
+
+/* ================= FIN DE NIVEAU ================= */
+function finNiveau() {
+  if (!S.nivFaits.includes(nivEnCours)) S.nivFaits.push(nivEnCours);
+  majNivMax(); sauver(); majChrome();
+  const tot = motsNiv(nivEnCours).length;
+  const fait = trouvesNiv(nivEnCours);
+  const suite = nivEnCours < NIV_MAX && nivOuvert(nivEnCours + 1);
+  app.innerHTML = `<div class="fiche reveal fin">
+    <div class="eyebrow" style="text-align:center">Niveau ${nivEnCours} terminé</div>
+    <div class="big">${NIVEAUX[nivEnCours - 1].titre}</div>
+    ${nivEnCours < 9 ? `<div class="progress" style="margin:10px 0 0">${fait} / ${tot} mots de ce niveau dans votre lexique</div>` : ''}
+    <div class="progress">${S.trouves.length} / ${TOTAL} au total</div>
+    <div class="actions" style="justify-content:center;margin-top:22px">
+      ${suite ? `<button class="btn or" onclick="lancerNiveau(${nivEnCours + 1})">Niveau ${nivEnCours + 1} →</button>` : ''}
+      <button class="btn ghost" onclick="lexique()">Voir mon lexique</button>
+      <button class="btn ghost" onclick="accueil()">Les niveaux</button>
+    </div>
+  </div>`;
+}
+
+/* ================= LEXIQUE ================= */
+let ouverts = {};
+function lexique() {
+  actif('nLex'); majChrome(); window.scrollTo(0, 0);
+  const tiroirs = Object.keys(SYSTEMES).map(s => {
+    const sy = SYSTEMES[s], mots = motsSys(s), n = trouvesSys(s), tot = mots.length;
+    const won = badgeAcquis(s);
+    const open = ouverts[s];
+    const cartes = mots.map(w => {
+      if (estTrouve(w.m) || S.form) {
+        return `<button class="mc" onclick="ficheMot('${w.m.replace(/'/g, "\\'")}')">
+          <b>${w.m}</b><small>${w.d.map(id => EL[id].f).join(' + ')}</small></button>`;
+      }
+      const pts = '·'.repeat(Math.min(14, w.m.replace(/[^a-zA-ZÀ-ÿ]/g, '').length));
+      return `<button class="mc vide" onclick="alert('Ce mot se débloque au niveau ${w.niv} — ${NIVEAUX[w.niv - 1].titre}.')">
+        <b>${pts}</b><small>niveau ${w.niv}</small></button>`;
+    }).join('');
+    return `<div class="tiroir" style="--sysCol:${sy.couleur}">
+      <button class="tiroirTete" onclick="ouvrir('${s}')">
+        <span class="ic">${sy.icone}</span><b>${sy.nom}</b>
+        <span class="cpt">${n} / ${tot}</span>
+        <span class="bg ${won ? 'won' : ''}">${won ? '★' : '☆'}</span>
+      </button>
+      <div class="barre"><i style="width:${100 * n / tot}%"></i></div>
+      ${open ? `<div class="corps">${cartes}</div>` : ''}
+    </div>`;
+  }).join('');
+  app.innerHTML = `<div class="h2">Le lexique</div>
+    <div class="sub">Chaque case vide est un mot qui vous attend. Ouvrez un tiroir pour voir lesquels.</div>
+    ${tiroirs}`;
+}
+function ouvrir(s) { ouverts[s] = !ouverts[s]; lexique(); }
+function ficheMot(m) {
+  const w = MOTS.find(x => x.m === m); if (!w) return;
+  const sy = SYSTEMES[w.s];
+  app.innerHTML = `<button class="retour" onclick="lexique()">← le lexique</button>
+    <div class="fiche reveal" style="--sysCol:${sy.couleur}">
+      <div class="sysTag">${sy.icone} ${sy.nom}</div>
+      <div class="motcible">${w.m}</div>
+      <div class="decomp">${chipsDe(w.d)}${w.libre ? `<span class="plus">+</span><div class="slot fixe"><span>${w.libre}</span></div>` : ''}</div>
+      <div class="definition">${w.def}</div>
+      ${w.note ? `<div class="indice">${w.note}</div>` : ''}
+      <div class="indice">Rencontré au niveau ${w.niv} — ${NIVEAUX[w.niv - 1].titre}.</div>
+    </div>`;
+}
+
+/* ================= BADGES ================= */
+function badges() {
+  actif('nBadges'); majChrome(); window.scrollTo(0, 0);
+  const cartes = Object.keys(SYSTEMES).map(s => {
+    const sy = SYSTEMES[s], won = badgeAcquis(s);
+    return `<div class="bd ${won ? 'won' : ''}">
+      <span class="ic">${sy.icone}</span><b>${sy.nom}</b>
+      <small>${trouvesSys(s)} / ${motsSys(s).length}</small></div>`;
+  }).join('');
+  const total = S.trouves.length, grand = total === TOTAL;
+  app.innerHTML = `<div class="h2">Badges</div>
+    <div class="sub">Un badge par système — il tombe quand le tiroir est complet. Pas avant.</div>
+    <div class="badges">${cartes}
+      <div class="bd grand ${grand ? 'won' : ''}">
+        <span class="ic">🏆</span><b>Le Grand Lexique</b>
+        <small>${total} / ${TOTAL} mots</small>
+      </div>
+    </div>`;
+}
+
+/* ================= FORMATEUR ================= */
+document.getElementById('formLink').onclick = () => {
+  if (S.form) { if (confirm("Quitter le mode formateur ?")) { S.form = false; sauver(); accueil(); } return; }
+  const c = prompt("Code formateur :");
+  if (c === CODE_FORMATEUR) { S.form = true; S.nivMax = NIV_MAX; sauver(); accueil(); }
+  else if (c !== null) alert("Code incorrect.");
+};
+document.getElementById('nAccueil').onclick = accueil;
+document.getElementById('nLex').onclick = lexique;
+document.getElementById('nBadges').onclick = badges;
+
+/* ================= GO ================= */
+charger(); accueil();
+
+</script>
+</body>
+</html>

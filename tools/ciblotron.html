@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ciblotron</title>
+<style>
+  :root {
+    --bg: #E6E9E4;
+    --surface: #FBFBF8;
+    --surface-2: #F1F3EE;
+    --ink: #163A40;
+    --ink-soft: #4E676B;
+    --ink-faint: #8A9B9C;
+    --cible: #B23A32;
+    --cible-soft: #F3E1DF;
+    --teal: #2B6E7C;
+    --line: #D2D8D0;
+    --line-strong: #B9C1B8;
+    --focus: #2B6E7C;
+    --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  .app {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: clamp(16px, 4vw, 40px);
+    line-height: 1.5;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  /* ---------- Masthead ---------- */
+  .masthead {
+    display: flex; align-items: center; gap: 14px;
+    padding-bottom: 18px; margin-bottom: 26px;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .bullseye { flex: 0 0 auto; }
+  .masthead h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(20px, 3.4vw, 27px);
+    letter-spacing: -0.01em;
+    margin: 0; line-height: 1.1;
+  }
+  .masthead .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--teal); margin: 0 0 3px;
+  }
+
+  /* ---------- Setup form ---------- */
+  .lead {
+    font-family: var(--serif);
+    font-size: clamp(16px, 2.2vw, 19px);
+    color: var(--ink-soft);
+    max-width: 60ch; margin: 0 0 30px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 26px;
+  }
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field.full { grid-column: 1 / -1; }
+  .field label {
+    font-family: var(--mono);
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  select, input[type="text"], input[type="number"] {
+    font-family: var(--sans); font-size: 15px; color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 3px;
+    padding: 11px 13px;
+    width: 100%;
+    appearance: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  select {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%234E676B' stroke-width='1.5'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    padding-right: 34px;
+  }
+  select:focus, input:focus {
+    outline: none; border-color: var(--focus);
+    box-shadow: 0 0 0 3px rgba(43,110,124,0.18);
+  }
+  .age-slider { display: flex; align-items: center; gap: 14px; }
+  .age-slider input[type="range"] {
+    flex: 1 1 auto; appearance: none; height: 4px; border-radius: 2px;
+    background: var(--line-strong); outline: none; cursor: pointer;
+  }
+  .age-slider input[type="range"]::-webkit-slider-thumb {
+    appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--cible); border: 2px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--cible); cursor: pointer;
+  }
+  .age-slider input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--cible); border: 2px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--cible); cursor: pointer;
+  }
+  .age-readout {
+    flex: 0 0 auto; min-width: 64px; text-align: right;
+    font-family: var(--sans); font-size: 14px; color: var(--ink-soft);
+  }
+  .age-readout b { color: var(--ink); font-size: 16px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 3px; }
+  .chip {
+    font-family: var(--sans); font-size: 12.5px;
+    background: var(--surface-2); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 40px;
+    padding: 5px 11px; cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .chip:hover { background: var(--cible-soft); color: var(--cible); border-color: var(--cible); }
+
+  .actions-row { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+  button.btn {
+    font-family: var(--sans); font-size: 15px; font-weight: 600;
+    cursor: pointer; border-radius: 3px;
+    padding: 12px 22px;
+    transition: transform .06s, background .15s, border-color .15s, color .15s;
+  }
+  button.btn:active { transform: translateY(1px); }
+  .btn-primary {
+    background: var(--ink); color: #fff; border: 1px solid var(--ink);
+  }
+  .btn-primary:hover { background: #0E2A2E; }
+  .btn-ghost {
+    background: transparent; color: var(--ink); border: 1px solid var(--line-strong);
+  }
+  .btn-ghost:hover { border-color: var(--ink); }
+  .btn-cible {
+    background: var(--cible); color: #fff; border: 1px solid var(--cible);
+  }
+  .btn-cible:hover { background: #94302A; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+
+  .hint { font-size: 12.5px; color: var(--ink-faint); }
+
+  .code-block {
+    margin-top: 34px; padding-top: 18px; border-top: 1px dashed var(--line);
+  }
+  .code-block > label {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-faint); display: block; margin-bottom: 7px;
+  }
+  .code-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .code-row input {
+    flex: 1 1 320px; font-family: var(--mono); font-size: 13px;
+  }
+  .code-row .btn { flex: 0 0 auto; padding: 11px 18px; font-size: 13.5px; }
+  #code-hint.err { color: var(--cible); }
+
+  /* ---------- Loading ---------- */
+  .loading {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px; padding: 80px 20px; text-align: center;
+  }
+  .spinner {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 3px solid var(--line); border-top-color: var(--cible);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { font-family: var(--serif); font-style: italic; color: var(--ink-soft); margin: 0; }
+
+  /* ---------- Case screen ---------- */
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px;
+  }
+  .tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
+    background: var(--surface); border: 1px solid var(--line-strong);
+    border-radius: 3px; padding: 5px 10px; color: var(--ink-soft);
+  }
+  .tag b { color: var(--ink); font-weight: 600; }
+
+  .case-layout { display: grid; grid-template-columns: 1fr; gap: 24px; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+  }
+  .panel-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    padding: 16px 20px; border-bottom: 1px solid var(--line);
+  }
+  .panel-head h2 {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--teal); margin: 0; font-weight: 600;
+  }
+  .panel-head .sub { font-size: 12px; color: var(--ink-faint); }
+
+  .narrative {
+    font-family: var(--serif);
+    font-size: 16.5px; line-height: 1.7; color: var(--ink);
+    padding: 22px 24px;
+    white-space: pre-wrap;
+  }
+  .narrative .name { color: var(--cible); font-weight: 600; font-style: normal; }
+
+  .notice {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--cible-soft); color: #7A2B25;
+    border-left: 3px solid var(--cible);
+    padding: 12px 16px; margin: 0 24px 20px;
+    font-size: 13.5px; border-radius: 0 3px 3px 0;
+  }
+  .notice svg { flex: 0 0 auto; margin-top: 2px; }
+
+  /* ---------- Editable table ---------- */
+  .table-scroll { overflow-x: auto; padding: 4px; }
+  table.dar {
+    width: 100%; border-collapse: collapse; min-width: 860px;
+    font-size: 14px;
+  }
+  table.dar thead th {
+    text-align: left; vertical-align: bottom;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--surface); background: var(--ink);
+    padding: 10px 12px; font-weight: 600;
+    border-right: 1px solid rgba(255,255,255,0.14);
+  }
+  table.dar thead th:first-child { border-radius: 3px 0 0 0; }
+  table.dar thead th.col-cible { background: var(--cible); }
+  table.dar thead th:last-child { border-right: none; border-radius: 0 3px 0 0; }
+  table.dar td {
+    border: 1px solid var(--line); vertical-align: top; padding: 0;
+    background: var(--surface);
+  }
+  .cell {
+    min-height: 88px; padding: 11px 12px;
+    outline: none; line-height: 1.5;
+    font-family: var(--sans); font-size: 14px; color: var(--ink);
+  }
+  .cell:empty::before { content: attr(data-ph); color: var(--ink-faint); }
+  .cell:focus { background: #FFFEF6; box-shadow: inset 0 0 0 2px rgba(43,110,124,0.35); }
+  td.col-cible .cell { font-weight: 600; color: var(--cible); }
+
+  .gear-btn {
+    background: transparent; border: 1px solid var(--line-strong); border-radius: 4px;
+    width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ink-faint); cursor: pointer; transition: color .15s, border-color .15s, transform .3s;
+  }
+  .gear-btn:hover { color: var(--teal); border-color: var(--teal); transform: rotate(25deg); }
+
+  .gm-overlay {
+    position: fixed; inset: 0; background: rgba(22,58,64,0.45);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; z-index: 100;
+  }
+  .gm-box {
+    background: var(--surface); border-radius: 6px; max-width: 480px; width: 100%;
+    max-height: 85vh; overflow-y: auto; box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  }
+  .gm-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid var(--line);
+  }
+  .gm-head h3 {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--teal); margin: 0;
+  }
+  .gm-close {
+    background: transparent; border: none; font-size: 20px; color: var(--ink-faint);
+    cursor: pointer; line-height: 1; padding: 4px;
+  }
+  .gm-close:hover { color: var(--cible); }
+  .gm-body { padding: 20px; }
+  .gm-body p.intro { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 16px; }
+  .gm-pass-row { display: flex; gap: 10px; }
+  .gm-pass-row input {
+    flex: 1; font-family: var(--sans); font-size: 15px; padding: 10px 12px;
+    border: 1px solid var(--line-strong); border-radius: 3px;
+  }
+  .gm-error { color: var(--cible); font-size: 13px; margin-top: 8px; display: none; }
+  .gm-error.show { display: block; }
+
+  .gm-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+  .gm-table th {
+    text-align: left; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--surface); background: var(--ink); padding: 7px 9px;
+  }
+  .gm-table th.gm-cible-h { background: var(--cible); }
+  .gm-table td { border: 1px solid var(--line); padding: 8px 9px; vertical-align: top; }
+  .gm-table td.gm-cible { color: var(--cible); font-weight: 600; }
+  .gm-note {
+    background: var(--cible-soft); border-left: 3px solid var(--cible);
+    padding: 8px 10px; font-size: 12px; color: #7A2B25; margin-top: 4px; border-radius: 0 3px 3px 0;
+  }
+  .gm-empty { font-size: 13.5px; color: var(--ink-faint); font-style: italic; }
+  select.cell-select {
+    width: 100%; min-height: 88px; padding: 11px 12px;
+    font-family: var(--sans); font-size: 14px; font-weight: 600; color: var(--cible);
+    background: var(--surface); border: none; outline: none; cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23B23A32' stroke-width='1.5'/></svg>");
+    background-repeat: no-repeat; background-position: right 12px top 14px;
+  }
+  select.cell-select:focus { background-color: #FFFEF6; box-shadow: inset 0 0 0 2px rgba(43,110,124,0.35); }
+  td.identcol { background: var(--surface-2); }
+
+  .row-tools { width: 34px; }
+  .row-tools td { border: none; background: transparent; }
+  .del-row {
+    border: none; background: transparent; cursor: pointer;
+    color: var(--ink-faint); font-size: 17px; line-height: 1;
+    padding: 6px; border-radius: 3px;
+  }
+  .del-row:hover { color: var(--cible); background: var(--cible-soft); }
+
+  .table-foot {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    padding: 14px 20px; border-top: 1px solid var(--line);
+  }
+  .add-row {
+    font-family: var(--sans); font-size: 13.5px; font-weight: 600;
+    background: transparent; border: 1px dashed var(--line-strong);
+    color: var(--ink-soft); border-radius: 3px; padding: 8px 14px; cursor: pointer;
+  }
+  .add-row:hover { border-color: var(--teal); color: var(--teal); }
+
+  .footer-actions {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px;
+    padding-top: 22px; border-top: 1px solid var(--line-strong);
+  }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; font-size: 14px;
+    padding: 11px 20px; border-radius: 4px; opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s; z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .error-box {
+    background: var(--cible-soft); border: 1px solid var(--cible); color: #7A2B25;
+    border-radius: 4px; padding: 16px 18px; font-size: 14px;
+    display: flex; flex-direction: column; gap: 10px; align-items: flex-start;
+  }
+
+  @media (max-width: 620px) {
+    .grid { grid-template-columns: 1fr; }
+    .masthead { gap: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation-duration: 2s; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="wrap">
+    <div class="masthead">
+      <svg class="bullseye" width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="18" fill="none" stroke="#163A40" stroke-width="1.6"/>
+        <circle cx="20" cy="20" r="11.5" fill="none" stroke="#163A40" stroke-width="1.6"/>
+        <circle cx="20" cy="20" r="5" fill="#B23A32"/>
+      </svg>
+      <div>
+        <p class="eyebrow">Méthode D · A · R</p>
+        <h1>Ciblotron</h1>
+      </div>
+    </div>
+    <div id="view"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  const view = document.getElementById('view');
+  const toastEl = document.getElementById('toast');
+
+  /* ===================== SCORM 1.2 (suivi minimal) ===================== */
+  // Se contente de tracer le nombre de cas générés. Aucune notion de score ou
+  // de réussite/échec : ce n'est pas un quiz. Fonctionne aussi bien hors LMS
+  // (l'API n'est simplement pas trouvée, et rien ne se passe).
+  const Scorm = (function () {
+    let api = null;
+    let initialized = false;
+    let casCount = 0;
+
+    function findAPI(win) {
+      let attempts = 0;
+      let w = win;
+      while (w && attempts < 500) {
+        if (w.API) return w.API;
+        if (w.parent === w) break;
+        w = w.parent;
+        attempts++;
+      }
+      return null;
+    }
+
+    function init() {
+      try {
+        api = findAPI(window) || (window.opener ? findAPI(window.opener) : null);
+        if (!api) return; // hors LMS : usage normal du fichier, rien à faire
+        const ok = api.LMSInitialize("");
+        if (ok === "true" || ok === true) {
+          initialized = true;
+          const stored = api.LMSGetValue("cmi.suspend_data");
+          casCount = parseInt(stored, 10) || 0;
+        }
+      } catch (e) { /* silencieux : ne doit jamais bloquer l'outil */ }
+    }
+
+    function recordCaseGenerated() {
+      if (!initialized || !api) return;
+      try {
+        casCount++;
+        api.LMSSetValue("cmi.suspend_data", String(casCount));
+        api.LMSSetValue("cmi.core.lesson_status", "completed");
+        api.LMSCommit("");
+      } catch (e) { /* silencieux */ }
+    }
+
+    function terminate() {
+      if (!initialized || !api) return;
+      try { api.LMSCommit(""); api.LMSFinish(""); } catch (e) { /* silencieux */ }
+    }
+
+    window.addEventListener("beforeunload", terminate);
+    return { init, recordCaseGenerated, terminate, get count(){ return casCount; } };
+  })();
+  Scorm.init();
+
+  const SERVICES = ["Maternité","Néonatologie","Pédiatrie","Urgences pédiatriques","Urgences adultes","Médecine","Oncologie","Chirurgie","Gériatrie / EHPAD","SSR","Psychiatrie","Soins à domicile","Bloc / SSPI"];
+  const PROS = ["Auxiliaire de puériculture","Aide-soignant(e)","AES (Accompagnant éducatif et social)","Infirmier(e) (IDE)","Étudiant(e) en soins"];
+
+  /* ===================== BANQUES DE CIBLES PAR PROFESSIONNEL ===================== */
+  // Liste fermée : uniquement pour les professionnels couverts ci-dessous.
+  // Les autres professionnels gardent un champ libre pour la colonne Cible.
+  const CIBLES_AP = [
+    { groupe: "Alimentation", items: ["Dénutrition","Déshydratation","Fausse route","Hyperglycémie","Hypoglycémie","Nausées/Vomissements","Perte de poids","Polydipsie","Polyphagie","Prise de poids","Reflux gastro-oesophagien","Refus de s'alimenter","Troubles de la déglutition"] },
+    { groupe: "Cardio-vasculaire", items: ["Arythmie","Bradycardie","Douleur thoracique","Hémorragie","Hypertension artérielle","Hypotension artérielle","Phlébite","Tachycardie","Vertiges"] },
+    { groupe: "Cognition/perception", items: ["Anxiété","Asthénie","Baisse de l'estime de soi","Confusion","Désorientation","Douleur","Dysphasie","État de conscience","Hypersensibilité sensorielle","Hypo sensibilité sensorielle","Peur","Photophobie","Troubles de la mémoire","Troubles spatio-temporels"] },
+    { groupe: "Communication/relation", items: ["Compréhension","Logorrhée","Mutisme","Surdité","Troubles de la parole"] },
+    { groupe: "Comportement", items: ["Addiction","Agitation","Ébriété","Insomnie","Refus de soin","Repli sur soi","Risque suicidaire","Scarifications","Somnolence","Troubles du comportement","Violence mentale","Violence physique","Violence verbale"] },
+    { groupe: "Élimination", items: ["Absence de méconium","Anurie","Brûlures mictionnelles","Constipation","Diarrhées","Encoprésie","Énurésie","Globe vésical","Hématurie","Méléna","Métrorragie","Oligurie","Pollakiurie","Polyurie","Rectorragie","Rétention urinaire"] },
+    { groupe: "Environnement/socio-familial", items: ["Conflit inter-familial","Deuil","Difficultés financières","Exclusion sociale","Fugue","Isolement familial","Isolement social","Précarité","Relation avec l'entourage","Rendez-vous extérieur","Séparation","Sortie inopinée","Utilisation des dispositifs médicaux"] },
+    { groupe: "Mobilisation", items: ["Altération de la mobilité","Boiterie","Chute","Déambulation","Faiblesse musculaire","Premier lever","Refus de mobilisation","Transferts"] },
+    { groupe: "Peau/tégument", items: ["Alopécie","Cicatrisation","Cyanose","Érythème","Escarre","Marbrures","Mycose","Œdème","Pétéchie","Phlyctène","Plaie","Prurit","Rash cutané"] },
+    { groupe: "Respiration", items: ["Bradypnée","Dyspnée","Encombrement","Expectorations","Hypoxémie","Obstruction des voies aériennes","Pauses respiratoires","Polypnée","Sibilant (sifflement)","Tachypnée","Toux"] },
+    { groupe: "Thermo-neuro-régulation", items: ["Céphalées","Convulsions","Frissons/Tremblements","Hypersudation","Hyperthermie","Hypothermie","Sueurs"] },
+  ];
+
+  const CIBLES_AS = [
+    { groupe: "Alimentation", items: ["Dénutrition","Déshydratation","Fausse route","Hyperglycémie","Hypoglycémie","Nausées/Vomissements","Perte de poids","Polydipsie","Polyphagie","Prise de poids","Reflux gastro-oesophagien","Refus de s'alimenter","Troubles alimentaires","Troubles de la déglutition"] },
+    { groupe: "Cardio-vasculaire", items: ["Arythmie","Bradycardie","Douleur thoracique","Hémorragie","Hypertension artérielle","Hypotension artérielle","Phlébite","Tachycardie","Vertiges"] },
+    { groupe: "Cognition/perception", items: ["Agnosie","Amnésie","Anxiété","Aphasie","Apraxie","Asthénie","Baisse de l'estime de soi","Confusion","Désorientation","Dysphasie","État de conscience","Peur","Troubles de la mémoire","Troubles spatio-temporels"] },
+    { groupe: "Communication/relation", items: ["Communication non verbale","Communication verbale","Compréhension","Logorrhée","Mutisme","Surdité","Troubles de la parole"] },
+    { groupe: "Comportement", items: ["Addiction","Agitation","Auto agressivité","Ébriété","Hétéro agressivité","Insomnie","Refus de soin","Repli sur soi","Risque suicidaire","Somnolence","Troubles du comportement"] },
+    { groupe: "Élimination", items: ["Anurie","Brûlures mictionnelles","Constipation","Diarrhées","Globe vésical","Hématurie","Incontinence fécale","Incontinence urinaire","Méléna","Oligurie","Pollakiurie","Polyurie","Rectorragie","Rétention urinaire"] },
+    { groupe: "Environnement/socio-familial", items: ["Conflit inter-familial","Deuil","Difficultés financières","Exclusion sociale","Fugue","Isolement familial","Isolement social","Précarité","Relation avec l'entourage","Rendez-vous extérieur","Sortie inopinée","Utilisation des dispositifs médicaux"] },
+    { groupe: "Mobilisation", items: ["Altération de la mobilité","Chute","Déambulation","Faiblesse musculaire","Hémiplégie","Perte d'autonomie","Premier lever","Refus de mobilisation","Transferts"] },
+    { groupe: "Peau/tégument", items: ["Alopécie","Cicatrisation","Cyanose","Dermite","Érythème","Escarre","Incurie","Marbrures","Mycose","Œdème","Phlyctène","Plaie","Prurit","Rush cutané"] },
+    { groupe: "Respiration", items: ["Bradypnée","Dyspnée","Encombrement","Expectorations","Hypoxémie","Obstruction des voies aériennes","Pauses respiratoires","Polypnée","Tachypnée","Toux"] },
+    { groupe: "Thermo-neuro-régulation", items: ["Céphalées","Convulsions","Douleur","Frissons/Tremblements","Hypersudation","Hyperthermie","Hypothermie","Sueurs"] },
+  ];
+
+  // Table de correspondance professionnel -> banque de cibles.
+  const CIBLES_PAR_PRO = {
+    "Auxiliaire de puériculture": CIBLES_AP,
+    "Aide-soignant(e)": CIBLES_AS
+  };
+  function cibleBankFor(pro) { return CIBLES_PAR_PRO[pro] || null; }
+
+  /* ===================== MOTEUR HORS-LIGNE ===================== */
+  const NAMES = {
+    baby:   { F:["Léa","Jade","Lina","Chloé","Inès","Nour","Emma","Louise","Manon","Sarah"], M:["Noah","Hugo","Adam","Gabriel","Sacha","Rayan","Louis","Tom","Ethan","Jules"] },
+    child:  { F:["Léa","Manon","Chloé","Inès","Lucie","Jeanne","Camille","Nora"], M:["Hugo","Tom","Nathan","Enzo","Raphaël","Maël","Théo","Sacha"] },
+    adult:  { F:["Sophie","Karine","Nadia","Julie","Émilie","Fatima","Claire","Sandrine"], M:["Julien","Karim","Thomas","Nicolas","Mehdi","Franck","Olivier","David"] },
+    senior: { F:["Marguerite","Simone","Yvette","Colette","Jeanine","Denise","Paulette","Andrée"], M:["Marcel","René","Robert","Roger","Henri","Bernard","Gérard","Lucien"] }
+  };
+
+  function rnd(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function shuffle(a){ const c=a.slice(); for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]];} return c; }
+  function pickN(a,n){ return shuffle(a).slice(0,n); }
+  function num(x){ return String(x).replace('.',','); }
+  function catOf(s){
+    if(s==='Maternité'||s==='Néonatologie') return 'neo';
+    if(s==='Pédiatrie'||s==='Urgences pédiatriques') return 'peds';
+    if(s==='Gériatrie / EHPAD'||s==='Soins à domicile') return 'geria';
+    return 'adult';
+  }
+  function makeCtx(){
+    const fem = params.sexe==='Féminin';
+    const v = parseInt(params.ageValue,10)||0;
+    let bank;
+    if(catOf(params.service)==='neo' || params.ageUnit!=='ans') bank='baby';
+    else if(v<18) bank='child';
+    else if(v>=70) bank='senior';
+    else bank='adult';
+    return {
+      name: pick(NAMES[bank][fem?'F':'M']),
+      fem, v, unit: params.ageUnit, service: params.service, pro: params.pro,
+      e: fem?'e':'', ne: fem?'née':'né', il: fem?'elle':'il', Il: fem?'Elle':'Il', lui: fem?'elle':'lui'
+    };
+  }
+  function agePhrase(c){
+    if(c.unit==='jours') return `${c.ne} il y a ${c.v} jour${c.v>1?'s':''}`;
+    if(c.unit==='mois')  return `âgé${c.e} de ${c.v} mois`;
+    return `âgé${c.e} de ${c.v} ans`;
+  }
+  function fill(s,c){
+    return s.replace(/{n}/g,c.name).replace(/{age}/g,agePhrase(c))
+            .replace(/{Il}/g,c.Il).replace(/{il}/g,c.il).replace(/{lui}/g,c.lui)
+            .replace(/{ne}/g,c.ne).replace(/{e}/g,c.e);
+  }
+
+  /* ---- fragments partagés : famille, parasites, constantes normales ---- */
+  function fam(c){
+    const cat=catOf(c.service);
+    const pools={
+      neo:["Sa maman, très investie, note les horaires de tétée sur un carnet et pose beaucoup de questions.",
+           "Le papa est reparti chercher des affaires et repassera en fin de journée.",
+           "La grand-mère passe chaque jour en fin de matinée et s'inquiète pour le bébé.",
+           "Les parents alternent auprès du berceau et découvrent le peau à peau."],
+      peds:["Sa maman reste la journée mais doit repartir le soir pour s'occuper de la fratrie.",
+            "Son papa, présent, est lui-même tendu et le dit devant l'enfant.",
+            "Ses parents posent beaucoup de questions sur la suite des soins.",
+            "Sa maman a apporté son doudou et une photo de la maison."],
+      geria:["Sa fille passe tous les deux jours et s'inquiète de son moral.",
+             (c.fem?"Son mari":"Son épouse")+" appelle chaque soir pour prendre des nouvelles.",
+             "La famille souhaite être tenue informée de la moindre évolution.",
+             "Un petit-fils lui a apporté des photos qu'{il} regarde souvent."],
+      adult:["Sa famille appelle régulièrement pour demander des nouvelles.",
+             "Son conjoint est passé ce matin et semblait inquiet.",
+             "Un proche a apporté quelques affaires personnelles."]
+    };
+    return pick(pools[cat]);
+  }
+  function para(c){
+    const cat=catOf(c.service);
+    const pools={
+      neo:["La chambre est décorée de petits fanions offerts par la famille.",
+           "Un doudou trop grand pour le berceau a été posé près de {n}.",
+           "Une guirlande de photos est accrochée au-dessus du lit."],
+      peds:["{Il} a apporté un sac à dos plein de feutres et adore les licornes.",
+            "La télévision de la chambre fonctionne et {il} réclame des dessins animés.",
+            "Un ballon de football dégonflé traîne au pied du lit."],
+      geria:["La télévision reste allumée sur une chaîne d'information.",
+             "Des photos de famille sont posées sur la table de chevet.",
+             "{Il} tient beaucoup à son fauteuil près de la fenêtre."],
+      adult:["La télévision de la chambre est allumée en fond.",
+             "Un bouquet offert par des collègues est posé sur le rebord.",
+             "{Il} a apporté plusieurs magazines qu'{il} ne lit pas."]
+    };
+    return pick(pools[cat]);
+  }
+  function vitals(c){
+    const cat=catOf(c.service);
+    if(cat==='neo')  return `Sa température est à ${num((366+rnd(0,4))/10)} °C et sa coloration est correcte.`;
+    if(cat==='peds') return `Sa température est à ${num((366+rnd(0,4))/10)} °C et le reste de l'examen est sans particularité.`;
+    if(cat==='geria')return `Ses constantes du matin sont dans ses normes habituelles.`;
+    return `Ses constantes relevées ce matin sont normales.`;
+  }
+
+  /* ---- thèmes cliniques (données objectives + subjectif) ---- */
+  function thFeedingNeonate(c){
+    const bw=rnd(300,370)*10, loss=rnd(6,9), cur=Math.round(bw*(1-loss/100)/10)*10, tet=rnd(5,7), dur=rnd(3,5), cch=rnd(1,3);
+    return [
+      `À la pesée de ce matin, {n} est passé{e} de ${bw} g à la naissance à ${cur} g, soit une perte d'environ ${loss} % ; le seuil de vigilance se situe autour de 10 %.`,
+      `{Il} s'endort au sein au bout de ${dur} à ${dur+1} minutes puis réclame de nouveau peu après ; on compte environ ${tet} tétées sur les dernières 24 h.`,
+      `{Il} a mouillé seulement ${cch} couche${cch>1?'s':''} sur les dernières 24 h et les selles restent foncées.`,
+      `Lors d'une mise au sein observée, la prise du mamelon paraît superficielle et on entend peu de déglutitions.`,
+      `Sa maman a les mamelons douloureux, montre une petite crevasse à droite et n'ose pas réveiller son bébé.`,
+      `{Il} est plutôt somnolent{e} en journée et difficile à éveiller pour les tétées.`
+    ];
+  }
+  function thSleepMother(c){
+    return [
+      `Cette nuit, {n} s'est réveillé{e} toutes les 30 à 45 minutes et ne s'apaise que dans les bras.`,
+      `Sa maman dit qu'elle « n'a pas fermé l'œil », qu'elle est « au bout du rouleau » et se demande si elle « va y arriver ».`,
+      `Ce matin, elle a les traits tirés et a pleuré pendant la visite.`,
+      `Elle avoue avoir gardé son bébé dans son lit cette nuit sans oser le dire.`,
+      `La courbe de poids de {n} est satisfaisante et {il} prend bien le sein.`,
+      `Elle évoque à demi-mot une période de tristesse après un précédent accouchement.`
+    ];
+  }
+  function thJaundice(c){
+    const bili=rnd(210,285), j=rnd(2,4);
+    return [
+      `Le teint de {n} est franchement ictérique jusqu'au tronc ; la bilirubine transcutanée est mesurée à ${bili} µmol/L à J${j}.`,
+      `{Il} est très somnolent{e}, difficile à éveiller, et les tétées s'espacent.`,
+      `Les selles restent rares et les urines peu abondantes.`,
+      `La question d'une photothérapie est évoquée selon la courbe de bilirubine.`,
+      `Sa maman s'inquiète de le voir « tout jaune » et demande si c'est grave.`
+    ];
+  }
+  function thCesareanPain(c){
+    const eva=rnd(4,7);
+    return [
+      `Sa maman, opérée par césarienne, évalue sa douleur à ${eva}/10, surtout à la mobilisation et au lever.`,
+      `La cicatrice est propre, sans écoulement ni rougeur.`,
+      `Le premier lever a été difficile et elle appréhende de se déplacer.`,
+      `Elle dit avoir du mal à s'occuper de {n} à cause de la douleur et se sent « diminuée ».`,
+      `Le traitement antalgique est en place, avec un soulagement qu'elle juge partiel.`
+    ];
+  }
+  function thMaternalAnx(c){
+    return [
+      `Sa maman a pleuré pendant la visite et verbalise des doutes : « je ne sais pas si je vais y arriver ».`,
+      `Elle dort très peu et se sent seule, surtout la nuit.`,
+      `Elle pose sans cesse les mêmes questions et cherche à être rassurée.`,
+      `Elle évoque, à demi-mot, une tristesse importante après un précédent accouchement.`,
+      `{n}, {lui}, va bien : poids, coloration et tétées sont satisfaisants.`
+    ];
+  }
+  function thBondNICU(c){
+    const vis=rnd(1,2);
+    return [
+      `Les parents viennent ${vis} fois par jour et restent en retrait, appréhendant de toucher {n}.`,
+      `Le peau à peau leur est proposé ; la maman verbalise de la culpabilité de ne pas « faire assez ».`,
+      `Elle tire son lait mais s'inquiète de ne pas produire suffisamment.`,
+      `Les parents demandent peu de nouvelles spontanément et paraissent débordés.`,
+      `Sur le plan clinique, {n} est stable et sa prise de poids est régulière.`
+    ];
+  }
+  function thThermo(c){
+    return [
+      `La température axillaire de {n} est à ${num((360+rnd(0,3))/10)} °C, avec des extrémités fraîches.`,
+      `{Il} est en incubateur, consigne de température vérifiée ; un bonnet a été mis en place.`,
+      `Le peau à peau est proposé pour aider à la régulation thermique.`,
+      `{Il} est calme, un peu somnolent{e}, et les tétées sont prises sans difficulté.`,
+      `Sa prise de poids reste satisfaisante.`
+    ];
+  }
+  function thWeightGain(c){
+    const g=rnd(4,14);
+    return [
+      `La prise pondérale de {n} n'est que de ${g} g par jour sur les derniers jours, en deçà de l'objectif.`,
+      `Les apports sont complétés par ${pick(["gavage","biberon"])} ; {il} se fatigue vite pendant les prises.`,
+      `Quelques régurgitations sont notées après les repas.`,
+      `La coordination succion-déglutition-respiration reste fragile.`,
+      `Les parents suivent la courbe de poids avec anxiété.`
+    ];
+  }
+  function thSeparation(c){
+    return [
+      `Vers 18 h, quand sa maman se prépare à partir, {n} se met à pleurer et s'agrippe à son bras.`,
+      `{Il} répète « je veux pas que maman parte », attrape son doudou et se cache sous la couverture.`,
+      `Quand l'équipe s'approche, {il} se recroqueville et refuse le contact.`,
+      `L'endormissement de la veille avait déjà été difficile et la veilleuse n'était pas allumée.`,
+      `Le repas du soir n'a été mangé qu'à moitié.`
+    ];
+  }
+  function thInvasive(c){
+    return [
+      `À l'approche du soin, {n} dit « ça va faire mal », pleure et refuse de tendre le bras.`,
+      `{Il} bouge beaucoup et cache ses mains sous {lui}.`,
+      `{Il} raconte une mauvaise expérience passée, « ils s'y sont pris à trois fois ».`,
+      `Un patch anesthésiant est disponible sur prescription.`,
+      `Son papa, tendu, répète devant {lui} « il a très peur des piqûres ».`,
+      `{Il} finit par demander à garder la tablette et à choisir {lui}-même le bras.`
+    ];
+  }
+  function thPain(c){
+    const cat=catOf(c.service); let sc,val,max;
+    if(cat==='peds'){sc='EVENDOL';val=rnd(4,9);max=15;}
+    else if(cat==='geria'){sc='Algoplus';val=rnd(2,4);max=5;}
+    else {sc='EVA';val=rnd(4,8);max=10;}
+    const loc=pick(['au niveau du ventre','à la jambe droite','dans le dos','au site opératoire','à l\'épaule']);
+    return [
+      `La douleur est évaluée à ${val}/${max} (${sc})${cat==='geria'?', sur des signes de grimace et de crispation':''}.`,
+      `{Il} se plaint ${loc} et adopte une position antalgique, replié{e} sur le côté.`,
+      `Un antalgique a été administré il y a ${rnd(30,60)} minutes, avec un effet encore partiel.`,
+      `{Il} dort peu, sollicite souvent l'équipe et le visage est tendu.`,
+      `Les mobilisations et la toilette majorent nettement la douleur.`
+    ];
+  }
+  function thAnxiety(c){
+    return [
+      `{Il} verbalise son inquiétude, pose plusieurs fois les mêmes questions et cherche à être rassuré{e}.`,
+      `On note une agitation, des mains moites et une respiration rapide par moments.`,
+      `{Il} dort difficilement et sollicite la présence de l'équipe.`,
+      `L'angoisse monte surtout ${pick(['le soir','avant les soins','au moment des visites'])}.`,
+      `Un proche présent est lui-même tendu et le montre devant {lui}.`
+    ];
+  }
+  function thSleepAdult(c){
+    return [
+      `{Il} dit n'avoir dormi que ${rnd(2,4)} heures, avec des réveils répétés.`,
+      `{Il} se plaint du bruit du couloir et d'un environnement peu propice au repos.`,
+      `Dans la journée, {il} est fatigué{e}, somnolent{e} et peu disponible.`,
+      `{Il} appréhende la nuit à venir et le dit à l'équipe.`,
+      `Le reste de la surveillance est sans particularité.`
+    ];
+  }
+  function thUndernutrition(c){
+    const kg=rnd(48,62), perte=rnd(2,5), imc=num((rnd(170,200)/10));
+    return [
+      `{Il} pèse ${kg} kg, soit une perte d'environ ${perte} kg en quelques semaines ; l'IMC est à ${imc}.`,
+      `{Il} ne mange qu'environ un quart du plateau et laisse les compléments nutritionnels.`,
+      `{Il} dit ne pas avoir faim et se fatigue en mangeant.`,
+      `Une surveillance du poids une fois par semaine est en place.`,
+      `{Il} apprécie surtout les repas partagés en salle à manger.`
+    ];
+  }
+  function thFall(c){
+    return [
+      `{Il} a chuté il y a quelques jours ; l'appui reste instable et {il} se lève seul{e} malgré la consigne.`,
+      `Le déambulateur est laissé de côté et les transferts sont hésitants.`,
+      `{Il} paraît par moments désorienté{e} sur les lieux.`,
+      `Un traitement pouvant majorer le risque de chute figure sur l'ordonnance.`,
+      `{Il} dit vouloir « rester autonome » et n'aime pas demander de l'aide.`
+    ];
+  }
+  function thConfusion(c){
+    return [
+      `{Il} est désorienté{e} dans le temps et le lieu, et ne reconnaît pas toujours sa chambre.`,
+      `{Il} a déambulé une partie de la nuit et tient parfois des propos incohérents.`,
+      `Les épisodes sont plus marqués en fin de journée ; {il} est plus calme le matin.`,
+      `L'hydratation des dernières 24 h paraît insuffisante.`,
+      `{Il} se montre rassuré{e} par la présence d'un visage connu.`
+    ];
+  }
+  function thCaregiver(c){
+    return [
+      `L'aidant principal, épuisé, dit « ne plus y arriver » et dort très peu.`,
+      `Il assure seul les soins et néglige sa propre santé.`,
+      `Il a pleuré au moment de la visite et se sent isolé.`,
+      `{n}, {lui}, est cliniquement stable ; c'est surtout l'aidant qui alerte.`,
+      `La famille élargie est peu présente pour relayer.`
+    ];
+  }
+  function thWound(c){
+    const ml=rnd(20,60);
+    return [
+      `La plaie présente une rougeur des berges et un écoulement séreux ; le redon a ramené ${ml} ml.`,
+      `Le pansement est douloureux au moment de la réfection.`,
+      `Il n'y a pas de fièvre ; les constantes sont stables.`,
+      `{Il} évite de regarder la plaie et appréhende le soin.`,
+      `La cicatrisation est suivie quotidiennement.`
+    ];
+  }
+  function thNausea(c){
+    return [
+      `{Il} présente des nausées avec ${rnd(1,3)} vomissements depuis le réveil.`,
+      `{Il} est pâle, refuse de boire et reste allongé{e}.`,
+      `Un antiémétique a été administré, avec un effet partiel.`,
+      `La tension et le pouls restent dans les normes.`,
+      `{Il} redoute de se lever de peur de vomir à nouveau.`
+    ];
+  }
+  function thHypothermia(c){
+    return [
+      `Au réveil, la température est à ${num((348+rnd(0,10))/10)} °C, avec des frissons et des extrémités froides.`,
+      `Une couverture chauffante a été mise en place et la température est recontrôlée régulièrement.`,
+      `{Il} est somnolent{e} et frissonne par moments.`,
+      `La douleur reste à réévaluer une fois {il} plus réveillé{e}.`,
+      `Les autres constantes sont stables.`
+    ];
+  }
+  function thPreopAnx(c){
+    return [
+      `La veille de l'intervention, {il} pose sans cesse les mêmes questions sur l'anesthésie.`,
+      `{Il} a peu dormi et vit mal le jeûne.`,
+      `{Il} dit avoir « peur de ne pas se réveiller ».`,
+      `Un proche est présent, tantôt rassurant, tantôt lui-même tendu.`,
+      `Les constantes préopératoires sont normales.`
+    ];
+  }
+  function thMotivation(c){
+    return [
+      `{Il} refuse ce matin sa séance de rééducation en disant « à quoi bon ».`,
+      `Le périmètre de marche s'est réduit et {il} participe peu.`,
+      `L'humeur est triste et {il} reste souvent dans sa chambre.`,
+      `La famille l'encourage mais {il} se décourage vite.`,
+      `Sur le plan physique, les capacités permettent pourtant la reprise.`
+    ];
+  }
+  function thWithdrawal(c){
+    return [
+      `{Il} reste dans sa chambre, évite le contact visuel et parle très peu.`,
+      `{Il} prend ses repas seul{e} et refuse les activités proposées.`,
+      `{Il} ne formule aucune plainte mais paraît absent{e}.`,
+      `Les échanges sont brefs et {il} tourne le dos à la porte.`,
+      `L'équipe note un repli qui s'accentue depuis quelques jours.`
+    ];
+  }
+  function thRefusalCare(c){
+    return [
+      `{Il} refuse la toilette depuis plusieurs jours, se crispe et repousse la main du soignant.`,
+      `{Il} crie parfois et se calme mal pendant le soin.`,
+      `La pudeur et la fatigue semblent en jeu.`,
+      `{Il} accepte mieux lorsqu'un soignant connu s'en occupe.`,
+      `En dehors du soin, {il} est plutôt paisible.`
+    ];
+  }
+  function thRefusalTreatment(c){
+    return [
+      `{Il} refuse son traitement du matin et le recrache, méfiant{e}.`,
+      `{Il} dit qu'« on veut l'endormir » et négocie chaque prise.`,
+      `Un temps d'échange est proposé pour comprendre ses craintes.`,
+      `{Il} accepte plus facilement en présence d'un référent.`,
+      `Le reste de la journée s'est déroulé sans incident.`
+    ];
+  }
+  function thAdherence(c){
+    return [
+      `{Il} oublie plusieurs prises et le pilulier de la semaine est mal géré.`,
+      `{Il} trouve qu'il y a « trop de médicaments » et s'y perd.`,
+      `L'ordonnance est mal comprise et {il} vit seul{e}.`,
+      `La tension de la semaine n'a pas été relevée.`,
+      `{Il} se dit pourtant volontaire pour mieux s'organiser.`
+    ];
+  }
+  function thDehydration(c){
+    const vo=rnd(3,7), se=rnd(4,8), cch=rnd(1,3);
+    return [
+      `{Il} a présenté ${vo} vomissements et ${se} selles liquides sur les dernières 24 h.`,
+      `{Il} a mouillé seulement ${cch} couche${cch>1?'s':''} sur la journée et le pli cutané est un peu paresseux.`,
+      `{Il} refuse de boire et repousse le biberon d'eau.`,
+      `{Il} est abattu{e}, les yeux un peu cernés.`,
+      `La réhydratation orale par petites quantités est proposée.`
+    ];
+  }
+  function thFever(c){
+    return [
+      `La température est à ${num((385+rnd(0,16))/10)} °C, avec des frissons.`,
+      `{Il} est abattu{e}, grognon{e} et boit peu.`,
+      `Un antipyrétique a été donné, avec un effet partiel à ce stade.`,
+      `Les extrémités sont chaudes et la coloration correcte.`,
+      `La surveillance de l'hydratation est renforcée.`
+    ];
+  }
+  function thResp(c){
+    return [
+      `La fréquence respiratoire est élevée, à ${rnd(35,55)}/min, avec un tirage intercostal.`,
+      `La saturation se situe autour de ${rnd(90,95)} % en air ambiant.`,
+      `Des aérosols sont prescrits ; {il} tousse et paraît gêné{e}.`,
+      `{Il} est anxieux{e} et cherche une position pour mieux respirer.`,
+      `{Il} parle par phrases courtes.`
+    ];
+  }
+
+  /* ---- assemblage d'un cas ---- */
+  function buildCase(entry, c){
+    const body = pickN(entry.theme(c), 4);
+    const p1 = [entry.open, body[0], body[1], fam(c)];
+    const p2 = [body[2], body[3], para(c), vitals(c)];
+    return fill(p1.join(' '),c) + "\n\n" + fill(p2.join(' '),c);
+  }
+
+  /* ---- banque de problèmes par service ---- */
+  const PROBLEMS = {
+    "Maternité":[
+      {label:"Prise alimentaire insuffisante (allaitement exclusif)", open:"{n}, {age}, séjourne en maternité avec sa maman, qui a choisi un allaitement maternel exclusif.", theme:thFeedingNeonate},
+      {label:"Nouveau-né qui ne dort pas / mère épuisée", open:"{n}, {age}, est en maternité ; cette nuit a été très difficile et sa maman se dit épuisée.", theme:thSleepMother},
+      {label:"Ictère du nouveau-né", open:"{n}, {age}, présente depuis hier un teint jaune que l'équipe surveille.", theme:thJaundice},
+      {label:"Douleur / cicatrice de césarienne (mère)", open:"{n}, {age} par césarienne, est auprès de sa maman qui se remet de l'intervention.", theme:thCesareanPain},
+      {label:"Anxiété maternelle / baby blues", open:"{n}, {age}, va bien ; c'est surtout sa maman qui préoccupe l'équipe ce matin.", theme:thMaternalAnx}
+    ],
+    "Néonatologie":[
+      {label:"Difficultés alimentaires du nouveau-né", open:"{n}, {age}, est hospitalisé{e} en néonatologie ; l'autonomie alimentaire est en cours d'acquisition.", theme:thWeightGain},
+      {label:"Régulation thermique", open:"{n}, {age}, est en incubateur ; l'équipe surveille sa température.", theme:thThermo},
+      {label:"Lien parents-enfant / séparation", open:"{n}, {age}, est en néonatologie depuis la naissance ; les parents apprivoisent l'environnement.", theme:thBondNICU},
+      {label:"Prise de poids insuffisante", open:"{n}, {age}, est suivi{e} de près pour sa prise de poids.", theme:thWeightGain}
+    ],
+    "Pédiatrie":[
+      {label:"Anxiété de séparation", open:"{n}, {age}, est hospitalisé{e} depuis deux jours ; c'est sa première hospitalisation.", theme:thSeparation},
+      {label:"Anxiété avant un soin invasif", open:"{n}, {age}, doit avoir une prise de sang et une pose de perfusion cet après-midi.", theme:thInvasive},
+      {label:"Douleur non soulagée", open:"{n}, {age}, se plaint de douleurs depuis le début de la journée.", theme:thPain},
+      {label:"Refus alimentaire / hydratation", open:"{n}, {age}, mange et boit très peu depuis son entrée.", theme:thDehydration},
+      {label:"Fièvre / syndrome infectieux", open:"{n}, {age}, est hospitalisé{e} pour un épisode fébrile.", theme:thFever},
+      {label:"Gêne respiratoire", open:"{n}, {age}, est hospitalisé{e} pour une gêne respiratoire.", theme:thResp}
+    ],
+    "Urgences pédiatriques":[
+      {label:"Douleur aiguë", open:"{n}, {age}, arrive aux urgences pour une douleur vive.", theme:thPain},
+      {label:"Déshydratation sur gastro-entérite", open:"{n}, {age}, est amené{e} aux urgences pour une gastro-entérite.", theme:thDehydration},
+      {label:"Anxiété parentale", open:"{n}, {age}, est aux urgences ; ses parents sont très inquiets.", theme:thAnxiety},
+      {label:"Fièvre mal tolérée", open:"{n}, {age}, consulte aux urgences pour une fièvre mal tolérée.", theme:thFever}
+    ],
+    "Urgences adultes":[
+      {label:"Douleur aiguë", open:"{n}, {age}, se présente aux urgences pour une douleur intense.", theme:thPain},
+      {label:"Anxiété / angoisse", open:"{n}, {age}, est aux urgences et se montre très anxieux{e}.", theme:thAnxiety},
+      {label:"Déshydratation", open:"{n}, {age}, consulte pour des vomissements et une diarrhée.", theme:thDehydration}
+    ],
+    "Médecine":[
+      {label:"Douleur non soulagée", open:"{n}, {age}, est hospitalisé{e} en médecine et se plaint de douleurs.", theme:thPain},
+      {label:"Anxiété", open:"{n}, {age}, est hospitalisé{e} en médecine et paraît anxieux{e}.", theme:thAnxiety},
+      {label:"Trouble du sommeil", open:"{n}, {age}, dort mal depuis son entrée en médecine.", theme:thSleepAdult},
+      {label:"Dénutrition / perte d'appétit", open:"{n}, {age}, mange de moins en moins depuis son hospitalisation.", theme:thUndernutrition},
+      {label:"Douleur d'un membre associée à un état moral fragile", open:"{n}, {age}, se plaint d'une douleur à un membre et paraît moralement affecté{e}.", theme:thPain},
+      {label:"Malaise du matin avec plaie associée découverte à la toilette", open:"{n}, {age}, a présenté un malaise ce matin.", theme:thDehydration},
+      {label:"Gêne respiratoire avec propos inquiétants du patient", open:"{n}, {age}, présente une gêne respiratoire depuis ce matin.", theme:thResp},
+      {label:"Disparition du service avec refus alimentaire au retour", open:"{n}, {age}, a quitté le service sans prévenir avant d'être retrouvé{e}.", theme:thUndernutrition}
+    ],
+    "Chirurgie":[
+      {label:"Douleur post-opératoire", open:"{n}, {age}, est en chirurgie au décours d'une intervention.", theme:thPain},
+      {label:"Nausées / vomissements post-op", open:"{n}, {age}, présente des nausées au décours de son opération.", theme:thNausea},
+      {label:"Anxiété pré-opératoire", open:"{n}, {age}, doit être opéré{e} demain.", theme:thPreopAnx},
+      {label:"Surveillance de plaie / redon", open:"{n}, {age}, est surveillé{e} pour sa plaie opératoire.", theme:thWound},
+      {label:"Signes digestifs à surveiller après un changement de traitement", open:"{n}, {age}, est surveillé{e} depuis un ajustement récent de son traitement.", theme:thDehydration},
+      {label:"Douleur post-opératoire avec signe d'alerte associé", open:"{n}, {age}, se plaint de douleurs au décours de son intervention.", theme:thPain},
+      {label:"Chute suivie d'un signe général à surveiller", open:"{n}, {age}, a chuté ce matin dans sa chambre.", theme:thFall}
+    ],
+    "Gériatrie / EHPAD":[
+      {label:"Risque de chute", open:"{n}, {age}, réside dans l'établissement ; l'équipe s'inquiète d'un risque de chute.", theme:thFall},
+      {label:"Refus de soin (toilette)", open:"{n}, {age}, s'oppose à la toilette depuis plusieurs jours.", theme:thRefusalCare},
+      {label:"Douleur à la mobilisation", open:"{n}, {age}, exprime des douleurs lors des mobilisations.", theme:thPain},
+      {label:"Dénutrition", open:"{n}, {age}, mange de moins en moins depuis quelques semaines.", theme:thUndernutrition},
+      {label:"Confusion / désorientation", open:"{n}, {age}, paraît de plus en plus désorienté{e}.", theme:thConfusion},
+      {label:"Repli sur soi habituel puis énervement inhabituel un matin", open:"{n}, {age}, réside dans l'établissement et se montre inhabituellement énervé{e} ce matin.", theme:thWithdrawal},
+      {label:"Douleur nocturne rapportée puis découverte au sol", open:"{n}, {age}, a rapporté une douleur cette nuit.", theme:thFall},
+      {label:"Tension avec un tiers puis symptôme urinaire rapporté en fin de journée", open:"{n}, {age}, a été en tension avec un autre résident aujourd'hui.", theme:thConfusion}
+    ],
+    "SSR":[
+      {label:"Douleur à la mobilisation", open:"{n}, {age}, est en rééducation et souffre lors des mobilisations.", theme:thPain},
+      {label:"Démotivation en rééducation", open:"{n}, {age}, montre des signes de découragement en rééducation.", theme:thMotivation},
+      {label:"Risque de chute", open:"{n}, {age}, présente un risque de chute pendant la rééducation.", theme:thFall}
+    ],
+    "Psychiatrie":[
+      {label:"Anxiété / angoisse", open:"{n}, {age}, est hospitalisé{e} et traverse des moments d'angoisse.", theme:thAnxiety},
+      {label:"Refus de traitement", open:"{n}, {age}, refuse son traitement depuis ce matin.", theme:thRefusalTreatment},
+      {label:"Troubles du sommeil", open:"{n}, {age}, dort très mal depuis plusieurs nuits.", theme:thSleepAdult},
+      {label:"Repli / isolement", open:"{n}, {age}, s'isole de plus en plus dans le service.", theme:thWithdrawal},
+      {label:"Agitation majeure avec geste de mise en danger", open:"{n}, {age}, se montre très agité{e} depuis son admission.", theme:thAnxiety},
+      {label:"Amélioration progressive avec un risque associé à surveiller", open:"{n}, {age}, montre des signes d'amélioration mais reste sous surveillance.", theme:thSleepAdult},
+      {label:"Absence temporaire de la patiente puis état de choc au retour", open:"{n}, {age}, a été introuvable un moment dans le service.", theme:thWithdrawal}
+    ],
+    "Soins à domicile":[
+      {label:"Épuisement de l'aidant", open:"{n}, {age}, est suivi{e} à domicile ; l'aidant principal montre des signes d'épuisement.", theme:thCaregiver},
+      {label:"Risque de chute au domicile", open:"{n}, {age}, présente un risque de chute dans son logement.", theme:thFall},
+      {label:"Plaie chronique", open:"{n}, {age}, est suivi{e} à domicile pour une plaie qui tarde à cicatriser.", theme:thWound},
+      {label:"Observance du traitement", open:"{n}, {age}, a du mal à suivre son traitement à domicile.", theme:thAdherence}
+    ],
+    "Bloc / SSPI":[
+      {label:"Douleur post-op immédiate", open:"{n}, {age}, vient d'arriver en SSPI après son intervention.", theme:thPain},
+      {label:"Nausées / vomissements au réveil", open:"{n}, {age}, présente des nausées au réveil en SSPI.", theme:thNausea},
+      {label:"Anxiété au réveil", open:"{n}, {age}, se réveille anxieux{e} en salle de réveil.", theme:thAnxiety},
+      {label:"Hypothermie / frissons", open:"{n}, {age}, arrive en SSPI avec des frissons.", theme:thHypothermia}
+    ],
+    "Oncologie":[
+      {label:"Douleur liée à la maladie ou au traitement", open:"{n}, {age}, est suivi{e} en oncologie et se plaint de douleurs.", theme:thPain},
+      {label:"Fatigue et retentissement moral", open:"{n}, {age}, est suivi{e} en oncologie et montre des signes de fatigue et de moral en baisse.", theme:thAnxiety},
+      {label:"Fièvre et atteinte cutanée chez une patiente immunodéprimée", open:"{n}, {age}, est en cours de traitement et présente un épisode fébrile.", theme:thFever},
+      {label:"Fatigue et douleur dorsale chez un patient récemment informé de son diagnostic", open:"{n}, {age}, vient de recevoir un diagnostic et se plaint de douleurs dorsales.", theme:thPain},
+      {label:"Repli sur soi et image de soi dégradée en cours de traitement", open:"{n}, {age}, est en cours de traitement et se replie sur {lui}-même.", theme:thWithdrawal}
+    ]
+  };
+
+  /* ===================== BANQUE ENRICHIE (module 9 - import formateur) ===================== */
+  // 16 situations issues du corrigé fourni, texte INTÉGRAL et fidèle au document source
+  // (aucune coupe, aucune reformulation, hormis le retrait des tableaux DAR/corrigé).
+  // La date du jour est injectée dynamiquement via {today} à chaque génération.
+  // Accessibles à tout professionnel via les menus normaux service/âge/sexe/problème.
+  // Priorité sur la génération aléatoire si service+sexe+problème correspondent et que
+  // l'âge choisi tombe dans la tranche évidente du cas (ageMin/ageMax).
+  const BANK_CASES = [
+    { service: "Chirurgie", sexe: "Féminin", problem: "Signes digestifs à surveiller après un changement de traitement", ageMin: 65, ageMax: 120, ageDisplay: 69, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous êtes en stage dans un service de chirurgie conventionnelle et vous prenez en charge, en collaboration avec l'infirmier :\n\nMme V., 69 ans, est transférée de l'hôpital spécialisé en santé mentale de la région où elle était suivie pour dépression névrotique depuis quelques semaines. Elle est admise dans le service ce matin à 7h. Elle est à jeun. Le médecin du service lui a prescrit par anticipation un bilan sanguin.\n\nIl y a 2 jours elle a présenté un syndrome sub-occlusif attribué à son traitement antidépresseur, entrainant une altération de l'état général.\n\nSon traitement a été suspendu en attendant la reprise correcte du transit intestinal.\n\nCette patiente fait donc l'objet d'une surveillance étroite :\n- mesure des paramètres vitaux 2 fois / jour (PA, FC, FR, T°, Douleur),\n- surveillance de l'élimination (fiche selles et diurèse),\n- surveillance d'apparition de troubles de l'humeur et recrudescence de l'anxiété.\n\nCe matin, à 8h30 elle signale avoir eu quelques selles dures et noires.\n\nAu regard de cette information, lors de la visite, le médecin suspecte une présence de mélaena et prescrit une gastroscopie sous anesthésie locale, en service d'explorations fonctionnelles, qui pourrait avoir lieu en fin de matinée, au plus tard dans l'après-midi.\n\nPour cela, l'infirmière vous demande de la laisser à jeun et de veiller à sa préparation locale (hygiène corporelle, soins de bouche). Elle lui posera une perfusion d'attente.\n\nMme V. semble se renfermer sur elle-même, la communication est difficile. Vous parvenez à rentrer en contact avec elle lors des soins d'hygiène. Elle se confie à vous sur ses soucis familiaux." },
+    { service: "Chirurgie", sexe: "Féminin", problem: "Douleur post-opératoire avec signe d'alerte associé", ageMin: 65, ageMax: 120, ageDisplay: 72, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous êtes en stage dans un service de chirurgie conventionnelle et vous prenez en charge, en collaboration avec l'infirmier :\n\nMme A., 72 ans, est à J1 d'une cholécystectomie. Elle est perfusée, a des pansements de cœlioscopie et une aspiration de type Redon. Elle est sous anticoagulants, a des bas anti thromboses, et n'a pas le droit de se lever avant l'avis du chirurgien. Elle n'a pas uriné cette nuit.\n\nCe matin au tour de 8h : elle présente des douleurs du bas ventre avec une EN à 6/10 et le pansement au niveau de l'ombilic est imbibé de sang. L'infirmière lui donne un antalgique.\n\nA 8h30, elle sonne et vous dit ne pas se sentir bien, vous lui prenez ses paramètres vitaux : sa tension artérielle est à 9/5, ses pulsations sont à 110 BPM. Ses extrémités sont légèrement cyanosées." },
+    { service: "Chirurgie", sexe: "Masculin", problem: "Chute suivie d'un signe général à surveiller", ageMin: 65, ageMax: 120, ageDisplay: 69, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous êtes en stage dans un service de chirurgie conventionnelle et vous prenez en charge, en collaboration avec l'infirmier :\n\nMr H., 69 ans, à J3 d'une PTH droite. Ce matin Mr est retrouvé à terre au moment de l'installation pour le petit déjeuner. Il vous dit avoir voulu se rendre aux toilettes mais a glissé en se tenant à l'adaptable. Il a mal à la jambe droite EN 6/10, ne veut pas bouger, a peur. A l'aide de collègues et après avoir vérifié que tout fonctionne, Mr est réinstallé dans son lit. Le chirurgien a été prévenu et doit passer le voir.\n\nDans la matinée Mr sonne, il vous dit avoir subitement chaud, qu'il est suant et a soif. Vous lui prenez sa température et constatez qu'elle est à 38.3°C." },
+    { service: "Médecine", sexe: "Masculin", problem: "Douleur d'un membre associée à un état moral fragile", ageMin: 50, ageMax: 75, ageDisplay: 55, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous êtes en stage dans un service de médecine polyvalente et vous prenez en charge, en collaboration avec l'infirmier :\n\nMr T., 55 ans est hospitalisé en médecine depuis 3 jours pour altération de l'état général. Il a pour antécédent une dépression traitée et suivie par le CMP. Il est fatigué et reste donc alité une bonne partie de la journée. Il a peu d'appétit. Ses yeux reflètent une grande tristesse. Il est angoissé et pour la première fois ce matin, il a pleuré longuement. Il a confié sa peur de l'avenir car il vit seul et ne le supporte plus. En l'interrogeant l'aide-soignante recueille des informations : il a depuis cette nuit des douleurs dans la jambe droite, au niveau du mollet, EN 5/10. Le mollet est chaud, dur et rouge. Elle lui demande de ne pas se lever jusqu'à nouvel ordre." },
+    { service: "Médecine", sexe: "Féminin", problem: "Malaise du matin avec plaie associée découverte à la toilette", ageMin: 50, ageMax: 75, ageDisplay: 60, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous êtes en stage dans un service de médecine polyvalente et vous prenez en charge, en collaboration avec l'infirmier :\n\nMme B., 60 ans, a été admise par le biais des urgences pour chute à domicile. Elle vit seule depuis le décès de son époux survenu il y a 6 mois. Ce matin à 7h elle vous dit qu'elle a des céphalées, des troubles visuels et qu'elle ne se sent pas bien. Vous la trouvez pâle et en sueur. Vous lui demandez de rester allongée et vous lui faites une glycémie capillaire. Sa glycémie est à 0.50g/l.\n\nLors de la toilette, Mme B vous demande de l'aide. Elle n'arrive pas à se laver le dos, les jambes et les pieds. Au niveau du membre inférieur vous remarquez une plaie sous le pied droit. Elle est inflammée et un liquide jaune s'extériorise. Son pied est chaud et légèrement œdématié. Mme B vous dit ne pas avoir mal (EN 0). Vous prenez soin de faire un nettoyage minutieux et appelez l'infirmier." },
+    { service: "Médecine", sexe: "Masculin", problem: "Gêne respiratoire avec propos inquiétants du patient", ageMin: 75, ageMax: 120, ageDisplay: 83, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous êtes en stage dans un service de médecine polyvalente et vous prenez en charge, en collaboration avec l'infirmier :\n\nMr R., 83 ans est hospitalisé depuis 2 jours pour une décompensation aigue de sa broncho pneumopathie chronique obstructive. Mr est célibataire et vit seul. Il est très attaché à ses perruches restées à son domicile. Le gardien de l'immeuble où il vit s'en occupe le temps de l'hospitalisation. Ce matin, il vous dit n'avoir pas bien dormi. Il semble anxieux et sa fréquence respiratoire est élevée (30). Sa saturation en oxygène est de 89 %. En le réinstallant l'aide-soignant constate qu'il est moite et que tout son lit est trempé de sueur. Il n'est pas fébrile mais tousse beaucoup et crache péniblement des sécrétions épaisses et jaunes. Il vous dit que ce n'est pas une vie et qu'il a peur de mourir en étouffant. Il refuse de boire et manger et accepte juste une réinstallation en position demie assise. Il ne veut pas se lever ni faire sa toilette pour le moment." },
+    { service: "Médecine", sexe: "Masculin", problem: "Disparition du service avec refus alimentaire au retour", ageMin: 75, ageMax: 120, ageDisplay: 86, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous êtes en stage dans un service de médecine polyvalente et vous prenez en charge, en collaboration avec l'infirmier :\n\nMr T., 86 ans, a été transféré d'un EHPAD hier soir pour une altération de l'état général et confusion d'apparition récente.\n\nLe médecin a prescrit un bilan complet dont un bilan nutritionnel car le médecin de l'EHPAD a signalé que ce patient refuse de s'alimenter et s'agite lors des sollicitations des soignants. Depuis son admission, ce patient, en manque de repères, déambule en permanence dans le service. A 8h, ne le trouvant pas dans sa chambre, vous alertez l'infirmier et l'accueil de l'hôpital de sa disparition. Il est retrouvé errant dans le hall d'entrée de l'établissement et est raccompagné dans le service par la sécurité. Vous l'installez pour le petit déjeuner. Il vous injurie et refuse de manger. Dit que « vous allez l'empoisonner ».\n\nSes prescriptions ont été réajustées par le médecin et comportent :\n- Suivi diététicienne pour adapter l'alimentation\n- Consultation gérontopsychiatre\n- Suivi des ingesta pendant 3 jours\n- Fiche contrôle de selles, surveillance de diurèse\n- Contrôle du poids ce jour\n\nSa déambulation excessive et sa fugue entraînent, ce matin, la prescription d'une contention ventrale au fauteuil de 1h30, au moment des repas." },
+    { service: "Oncologie", sexe: "Féminin", problem: "Fièvre et atteinte cutanée chez une patiente immunodéprimée", ageMin: 65, ageMax: 120, ageDisplay: 67, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous travaillez dans un service de médecine oncologie et vous prenez en charge, en collaboration avec l'infirmier :\n\nMme A, 67 ans, qui est actuellement en traitement de chimiothérapie pour lymphome. Sa dernière chimiothérapie date de 72h. Elle est arrivée dans le service cette nuit, suite à un épisode fébrile T° 38.7C, une dysphagie, des douleurs dans la bouche, une inappétence alimentaire et une grande asthénie. Elle était accompagnée de son époux désemparé de voir son épouse s'altérer au domicile. La prise de sang aux urgences montre une aplasie médullaire nécessitant d'isoler Mme A pour la protéger. La patiente est perfusée sur chambre implantable, avec une hydratation, une alimentation parentérale, une antibiothérapie et des antipyrétiques.\n\nCe matin, elle est alitée, elle n'arrive pas à se lever seule. Elle est toutefois coopérante. Elle est asthénique, fébrile (T° 38.5C à 7h30) et suante. Vous la découvrez, et lui proposez de s'hydrater la bouche. Elle grimace en avalant le liquide. Vous remarquez alors des petits boutons blancs au niveau des muqueuses. Des soins de bouche sont alors prescrits par le médecin. Pour sa toilette vous lui proposez votre aide et de la réaliser au lit. Vous remarquez un érythème fessier ainsi qu'aux talons. Vous procédez à l'évaluation du risque d'escarre, le signalez à l'infirmier et commandez un matelas anti escarre que vous installerez à 13h dès réception." },
+    { service: "Oncologie", sexe: "Masculin", problem: "Fatigue et douleur dorsale chez un patient récemment informé de son diagnostic", ageMin: 50, ageMax: 75, ageDisplay: 58, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous travaillez dans un service de médecine oncologie et vous prenez en charge, en collaboration avec l'infirmier :\n\nMonsieur L. 58 ans, sans antécédents particuliers, peintre en bâtiment de profession, fumeur 35 P/A, sevré depuis 6 ans, Il a été adressé par son médecin généraliste pour un bilan pulmonaire (toux et crachats hémoptoïques apparus il y a 6 semaines, sans fièvre, sans altération de l'état général, sans dyspnée, douleurs dorsales).\n\nSuite à la biopsie effectuée, le diagnostic d'adénocarcinome pulmonaire est posé, le bilan d'extension réalisé montre 2 métastases localisées au niveau dorsal. Ce matin Mr L. ne veut pas se lever pour sa toilette, il est pâle, dit « se sentir épuisé ». Vous verbalise avoir mal dormi car il avait des douleurs atroces dans le dos qui l'ont empêché de trouver le sommeil. Il n'a pas sonné car ne voulait pas déranger. L'évaluation de la douleur révèle une EN 7/10 même au repos, douleur continue avec « une impression d'élancement dans la colonne ». Il avoue être conscient qu'il est « foutu », il s'est renseigné sur internet. Il a peur." },
+    { service: "Oncologie", sexe: "Féminin", problem: "Repli sur soi et image de soi dégradée en cours de traitement", ageMin: 18, ageMax: 40, ageDisplay: 35, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous travaillez dans un service de médecine oncologie et vous prenez en charge, en collaboration avec l'infirmier :\n\nVous accueillez Mme P. 35 ans pour sa 4ème cure de chimiothérapie. Elle est cadre de direction dans une entreprise internationale de transport, elle est fumeuse (5 cigarettes par jour), avec des antécédents familiaux de cancer du sein chez sa mère. Elle est en couple depuis 4 ans sans enfants et aime voyager.\n\nSon cancer a été découvert lors d'une consultation chez son gynécologue (la dernière datant de 2015) car elle avait comme projet de concevoir un enfant. Lors de l'examen clinique, le gynécologue palpe une masse au niveau du sein G et détecte la présence de plusieurs ganglions axillaires.\n\nSuite à plusieurs examens paracliniques, le diagnostic d'un cancer infiltrant type adénocarcinome a été retenu. La RCP a ensuite statué sur un traitement chirurgical (mastectomie sein G), chimiothérapie adjuvante et une radiothérapie en complément.\n\nA ce jour votre patiente présente un mutisme et semble triste alors que d'habitude elle est plutôt joviale. Elle arrive à vous verbaliser son agacement des traitements, sa perte d'envie, son asthénie grandissante, et ne se supporte plus (elle a perdu tous ses cheveux). Son compagnon n'est pas très présent." },
+    { service: "Psychiatrie", sexe: "Féminin", problem: "Agitation majeure avec geste de mise en danger", ageMin: 18, ageMax: 40, ageDisplay: 29, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous travaillez dans un service de psychiatrie et vous prenez en charge, en collaboration avec l'infirmier :\n\nMadame D., âgée de 29 ans, mariée, deux enfants de six et quatre ans, est hospitalisée le 2/05/2022 dans un service de psychiatrie à la demande de son mari.\n\nMadame D. est très agitée. Elle se déplace beaucoup, ne tient pas en place, va et vient dans le couloir en permanence. Elle se montre très exubérante et gesticule beaucoup.\nElle a craché à deux reprises dans le couloir. Elle s'exprime avec un débit verbal accéléré. Elle met son mari en cause et le prend à partie : elle dit ne plus le désirer.\nMadame D. est une femme de petite taille : 1,60m, 56 kg. Ses vêtements sont de couleurs très vives et disparates.\nElle a des sorties autorisées dans le parc. Ce matin, elle est sortie et elle est rentrée dans le service avec une plaie à l'avant-bras gauche. Elle se scarifie régulièrement. Au cours d'un entretien, elle apparait très agitée, elle explique qu'elle en a marre de la vie et qu'elle s'automutile avec les cannettes qu'elle prend à la machine à café.\nL'infirmier réalise alors un pansement sur sa plaie.\n\nElle est vue en urgence par le médecin psychiatre qui décide une mise en chambre d'isolement." },
+    { service: "Psychiatrie", sexe: "Féminin", problem: "Amélioration progressive avec un risque associé à surveiller", ageMin: 18, ageMax: 64, ageDisplay: 40, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous travaillez dans un service de psychiatrie et vous prenez en charge, en collaboration avec l'infirmier :\n\nMme L est hospitalisée depuis 10 jours, pour état dépressif.\n\nElle vient d'Afrique du Nord mais vit en France depuis l'âge de 8 ans. Sa vie a été marquée de nombreux deuils (a quitté son pays natal, rejet de sa famille, IVG, abandon de ses études). Elle vit actuellement avec un ami, qui travaille dans la librairie où elle est employée.\n\nDepuis plusieurs semaines Mme L. ne veut plus sortir, elle passe la majeure partie de son temps couchée avec les volets fermés. Elle a maigri.\n\nA l'entrée, elle présentait : un ralentissement psychomoteur, des idées de culpabilité évoquées en pleurant, une négligence de l'hygiène et vestimentaire et elle tenait des propos très négatifs.\n\nActuellement, Mme L. a une attelle plâtrée au pied droit car elle a une entorse à la suite d'une chute dans son jardin, il y a 14 jours. Elle est traitée avec un anticoagulant (fraxiparine 0.3 ml/ 24 heures) et a l'appui interdit. Une consultation est prévue demain.\n\nLe diagnostic évoque une dépression.\n\nA ce jour, l'humeur de Mme L est toujours triste, mais elle n'exprime plus d'idées de mort. Ce matin, elle a dit à l'aide-soignante qu'elle voulait rentrer chez elle. L'aide-soignante a rapporté que Mme L a été plus participative lors de sa douche et qu'elle a réclamé ses vêtements." },
+    { service: "Psychiatrie", sexe: "Féminin", problem: "Absence temporaire de la patiente puis état de choc au retour", ageMin: 18, ageMax: 64, ageDisplay: 45, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous travaillez dans un service de psychiatrie et vous prenez en charge, en collaboration avec l'infirmier :\n\nMme V âgée de 45 ans, a été hospitalisée pour la quatrième fois à sa demande suite à une tentative de suicide par ingestion de médicament.\n\nElle est suivie pour un syndrome post traumatique suite à des attouchements incestueux de son père pendant son enfance.\n\nCe jour elle ne présente pas pour le repas de midi. Elle ne se trouve pas dans sa chambre.\n\nUne recherche est effectuée dans l'établissement et un signalement a été effectué auprès de la hiérarchie et de l'accueil de la structure.\n\nEn début de l'après-midi vous cherchez la patiente, elle a été aperçue par un patient du service en ville.\n\nVous recevez ensuite un appel de l'accueil infirmier qui vous précise que Mme V vient d'être retrouvée par un infirmier du service.\n\nA votre arrivée dans le service, elle est prostrée et répète en boucle des mots inaudibles." },
+    { service: "Gériatrie / EHPAD", sexe: "Féminin", problem: "Repli sur soi habituel puis énervement inhabituel un matin", ageMin: 75, ageMax: 120, ageDisplay: 80, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous travaillez dans un EHPAD et vous prenez en charge, en collaboration avec l'infirmier :\n\nMme K. est rentrée dans cet EHPAD il y a 1 mois suite à une hospitalisation où son retour à domicile a été compromis. Depuis son admission Mme fuit la relation à l'autre, préfère rester dans sa chambre ne veut pas participer aux différentes activités proposées par la structure. Elle accepte néanmoins une aide pour la toilette le matin. Ce matin 8h dès son réveil Mme semble énervée et agacée lorsque vous lui demandez ce qu'elle souhaite pour son petit déjeuner ; « Vous le savez, comme d'habitude ! ». Mme est déjà habillée alors que vous ne l'avez pas aidée ce matin pour la toilette. Lorsque vous lui demandez pourquoi, elle vous menace et vous demande de la laisser tranquille. Vous le signalez à l'infirmière. A 9h, vous repassez la voir et constatez qu'elle ne s'y trouve pas. Son armoire et sa table de nuit sont vides. Mme a disparue. Vous vous empressez d'alerter l'équipe." },
+    { service: "Gériatrie / EHPAD", sexe: "Féminin", problem: "Douleur nocturne rapportée puis découverte au sol", ageMin: 75, ageMax: 120, ageDisplay: 88, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous travaillez dans un EHPAD et vous prenez en charge, en collaboration avec l'infirmier :\n\nMme O. 88 ans est une résidente sociable et enjouée. Elle est dans la structure depuis 10 ans. Elle avait été admise suite au décès de son époux car elle ne voulait pas rester seule chez elle, ses enfants étant éloignés d'elle géographiquement. Elle est battante et refuse de devenir dépendante. Elle a une mobilité défectueuse liée à une arthrose importante. Elle peine parfois dans ses déplacements mais refuse le fauteuil roulant. Ce matin elle vous verbalise avoir très mal dormi. Lorsque vous lui demandez pourquoi elle vous dit avoir eu très mal. Vous l'interrogez au sujet de cette douleur puis vous lui demandez de rester tranquille, et que vous viendrez aujourd'hui lui faire sa toilette au lavabo pour limiter cette douleur.\n\nA votre retour vous retrouvez Mme allongée au sol, l'adaptable couché sur elle avec des débris de verre tout autour d'elle. Elle vous dit avoir voulu se lever pour faire sa toilette au lavabo. Vous alertez l'infirmière et débutez le recueil de données." },
+    { service: "Gériatrie / EHPAD", sexe: "Masculin", problem: "Tension avec un tiers puis symptôme urinaire rapporté en fin de journée", ageMin: 75, ageMax: 120, ageDisplay: 85, text: "Nous sommes le {today}, vos horaires de travail sont de huit heures à vingt heures. Vous travaillez dans un EHPAD et vous prenez en charge, en collaboration avec l'infirmier :\n\nMr P. 85 ans est une personne très solitaire mais respectueuse et polie. Il ne sollicite pas toujours les soignants. Il a gardé une certaine autonomie notamment dans les gestes de la vie quotidienne. Aujourd'hui à table Mr ne s'adresse pas à son voisin avec qui habituellement il converse. Ce dernier renverse pas erreur son verre sur la table. Mr P s'agace, s'énerve et insulte son voisin. Vous intervenez car vous sentez que la tension monte entre ses deux résidents. Vous raccompagnez Mr P (qui a terminé de manger) dans sa chambre.\n\nCet après-midi l'animatrice vient chercher Mr P pour une activité qu'il affectionne. A la fin de l'activité l'animatrice vous indique que Mr a fait de nombreux déplacements pour se rendre aux toilettes. Lorsque vous interrogez Mr il vous dit qu'en effet il se rend de nombreuses fois jour et nuit aux toilettes. Il a des envies pressentes d'uriner mais « ne fait pas grand'chose » d'après lui. Vous informez l'infirmier." },
+  ];
+
+  /* ===================== CORRIGÉS GÉNÉRIQUES (cas générés aléatoirement) ===================== */
+  // Un corrigé type par intitulé de problème (cible/données/actions/résultats formulés de
+  // façon générique, sans figer de valeur chiffrée précise, puisque le cas est régénéré à
+  // chaque tirage). Clé : "service||label du problème".
+  const GENERIC_CORRECTIONS = {
+    "Maternité||Prise alimentaire insuffisante (allaitement exclusif)": [
+      { cible: "Refus de s'alimenter", donnees: "Tétées courtes et rapprochées, peu de couches mouillées sur 24h, perte de poids proche du seuil de vigilance", actions: "Observation d'une mise au sein, conseils de position et de rythme transmis à la mère, pesée réalisée", resultats: "Poids et nombre de couches à recontrôler ?" },
+      { cible: "Douleur", donnees: "Mamelons douloureux, crevasse visible chez la mère", actions: "Conseils de positionnement au sein donnés, situation signalée à la sage-femme/l'infirmier", resultats: "Douleur de la mère à réévaluer ?" },
+    ],
+    "Maternité||Nouveau-né qui ne dort pas / mère épuisée": [
+      { cible: "Insomnie", donnees: "Nouveau-né qui se réveille très fréquemment la nuit, mère épuisée et en difficulté", actions: "Écoute de la mère, aide proposée pour un temps de repos, conseils sur l'installation pour la nuit", resultats: "Mère apaisée ?" },
+      { cible: "Relation avec l'entourage", donnees: "Mère isolée face aux pleurs nocturnes, verbalise un sentiment de ne pas y arriver", actions: "Présence rassurante, orientation vers l'équipe pour un relais ponctuel", resultats: "Sentiment maternel de compétence en amélioration ?" },
+    ],
+    "Maternité||Ictère du nouveau-né": [
+      { cible: "État de conscience", donnees: "Nouveau-né somnolent, difficile à réveiller pour les tétées, coloration cutanée jaune", actions: "Bilirubine transcutanée mesurée et transmise, stimulation pour les tétées, surveillance de la coloration", resultats: "Évolution de la bilirubine à surveiller ?" },
+    ],
+    "Maternité||Douleur / cicatrice de césarienne (mère)": [
+      { cible: "Douleur", donnees: "Douleur évaluée par échelle numérique, notamment à la mobilisation et au lever", actions: "Antalgique administré selon prescription, aide à la mobilisation proposée", resultats: "Douleur au prochain lever ?" },
+      { cible: "Cicatrisation", donnees: "Cicatrice de césarienne surveillée, propre à ce jour", actions: "Surveillance de l'aspect de la cicatrice lors des soins", resultats: "Absence de signe inflammatoire à ce jour" },
+    ],
+    "Maternité||Anxiété maternelle / baby blues": [
+      { cible: "Anxiété", donnees: "Mère qui pleure facilement, verbalise des doutes sur sa capacité à s'occuper de son enfant", actions: "Temps d'écoute accordé, présence rassurante, transmission à l'équipe pour un suivi", resultats: "Mère plus apaisée après l'échange ?" },
+    ],
+    "Néonatologie||Difficultés alimentaires du nouveau-né": [
+      { cible: "Refus de s'alimenter", donnees: "Prise de poids insuffisante, tétées ou prises au biberon incomplètes, fatigabilité pendant la prise", actions: "Stimulation pendant la prise, fractionnement proposé, pesée réalisée", resultats: "Prise de poids au prochain contrôle ?" },
+    ],
+    "Néonatologie||Régulation thermique": [
+      { cible: "Hypothermie", donnees: "Température instable, extrémités fraîches", actions: "Mise en incubateur ou réchauffement adapté, contrôle régulier de la température", resultats: "Température stabilisée ?" },
+    ],
+    "Néonatologie||Lien parents-enfant / séparation": [
+      { cible: "Relation avec l'entourage", donnees: "Parents en retrait, peu présents ou hésitants à toucher leur enfant", actions: "Peau à peau proposé, parents accompagnés dans les gestes de soin", resultats: "Rapprochement parents-enfant observé ?" },
+    ],
+    "Néonatologie||Prise de poids insuffisante": [
+      { cible: "Perte de poids", donnees: "Prise pondérale journalière inférieure à l'objectif fixé", actions: "Pesée réalisée, transmission à l'équipe médicale, surveillance des prises alimentaires", resultats: "Courbe de poids au prochain contrôle ?" },
+    ],
+    "Pédiatrie||Anxiété de séparation": [
+      { cible: "Séparation", donnees: "Pleurs et agrippement au moment du départ d'un parent, difficulté à l'endormissement", actions: "Rituel de départ mis en place avec le parent, objet transitionnel laissé à disposition, présence rassurante", resultats: "Endormissement facilité ?" },
+    ],
+    "Pédiatrie||Anxiété avant un soin invasif": [
+      { cible: "Peur", donnees: "Pleurs et refus de tendre le bras à l'approche du soin, évoque une expérience douloureuse antérieure", actions: "Explication du soin avec des mots adaptés, moyen de distraction proposé, patch anesthésiant posé selon prescription", resultats: "Soin réalisé avec coopération ?" },
+    ],
+    "Pédiatrie||Douleur non soulagée": [
+      { cible: "Douleur", donnees: "Douleur évaluée par échelle adaptée à l'âge, position antalgique observée", actions: "Antalgique administré selon prescription, réinstallation proposée", resultats: "Douleur à réévaluer après l'antalgique ?" },
+    ],
+    "Pédiatrie||Refus alimentaire / hydratation": [
+      { cible: "Refus de s'alimenter", donnees: "Refuse de boire et de manger depuis l'entrée, quantités ingérées très faibles", actions: "Réhydratation orale par petites quantités proposée, surveillance des ingesta", resultats: "Prises alimentaires au prochain repas ?" },
+    ],
+    "Pédiatrie||Fièvre / syndrome infectieux": [
+      { cible: "Hyperthermie", donnees: "Température élevée, enfant abattu et grognon", actions: "Antipyrétique administré selon prescription, découverte de l'enfant, surveillance de la température", resultats: "Température à recontrôler ?" },
+    ],
+    "Pédiatrie||Gêne respiratoire": [
+      { cible: "Dyspnée", donnees: "Fréquence respiratoire élevée, tirage visible, toux", actions: "Installation en position demi-assise, aérosol administré selon prescription, surveillance de la saturation", resultats: "Fréquence respiratoire et saturation à recontrôler ?" },
+    ],
+    "Urgences pédiatriques||Douleur aiguë": [
+      { cible: "Douleur", donnees: "Douleur vive évaluée par échelle adaptée à l'âge", actions: "Antalgique administré selon prescription, installation confortable proposée", resultats: "Douleur après antalgique ?" },
+    ],
+    "Urgences pédiatriques||Déshydratation sur gastro-entérite": [
+      { cible: "Déshydratation", donnees: "Vomissements et selles liquides répétés, refus de boire", actions: "Réhydratation orale par petites quantités proposée, surveillance du nombre de couches/selles", resultats: "Tolérance de la réhydratation ?" },
+    ],
+    "Urgences pédiatriques||Anxiété parentale": [
+      { cible: "Anxiété", donnees: "Parents très inquiets, sollicitent l'équipe de façon répétée", actions: "Explications données sur la prise en charge en cours, écoute des parents", resultats: "Parents rassurés après l'échange ?" },
+    ],
+    "Urgences pédiatriques||Fièvre mal tolérée": [
+      { cible: "Hyperthermie", donnees: "Température élevée mal tolérée, enfant abattu", actions: "Antipyrétique administré selon prescription, découverte de l'enfant, surveillance rapprochée", resultats: "Température à recontrôler ?" },
+    ],
+    "Urgences adultes||Douleur aiguë": [
+      { cible: "Douleur", donnees: "Douleur intense évaluée par échelle numérique", actions: "Antalgique administré selon prescription, installation confortable proposée", resultats: "Douleur après antalgique ?" },
+    ],
+    "Urgences adultes||Anxiété / angoisse": [
+      { cible: "Anxiété", donnees: "Patient anxieux, sollicite fréquemment l'équipe", actions: "Explications données sur la prise en charge en cours, présence rassurante", resultats: "Patient plus apaisé après l'échange ?" },
+    ],
+    "Urgences adultes||Déshydratation": [
+      { cible: "Déshydratation", donnees: "Vomissements et diarrhées, refus de boire", actions: "Réhydratation orale proposée selon tolérance, surveillance des constantes", resultats: "Tolérance de la réhydratation ?" },
+    ],
+    "Médecine||Douleur non soulagée": [
+      { cible: "Douleur", donnees: "Douleur évaluée par échelle numérique, persistante malgré le traitement en cours", actions: "Antalgique administré selon prescription, réinstallation proposée, médecin informé si besoin", resultats: "Douleur après antalgique ?" },
+    ],
+    "Médecine||Anxiété": [
+      { cible: "Anxiété", donnees: "Patient anxieux, sollicite l'équipe, difficulté à se rassurer", actions: "Temps d'écoute accordé, présence rassurante", resultats: "Patient plus apaisé après l'échange ?" },
+    ],
+    "Médecine||Trouble du sommeil": [
+      { cible: "Insomnie", donnees: "Patient qui dort très peu, se plaint du bruit ou de l'environnement", actions: "Réinstallation proposée, environnement calmé autant que possible", resultats: "Qualité du sommeil la nuit suivante ?" },
+    ],
+    "Médecine||Dénutrition / perte d'appétit": [
+      { cible: "Dénutrition", donnees: "Repas peu consommés, perte de poids constatée", actions: "Aide au repas proposée, compléments nutritionnels proposés selon prescription, pesée réalisée", resultats: "Prises alimentaires au prochain repas ?" },
+    ],
+    "Médecine||Douleur d'un membre associée à un état moral fragile": [
+      { cible: "Douleur", donnees: "Douleur localisée à un membre, signes inflammatoires locaux", actions: "Membre mis au repos selon consigne médicale, signalement à l'infirmier, surveillance locale", resultats: "Évolution locale à surveiller ?" },
+      { cible: "Baisse de l'estime de soi", donnees: "Patient qui pleure, verbalise sa tristesse et ses craintes pour l'avenir", actions: "Temps d'écoute accordé, disponibilité manifestée", resultats: "Patient plus apaisé après l'échange ?" },
+    ],
+    "Médecine||Malaise du matin avec plaie associée découverte à la toilette": [
+      { cible: "État de conscience", donnees: "Signes de malaise le matin (pâleur, sueurs), glycémie capillaire réalisée", actions: "Patient maintenu allongé, glycémie capillaire réalisée, infirmier informé", resultats: "Glycémie et état général à recontrôler ?" },
+      { cible: "Plaie", donnees: "Plaie découverte lors de la toilette, inflammatoire, écoulement présent", actions: "Nettoyage réalisé, infirmier informé pour avis et pansement", resultats: "Évolution de la plaie à surveiller ?" },
+    ],
+    "Médecine||Gêne respiratoire avec propos inquiétants du patient": [
+      { cible: "Dyspnée", donnees: "Fréquence respiratoire élevée, saturation abaissée, sécrétions difficiles à expectorer", actions: "Installation en position demi-assise, surveillance de la saturation, aérosol selon prescription", resultats: "Fréquence respiratoire et saturation à recontrôler ?" },
+      { cible: "Peur", donnees: "Patient qui verbalise sa peur de la situation, propos anxiogènes", actions: "Temps d'écoute accordé, présence rassurante pendant les soins", resultats: "Patient plus apaisé après l'échange ?" },
+    ],
+    "Médecine||Disparition du service avec refus alimentaire au retour": [
+      { cible: "Fugue", donnees: "Patient retrouvé hors du service après une période de disparition", actions: "Recherche organisée avec l'équipe, patient raccompagné et réinstallé", resultats: "Surveillance rapprochée mise en place ?" },
+      { cible: "Refus de s'alimenter", donnees: "Refuse de manger au retour, propos méfiants envers les repas proposés", actions: "Repas proposé à nouveau, présence pendant le temps du repas", resultats: "Reprise alimentaire au repas suivant ?" },
+    ],
+    "Chirurgie||Douleur post-opératoire": [
+      { cible: "Douleur", donnees: "Douleur évaluée par échelle numérique au niveau du site opératoire", actions: "Antalgique administré selon prescription, réinstallation proposée", resultats: "Douleur après antalgique ?" },
+    ],
+    "Chirurgie||Nausées / vomissements post-op": [
+      { cible: "Nausées/Vomissements", donnees: "Nausées avec un ou plusieurs épisodes de vomissements au décours de l'intervention", actions: "Antiémétique administré selon prescription, patient laissé à jeun le temps nécessaire", resultats: "Tolérance digestive à réévaluer ?" },
+    ],
+    "Chirurgie||Anxiété pré-opératoire": [
+      { cible: "Anxiété", donnees: "Patient qui pose de nombreuses questions sur l'intervention à venir, a mal dormi", actions: "Temps d'écoute accordé, informations rappelées sur le déroulement prévu", resultats: "Patient plus apaisé avant l'intervention ?" },
+    ],
+    "Chirurgie||Surveillance de plaie / redon": [
+      { cible: "Plaie", donnees: "Pansement surveillé, quantité recueillie au redon notée", actions: "Surveillance du pansement et du système d'aspiration, transmission des quantités recueillies", resultats: "Évolution du pansement et du redon à surveiller ?" },
+    ],
+    "Chirurgie||Signes digestifs à surveiller après un changement de traitement": [
+      { cible: "Méléna", donnees: "Selles dures et noires signalées par le patient", actions: "Signalement au médecin, mise à jeun en vue d'un examen complémentaire, préparation locale réalisée", resultats: "Examen complémentaire à programmer ?" },
+    ],
+    "Chirurgie||Douleur post-opératoire avec signe d'alerte associé": [
+      { cible: "Douleur", donnees: "Douleur du site opératoire évaluée par échelle numérique", actions: "Antalgique administré selon prescription", resultats: "Douleur après antalgique ?" },
+      { cible: "Hémorragie", donnees: "Pansement imbibé de sang, constantes modifiées (tension basse, pouls élevé)", actions: "Constantes reprises, infirmier alerté sans délai", resultats: "Avis médical en cours ?" },
+    ],
+    "Chirurgie||Chute suivie d'un signe général à surveiller": [
+      { cible: "Chute", donnees: "Patient retrouvé au sol, douleur localisée signalée", actions: "Patient réinstallé après vérification des fonctions vitales, chirurgien informé", resultats: "Avis médical en cours ?" },
+      { cible: "Hyperthermie", donnees: "Température élevée constatée après la chute, patient suant", actions: "Température reprise, transmission à l'infirmier", resultats: "Température à recontrôler ?" },
+    ],
+    "Gériatrie / EHPAD||Risque de chute": [
+      { cible: "Chute", donnees: "Déplacements instables, aide technique parfois délaissée", actions: "Aide à la marche proposée, environnement sécurisé autant que possible", resultats: "Déplacements à surveiller ?" },
+    ],
+    "Gériatrie / EHPAD||Refus de soin (toilette)": [
+      { cible: "Refus de soin", donnees: "Refuse la toilette, se crispe ou repousse la main du soignant", actions: "Approche renouvelée avec douceur, soin proposé à un autre moment ou par un soignant connu", resultats: "Toilette acceptée à la proposition suivante ?" },
+    ],
+    "Gériatrie / EHPAD||Douleur à la mobilisation": [
+      { cible: "Douleur", donnees: "Douleur exprimée ou observée (grimace, crispation) lors des mobilisations", actions: "Mobilisation réalisée avec douceur, antalgique donné selon prescription si besoin", resultats: "Douleur lors de la prochaine mobilisation ?" },
+    ],
+    "Gériatrie / EHPAD||Dénutrition": [
+      { cible: "Dénutrition", donnees: "Repas peu consommés, perte de poids constatée sur les dernières semaines", actions: "Aide au repas proposée, compléments nutritionnels selon prescription, pesée réalisée", resultats: "Prises alimentaires au prochain repas ?" },
+    ],
+    "Gériatrie / EHPAD||Confusion / désorientation": [
+      { cible: "Confusion", donnees: "Propos incohérents, désorientation dans le temps ou le lieu", actions: "Repères redonnés avec calme, environnement sécurisé, infirmier informé", resultats: "État de confusion à réévaluer ?" },
+    ],
+    "Gériatrie / EHPAD||Repli sur soi habituel puis énervement inhabituel un matin": [
+      { cible: "Repli sur soi", donnees: "Résident qui reste habituellement dans sa chambre, évite les activités proposées", actions: "Présence proposée sans insister, respect du rythme du résident", resultats: "Participation aux activités à encourager ?" },
+      { cible: "Agitation", donnees: "Résident inhabituellement énervé et menaçant ce matin", actions: "Approche calme tentée, infirmier informé de ce changement de comportement", resultats: "Origine de l'énervement à rechercher ?" },
+    ],
+    "Gériatrie / EHPAD||Douleur nocturne rapportée puis découverte au sol": [
+      { cible: "Douleur", donnees: "Douleur rapportée la nuit précédente par le résident", actions: "Douleur signalée, surveillance renforcée proposée", resultats: "Douleur à réévaluer ?" },
+      { cible: "Chute", donnees: "Résident retrouvé au sol lors du passage suivant", actions: "Résident réinstallé après vérification des fonctions vitales, infirmier alerté", resultats: "Avis médical en cours ?" },
+    ],
+    "Gériatrie / EHPAD||Tension avec un tiers puis symptôme urinaire rapporté en fin de journée": [
+      { cible: "Troubles du comportement", donnees: "Tension verbale avec un autre résident au moment d'un repas", actions: "Résidents séparés, retour en chambre proposé au calme", resultats: "Tension apaisée ?" },
+      { cible: "Pollakiurie", donnees: "Déplacements fréquents aux toilettes rapportés en fin de journée, envies pressantes signalées", actions: "Observation transmise à l'infirmier", resultats: "Avis médical à envisager ?" },
+    ],
+    "SSR||Douleur à la mobilisation": [
+      { cible: "Douleur", donnees: "Douleur exprimée lors des séances de mobilisation ou de rééducation", actions: "Mobilisation réalisée avec douceur, antalgique proposé selon prescription si besoin", resultats: "Douleur lors de la prochaine séance ?" },
+    ],
+    "SSR||Démotivation en rééducation": [
+      { cible: "Baisse de l'estime de soi", donnees: "Refuse ou participe peu à la séance de rééducation, propos découragés", actions: "Encouragement proposé, objectifs de la séance rappelés avec le patient", resultats: "Participation à la prochaine séance ?" },
+    ],
+    "SSR||Risque de chute": [
+      { cible: "Chute", donnees: "Périmètre de marche réduit, équilibre instable observé", actions: "Aide à la marche proposée, aide technique mise à disposition", resultats: "Déplacements à surveiller ?" },
+    ],
+    "Psychiatrie||Anxiété / angoisse": [
+      { cible: "Anxiété", donnees: "Patient qui verbalise son angoisse, sollicite l'équipe de façon répétée", actions: "Temps d'écoute accordé, présence rassurante", resultats: "Patient plus apaisé après l'échange ?" },
+    ],
+    "Psychiatrie||Refus de traitement": [
+      { cible: "Refus de soin", donnees: "Refuse la prise du traitement, propos méfiants", actions: "Échange proposé pour comprendre les craintes exprimées, infirmier informé du refus", resultats: "Traitement accepté à la proposition suivante ?" },
+    ],
+    "Psychiatrie||Troubles du sommeil": [
+      { cible: "Insomnie", donnees: "Patient qui dort très peu depuis plusieurs nuits", actions: "Environnement calmé autant que possible, transmission à l'infirmier", resultats: "Qualité du sommeil la nuit suivante ?" },
+    ],
+    "Psychiatrie||Repli / isolement": [
+      { cible: "Repli sur soi", donnees: "Patient qui s'isole, évite les échanges et les activités proposées", actions: "Présence proposée sans insister, sollicitation douce au fil de la journée", resultats: "Participation aux temps collectifs à encourager ?" },
+    ],
+    "Psychiatrie||Agitation majeure avec geste de mise en danger": [
+      { cible: "Agitation", donnees: "Patient très agité, déplacements incessants, débit verbal accéléré", actions: "Cadre rassurant proposé, infirmier et médecin informés", resultats: "Agitation à réévaluer ?" },
+      { cible: "Scarifications", donnees: "Plaie de scarification découverte au retour d'une sortie", actions: "Pansement réalisé par l'infirmier, mise en sécurité proposée", resultats: "Décision médicale en cours ?" },
+    ],
+    "Psychiatrie||Amélioration progressive avec un risque associé à surveiller": [
+      { cible: "Baisse de l'estime de soi", donnees: "Humeur qui reste triste mais patient plus participatif que les jours précédents", actions: "Encouragement des initiatives du patient, valorisation des progrès observés", resultats: "Évolution de l'humeur à poursuivre ?" },
+      { cible: "Altération de la mobilité", donnees: "Patient avec une contre-indication temporaire à l'appui, traitement anticoagulant en cours", actions: "Consigne de non-appui rappelée, aide aux déplacements proposée", resultats: "Consultation de suivi à venir ?" },
+    ],
+    "Psychiatrie||Absence temporaire de la patiente puis état de choc au retour": [
+      { cible: "Fugue", donnees: "Patient absent du service sur un temps de repas, recherche engagée", actions: "Recherche organisée avec l'équipe et la hiérarchie", resultats: "Patient retrouvé ?" },
+      { cible: "État de conscience", donnees: "Patient prostré au retour, propos répétitifs et peu compréhensibles", actions: "Présence calme proposée, infirmier et médecin informés", resultats: "État à réévaluer après un temps de calme ?" },
+    ],
+    "Soins à domicile||Épuisement de l'aidant": [
+      { cible: "Relation avec l'entourage", donnees: "Aidant qui verbalise son épuisement, dort peu, assure seul les soins", actions: "Écoute de l'aidant, relais ou aide extérieure évoqués", resultats: "Aidant plus soutenu ?" },
+    ],
+    "Soins à domicile||Risque de chute au domicile": [
+      { cible: "Chute", donnees: "Appui instable observé, tapis ou obstacles repérés dans le logement", actions: "Aide à la marche proposée, aménagement du logement évoqué", resultats: "Déplacements au domicile à surveiller ?" },
+    ],
+    "Soins à domicile||Plaie chronique": [
+      { cible: "Plaie", donnees: "Plaie qui tarde à cicatriser, aspect surveillé à chaque passage", actions: "Pansement réalisé selon protocole, évolution transmise à l'infirmier", resultats: "Évolution de la cicatrisation au prochain passage ?" },
+    ],
+    "Soins à domicile||Observance du traitement": [
+      { cible: "Refus de soin", donnees: "Prises de traitement oubliées ou pilulier mal organisé", actions: "Pilulier réorganisé avec le patient, explications redonnées", resultats: "Observance au prochain passage ?" },
+    ],
+    "Bloc / SSPI||Douleur post-op immédiate": [
+      { cible: "Douleur", donnees: "Douleur évaluée par échelle numérique dès le réveil", actions: "Antalgique administré selon prescription", resultats: "Douleur après antalgique ?" },
+    ],
+    "Bloc / SSPI||Nausées / vomissements au réveil": [
+      { cible: "Nausées/Vomissements", donnees: "Nausées au réveil, un ou plusieurs épisodes de vomissements", actions: "Antiémétique administré selon prescription", resultats: "Tolérance digestive à réévaluer ?" },
+    ],
+    "Bloc / SSPI||Anxiété au réveil": [
+      { cible: "Anxiété", donnees: "Patient anxieux au réveil, propos confus ou inquiets", actions: "Présence rassurante, informations redonnées sur le déroulement de l'intervention", resultats: "Patient plus apaisé ?" },
+    ],
+    "Bloc / SSPI||Hypothermie / frissons": [
+      { cible: "Hypothermie", donnees: "Frissons au réveil, température abaissée", actions: "Réchauffement mis en place, température recontrôlée", resultats: "Température à recontrôler ?" },
+    ],
+    "Oncologie||Douleur liée à la maladie ou au traitement": [
+      { cible: "Douleur", donnees: "Douleur évaluée par échelle numérique, y compris au repos", actions: "Antalgique administré selon prescription, réinstallation proposée", resultats: "Douleur après antalgique ?" },
+    ],
+    "Oncologie||Fatigue et retentissement moral": [
+      { cible: "Asthénie", donnees: "Patient très fatigué, participe peu aux soins", actions: "Rythme adapté aux capacités du patient, aide proposée pour les soins", resultats: "Niveau de fatigue à réévaluer ?" },
+      { cible: "Baisse de l'estime de soi", donnees: "Patient qui verbalise son découragement face aux traitements", actions: "Temps d'écoute accordé", resultats: "Patient plus apaisé après l'échange ?" },
+    ],
+    "Oncologie||Fièvre et atteinte cutanée chez une patiente immunodéprimée": [
+      { cible: "Hyperthermie", donnees: "Température élevée chez une patiente en aplasie, sudation importante", actions: "Température surveillée de façon rapprochée, antipyrétique selon prescription", resultats: "Température à recontrôler ?" },
+      { cible: "Érythème", donnees: "Érythème cutané constaté lors de la toilette", actions: "Évaluation du risque d'escarre réalisée, signalement à l'infirmier, matelas adapté envisagé", resultats: "Évolution cutanée à surveiller ?" },
+    ],
+    "Oncologie||Fatigue et douleur dorsale chez un patient récemment informé de son diagnostic": [
+      { cible: "Douleur", donnees: "Douleur dorsale continue, évaluée par échelle numérique même au repos", actions: "Antalgique administré selon prescription", resultats: "Douleur après antalgique ?" },
+      { cible: "Peur", donnees: "Patient qui verbalise sa peur face au diagnostic annoncé", actions: "Temps d'écoute accordé, disponibilité manifestée", resultats: "Patient plus apaisé après l'échange ?" },
+    ],
+    "Oncologie||Repli sur soi et image de soi dégradée en cours de traitement": [
+      { cible: "Repli sur soi", donnees: "Patiente mutique, triste, alors qu'habituellement plus expansive", actions: "Présence proposée sans insister, disponibilité manifestée", resultats: "Patiente plus communicative ?" },
+      { cible: "Baisse de l'estime de soi", donnees: "Patiente qui verbalise ne plus se supporter depuis la perte de ses cheveux", actions: "Écoute sans jugement, valorisation de la patiente au fil des soins", resultats: "Patiente plus apaisée après l'échange ?" },
+    ],
+  };
+
+  /* ===================== CORRIGÉS DES 16 CAS DE LA BANQUE (module 9) ===================== */
+  // Corrigés fidèles au document source fourni, alignés sur les menus de cibles disponibles.
+  // Certaines lignes portent une note "proposition de corrigé" quand plusieurs cibles du
+  // menu sont également défendables selon l'angle retenu.
+  // Clé : "service (minuscule)|sexe (minuscule)|label du problème (minuscule, sans accent)".
+  const BANK_CORRECTIONS = {
+    "chirurgie|feminin|signes digestifs a surveiller apres un changement de traitement": [
+      { ident: "8h30 EAS", cible: "Méléna", donnees: "Signale des selles dures et noires", actions: "Surveillance de l'élimination (fiche selles), signalement au médecin, mise à jeun en vue d'une gastroscopie prévue ce jour, préparation locale réalisée", resultats: "À jeun ; préparation locale faite ; surveillance du transit et des selles en cours" },
+      { ident: "10h EAS", cible: "Repli sur soi", donnees: "Se referme sur elle-même, communication difficile", actions: "Accompagnement individualisé proposé pendant le soin d'hygiène", resultats: "S'est confiée pendant la douche sur ses soucis familiaux" },
+    ],
+    "chirurgie|feminin|douleur post-operatoire avec signe d'alerte associe": [
+      { ident: "8h EAS", cible: "Douleur", donnees: "Douleur au bas-ventre EN 6/10, pansement de l'ombilic taché de sang", actions: "Surveillance et évaluation de la douleur (échelle TILT), antalgique administré", resultats: "Douleur à réévaluer ? État des urines ?" },
+      { ident: "8h30 EAS", cible: "Hémorragie", donnees: "Ne se sent pas bien, pansement de l'ombilic imbibé de sang, absence d'urines, TA 9/5, FC 110 BPM, cyanose des extrémités", actions: "Surveillance du pansement (repère posé), reprise des paramètres vitaux, surveillance de la conscience, patiente recouverte, écoute et réassurance, transmission à l'IDE", resultats: "État du pansement ? Conscience ? Teint et couleur des extrémités ? TA ?" },
+    ],
+    "chirurgie|masculin|chute suivie d'un signe general a surveiller": [
+      { ident: "Matin EAS", cible: "Chute", donnees: "Retrouvé à terre ce matin, explique avoir voulu se rendre aux toilettes et avoir glissé en se tenant à l'adaptable", actions: "Réinstallé dans son lit avec l'aide d'une collègue après vérification des fonctions vitales", resultats: "Chirurgien informé et prévenu" },
+      { ident: "Matin EAS", cible: "Douleur", donnees: "Douleur à la jambe droite", actions: "Surveillance et évaluation de la douleur (échelle TILT)", resultats: "EN évaluée à 6/10" },
+      { ident: "Matin EAS", cible: "Hyperthermie", donnees: "Dit avoir chaud, est suant, a soif, température mesurée à 38,3°C", actions: "Prise de la température, change réalisé, patient rafraîchi, boisson proposée", resultats: "Température à recontrôler ?" },
+    ],
+    "medecine|masculin|douleur d'un membre associee a un etat moral fragile": [
+      { ident: "EAS", cible: "Phlébite", donnees: "Douleur à la jambe droite, mollet EN 5/10, rougeur et chaleur locales", actions: "Lit strict mis en place, prise des paramètres (FC, température), transmission à l'IDE et au médecin", resultats: "Comprend et accepte le lit strict" },
+      { ident: "EAS", cible: "Anxiété", donnees: "Peu d'appétit, alitement, tristesse, angoisse, pleurs, peur de l'avenir car vit seul", actions: "Écoute et réassurance proposées, valorisation du patient, lecture/TV/jeux proposés", resultats: "État psychologique et appétit à réévaluer ? Rendez-vous assistante sociale et CMP à envisager ?" },
+      { ident: "EAS", cible: "Asthénie", donnees: "Reste alité toute la journée", actions: "Temps de repos respecté, stimulation pour les gestes de la vie quotidienne", resultats: "Mobilité et état psychologique à réévaluer ?" },
+    ],
+    "medecine|feminin|malaise du matin avec plaie associee decouverte a la toilette": [
+      { ident: "7h EAS", cible: "Hypoglycémie", donnees: "Céphalées, troubles visuels, sueurs, glycémie capillaire à 0,50 g/L", actions: "Maintenue allongée, transmission à l'IDE, resucrage réalisé", resultats: "Résultat de la glycémie de contrôle ? Disparition des symptômes ?" },
+      { ident: "Toilette EAS", cible: "Plaie", donnees: "Plaie sous le pied droit, inflammatoire avec écoulement jaunâtre, pied chaud et œdématié, EN à 0", actions: "Nettoyage de la plaie réalisé, transmission à l'IDE", resultats: "Aspect de la plaie à suivre ? Douleur à réévaluer ?" },
+    ],
+    "medecine|masculin|gene respiratoire avec propos inquietants du patient": [
+      { ident: "EAS", cible: "Dyspnée", donnees: "FR à 30/min, SpO2 à 89% en air ambiant, suant, non fébrile, toux avec crachats épais et jaunes, refuse la toilette", actions: "Proposition de repos, surveillance en cours", resultats: "FR et saturation à recontrôler ?" },
+      { ident: "EAS", cible: "Peur", donnees: "N'a pas bien dormi, semble anxieux, propos négatifs, peur de mourir en étouffant, refuse de boire et manger", actions: "Présence proposée", resultats: "État anxieux à réévaluer ?" },
+    ],
+    "medecine|masculin|disparition du service avec refus alimentaire au retour": [
+      { ident: "8h EAS", cible: "Fugue", donnees: "Déambule de façon importante dans le service, disparition constatée à 8h", actions: "Service d'entrée alerté, contention ventrale mise en place selon prescription pour les repas, repères redonnés, repas adapté", resultats: "Alimentation à suivre ? Diminution de la confusion ?" },
+      { ident: "8h30 EAS", cible: "Agitation", donnees: "Au moment de l'installation pour le petit-déjeuner, insulte et injurie le soignant, exprime la peur d'être empoisonné", actions: "Écoute proposée, accompagnement assuré pendant le repas", resultats: "Comportement à réévaluer ? Alimentation et agitation à suivre ?" },
+    ],
+    "oncologie|feminin|fievre et atteinte cutanee chez une patiente immunodeprimee": [
+      { ident: "7h30 EAS", cible: "Érythème", donnees: "Asthénie, hyperthermie, sueurs, érythème fessier et aux talons", actions: "Évaluation du risque d'escarre réalisée avec échelle, test de vitropression effectué, matelas anti-escarre commandé, surveillance cutanée", resultats: "Résultat du test de vitropression ? Matelas installé à 13h" },
+      { ident: "7h30 EAS", cible: "Hyperthermie", donnees: "Température à 38,5°C, patiente suante", actions: "Patiente découverte, hydratation en cours, antipyrétique et antibiothérapie en cours selon prescription", resultats: "Température à recontrôler à 9h30 ?" },
+      { ident: "7h30 EAS", cible: "Troubles de la déglutition", donnees: "Dysphagie, douleur dans la bouche et en avalant, petits points blancs au niveau des muqueuses", actions: "Signalement fait à l'IDE et au médecin, soins de bouche prescrits et réalisés, évaluation de la douleur faite, diététicienne sollicitée pour adapter texture et température des aliments", resultats: "Douleur (EN) à réévaluer ?" },
+    ],
+    "oncologie|masculin|fatigue et douleur dorsale chez un patient recemment informe de son diagnostic": [
+      { ident: "EAS", cible: "Refus de soin", donnees: "Ne veut pas se lever pour sa toilette, a mal dormi, se dit épuisé, pâle", actions: "Toilette proposée plus tard dans la matinée, temps de repos respecté", resultats: "Toilette réalisée plus tard ?" },
+      { ident: "EAS", cible: "Douleur", donnees: "Douleur dorsale, EN à 7/10 même au repos, douleur continue avec sensation d'élancement", actions: "Évaluation de la douleur réalisée, transmission à l'IDE pour un traitement antalgique", resultats: "Douleur après mise en place du traitement ?" },
+      { ident: "EAS", cible: "Anxiété", donnees: "Dit être « foutu », verbalise avoir peur", actions: "Écoute proposée, orientation vers un autre professionnel évoquée", resultats: "État psychologique à réévaluer ?" },
+    ],
+    "oncologie|feminin|repli sur soi et image de soi degradee en cours de traitement": [
+      { ident: "EAS", cible: "Repli sur soi", donnees: "Mutisme, tristesse, agacement, perte d'envie", actions: "Écoute empathique proposée, verbalisation du ressenti favorisée, suivi avec un autre professionnel évoqué", resultats: "Patiente plus communicative ?" },
+      { ident: "EAS", cible: "Baisse de l'estime de soi", donnees: "Ne se supporte plus depuis la perte de ses cheveux, asthénie, compagnon peu présent", actions: "Orientation proposée vers la pose d'une perruque et les soins de la socio-esthéticienne, temps de bien-être évoqués (relaxation, soins esthétiques), orientation de la famille vers un soutien associatif évoquée", resultats: "Image de soi à réévaluer ?" },
+    ],
+    "psychiatrie|feminin|agitation majeure avec geste de mise en danger": [
+      { ident: "EAS", cible: "Agitation", donnees: "Débit verbal accéléré, se déplace beaucoup, ne tient pas en place, très exubérante", actions: "Écoute empathique proposée, verbalisation du ressenti favorisée, propos rassurants tenus", resultats: "Agitation à réévaluer ?" },
+      { ident: "EAS", cible: "Scarifications", donnees: "Verbalise en avoir marre de la vie, automutilation avec des canettes, scarification régulière", actions: "Mise en chambre d'isolement décidée par le médecin, mise en pyjama, retrait des objets à risque, surveillance régulière au minimum toutes les heures — proposition de corrigé : « Risque suicidaire » est également défendable selon l'accent mis sur l'intention plutôt que sur le geste", resultats: "Décision médicale suivie d'effet ?" },
+      { ident: "EAS", cible: "Plaie", donnees: "Plaie à l'avant-bras gauche", actions: "Pansement réalisé par l'infirmier, surveillance du pansement, de la plaie et de la température mise en place", resultats: "Évolution de la plaie à surveiller ?" },
+    ],
+    "psychiatrie|feminin|amelioration progressive avec un risque associe a surveiller": [
+      { ident: "EAS", cible: "Baisse de l'estime de soi", donnees: "Humeur triste", actions: "Attention portée à ses propos, valorisation proposée, recherche avec elle de ce qui lui fait plaisir, activités proposées, vigilance sur un isolement/clinophilie excessifs, besoin d'un suivi psychologique évoqué en équipe", resultats: "Humeur toujours triste à ce jour" },
+      { ident: "EAS", cible: "Phlébite", donnees: "Attelle au pied droit, mobilité réduite, traitement anticoagulant en cours (fraxiparine)", actions: "Surveillance des signes de phlébite (rougeur, chaleur, douleur, œdème), surveillance du point d'injection et des signes hémorragiques, mobilisation encouragée dans la limite de la consigne", resultats: "Absence de signe clinique à ce jour" },
+      { ident: "EAS", cible: "Risque suicidaire", donnees: "Antécédent de propos et d'idées de mort à l'entrée, absents actuellement", actions: "Surveillance renforcée maintenue, objets et vêtements potentiellement dangereux identifiés et retirés, évaluation des propos au fil des soins", resultats: "Absence d'idée suicidaire exprimée à ce jour" },
+    ],
+    "psychiatrie|feminin|absence temporaire de la patiente puis etat de choc au retour": [
+      { ident: "Midi EAS", cible: "Sortie inopinée", donnees: "Absente au repas de midi, ne se trouve pas dans sa chambre — proposition de corrigé : « Fugue » est également défendable selon le degré d'autorisation de sortie de la patiente", actions: "Recherche effectuée dans sa chambre, hiérarchie informée de la disparition, recherche engagée en ville", resultats: "Patiente retrouvée par un infirmier du service" },
+      { ident: "Retour EAS", cible: "Repli sur soi", donnees: "Prostrée, répète des mots inaudibles", actions: "Présence empathique et disponible assurée, attention portée à sa communication non verbale", resultats: "État à réévaluer après un temps de calme ?" },
+    ],
+    "geriatrie / ehpad|feminin|repli sur soi habituel puis enervement inhabituel un matin": [
+      { ident: "8h EAS", cible: "Agitation", donnees: "Semble énervée et agacée dès le réveil, déjà habillée alors qu'aucune aide n'a été apportée pour la toilette, demande à être laissée tranquille", actions: "Résidente interrogée, écoute proposée, IDE informée", resultats: "Origine de l'énervement à préciser ?" },
+      { ident: "9h EAS", cible: "Fugue", donnees: "Ne se trouve pas dans sa chambre, armoire et table de nuit vides, a disparu", actions: "IDE et équipe informées, protocole de recherche déclenché", resultats: "Recherche en cours" },
+    ],
+    "geriatrie / ehpad|feminin|douleur nocturne rapportee puis decouverte au sol": [
+      { ident: "Matin EAS", cible: "Douleur", donnees: "Dit avoir mal dormi cette nuit à cause de douleurs", actions: "Résidente interrogée, douleur évaluée, toilette au lit proposée", resultats: "Douleur à réévaluer ?" },
+      { ident: "Matin EAS", cible: "Chute", donnees: "Retrouvée au sol, adaptable renversé, débris de verre autour d'elle, dit avoir voulu faire sa toilette au lavabo", actions: "Résidente interrogée, état général et douleur évalués, IDE informée", resultats: "Avis médical en cours ?" },
+    ],
+    "geriatrie / ehpad|masculin|tension avec un tiers puis symptome urinaire rapporte en fin de journee": [
+      { ident: "12h EAS", cible: "Hétéro agressivité", donnees: "Agacement et insultes envers son voisin de table pendant le repas de midi — proposition de corrigé : cible disponible côté AS ; pour un professionnel AP, « Troubles du comportement » est l'équivalent le plus proche disponible dans son menu", actions: "Résident ramené dans sa chambre, écoute et interrogation proposées, apaisement recherché", resultats: "Tension apaisée après le retour en chambre ?" },
+      { ident: "Après-midi EAS", cible: "Pollakiurie", donnees: "L'animatrice signale de nombreux déplacements aux toilettes pendant l'activité, résident confirme une dysurie et des envies pressantes", actions: "IDE informée, couleur des urines demandée au patient", resultats: "Bandelette urinaire (± ECBU) à envisager ?" },
+    ],
+
+    // Cas "fil rouge" (accès normal + code formateur "/corrigé") : mêmes contenus que
+    // dans SPECIAL_CASES.correctionRows, dupliqués ici pour que le bouton engrenage
+    // fonctionne aussi sur ces deux cas, en plus de leur code dédié.
+    "pediatrie|masculin|difficulte respiratoire (bronchiolite) — cas fil rouge": [
+      { ident: "8h AP", cible: "Encombrement", donnees: "FR 52/min, tirage intercostal léger, SpO2 94% air ambiant, toux grasse fréquente", actions: "DRP et lavage de nez réalisés avant le repas, aérosol de sérum physiologique administré", resultats: "FR ? SpO2 ?" },
+      { ident: "8h AP", cible: "Refus de s'alimenter", donnees: "N'a bu que 90 mL sur 150 mL habituels", actions: "Biberon proposé après désobstruction", resultats: "Quantité bue au prochain repas ?" },
+      { ident: "10h30 AP", cible: "Anxiété", donnees: "Pleurs et raidissement à l'approche de la seringue de lavage de nez", actions: "Geste réalisé rapidement, contenance physique assurée, parole rassurante pendant le soin", resultats: "Apaisement après le soin ?" },
+      { ident: "10h30 AP", cible: "Relation avec l'entourage", donnees: "Maman n'a pas dormi de la nuit, verbalise « j'ai peur qu'il arrête de respirer », redemande un contrôle de SpO2 déjà fait", actions: "Paramètres re-vérifiés et annoncés à la maman, temps d'écoute accordé", resultats: "Maman rassurée ?" },
+      { ident: "14h AP", cible: "Encombrement", donnees: "FR 44/min, tirage diminué, SpO2 96%", actions: "Aérosol administré selon prescription", resultats: "Amélioration progressive confirmée" },
+      { ident: "14h AP", cible: "Anxiété", donnees: "Pleurs dès que la maman s'éloigne, y compris pour se restaurer", actions: "Présence de la puéricultrice assurée auprès de Nolan le temps que la maman sorte", resultats: "Maman sortie quelques minutes" },
+      { ident: "17h AP", cible: "Encombrement", donnees: "FR 40/min, SpO2 97%, absence de tirage, biberon complet accepté (150 mL)", actions: "Transmission de l'amélioration faite à l'équipe suivante", resultats: "Constantes normalisées, alimentation reprise" },
+    ],
+    "lieu de vie (fam) — hors-menu|masculin|chute avec traumatisme — cas fil rouge": [
+      { ident: "9h15 AES", cible: "Chute", donnees: "Retrouvé assis au sol dans le couloir, douleur au poignet droit maintenu contre lui, plaie superficielle à l'arcade sourcilière gauche avec léger saignement, absence de perte de connaissance, orienté et capable de raconter les circonstances", actions: "Plaie de l'arcade nettoyée, pansement compressif posé, constantes prises, médecin contacté et consulté par téléphone, surveillance neurologique horaire mise en place selon prescription, consultation aux urgences organisée avec accompagnement", resultats: "Radiographie sans fracture, entorse du poignet confirmée, attelle et antalgiques prescrits ; surveillance neurologique restée sans anomalie durant l'après-midi" },
+      { ident: "9h15 AES", cible: "Relation avec l'entourage", donnees: "Demande de façon répétée que ses parents ne soient pas prévenus, craint leur réaction (« ils vont encore dire que je fais n'importe quoi »)", actions: "Demande entendue et accompagnée sans décision unilatérale de l'AES, éducatrice restée présente tout le trajet et l'attente aux urgences pour rassurer le jeune, question du contact famille transmise à l'équipe et au médecin", resultats: "Famille non prévenue à ce stade ; question à trancher en équipe ?" },
+    ],
+  };
+
+  function firstProblem(service){ const l=PROBLEMS[service]; return (l&&l[0])?l[0].label:""; }
+  function probOpts(service, sel){
+    const l=PROBLEMS[service]||[];
+    return l.map(p=>`<option ${p.label===sel?'selected':''}>${esc(p.label)}</option>`).join('');
+  }
+
+  /* ===================== CAS SPÉCIAUX (accès par code) ===================== */
+  // Cas rédigés à l'avance, non listés dans les menus déroulants.
+  // Accessibles uniquement en saisissant la combinaison exacte dans le champ code.
+  const SPECIAL_CASES = {
+    "ap/pediatrie/masculin/18 mois/difficultes respiratoires": {
+      meta: { service: "Pédiatrie", pro: "Auxiliaire de puériculture", ageValue: "18", ageUnit: "mois", sexe: "Masculin", probleme: "Difficulté respiratoire (bronchiolite) — cas fil rouge" },
+      text: `Nolan est hospitalisé depuis hier soir en pédiatrie pour une bronchiolite. C'est son deuxième épisode cette saison ; il avait déjà été vu aux urgences trois semaines plus tôt sans hospitalisation à l'époque. Sa maman raconte qu'il a un grand frère de 6 ans qui a eu un gros rhume la semaine dernière à l'école. La chambre est équipée d'un mobile musical suspendu au-dessus du lit, cadeau de la tata de Nolan pour son premier anniversaire.
+
+Ce matin à 8h, la fréquence respiratoire de Nolan est mesurée à 52/min, avec un léger tirage intercostal. Sa saturation est à 94% en air ambiant. Il tousse fréquemment, une toux grasse, et peine à finir ses biberons : il n'a bu que 90 mL sur les 150 mL habituels ce matin. Un lavage de nez et une désobstruction rhino-pharyngée sont réalisés avant chaque repas. Sa température est à 37,9°C. Le pédiatre a prescrit une surveillance rapprochée de la saturation et des aérosols de sérum physiologique toutes les 4 heures.
+
+Vers 10h30, alors que l'infirmière vient réaliser un nouveau lavage de nez, Nolan se met à pleurer fortement et se raidit dès qu'on approche la seringue de son visage. Sa maman, présente depuis la veille au soir, semble elle-même très fatiguée ; elle explique qu'elle n'a pas dormi de la nuit à surveiller sa respiration et qu'elle « a peur qu'il arrête de respirer ». Elle demande à l'infirmière de vérifier une nouvelle fois la saturation alors que celle-ci vient d'être contrôlée. Le papa de Nolan doit arriver en fin d'après-midi, après le travail. Nolan porte un pyjama à motifs de dinosaures que sa maman a apporté de la maison car il ne supportait pas les pyjamas de l'hôpital.
+
+En début d'après-midi, vers 14h, la fréquence respiratoire de Nolan est repassée à 44/min, le tirage a diminué, et la saturation est remontée à 96% en air ambiant. Il a néanmoins refusé la sieste et pleure dès que sa maman s'éloigne du lit, y compris pour aller se restaurer ; elle a fini par manger un sandwich debout près du berceau. Nolan a bu un peu mieux à midi, 110 mL. Sa maman commence à se détendre sur le plan respiratoire mais reste très sollicitée par les pleurs de séparation ; elle dit se sentir « tiraillée » entre le besoin de souffler un peu et la peur de le laisser seul même quelques minutes. Une puéricultrice propose de rester un moment auprès de Nolan pour permettre à la maman de sortir prendre l'air.
+
+Vers 17h, à l'arrivée du papa, Nolan s'apaise sensiblement dans les bras de ses deux parents réunis. Sa fréquence respiratoire est stable à 40/min, la saturation à 97%, il n'y a plus de tirage visible. Il accepte un biberon complet pour la première fois depuis son entrée, soit 150 mL. La maman en profite pour aller se reposer une heure pendant que le papa reste au chevet.`
+    },
+    "fam/ap/masculin/15 ans/chute": {
+      meta: { service: "Lieu de vie (FAM) — hors-menu", pro: "Auxiliaire de puériculture", ageValue: "15", ageUnit: "ans", sexe: "Masculin", probleme: "Chute avec traumatisme — cas fil rouge" },
+      text: `Mattéo vit au sein du lieu de vie depuis 8 mois. Il présente une infirmité motrice cérébrale et se déplace habituellement avec un déambulateur, sur de courtes distances, sous surveillance. Il est plutôt bavard, adore les jeux vidéo de course automobile et a un poster de sa voiture préférée au-dessus de son lit. Sa référente éducative habituelle, en congés cette semaine, est remplacée par une collègue qu'il connaît moins bien.
+
+Ce matin vers 9h15, en se rendant seul vers la salle de bain sans son déambulateur, Mattéo chute dans le couloir. L'AES de service, alertée par le bruit, le retrouve assis au sol, appuyé contre le mur. Il se plaint immédiatement d'une douleur au poignet droit, qu'il tient contre lui, et présente une petite plaie superficielle à l'arcade sourcilière gauche, avec un léger saignement. Il n'a pas perdu connaissance et reste parfaitement orienté, capable de raconter les circonstances de la chute : il explique avoir voulu « faire vite » car il ne voulait pas être en retard pour le petit-déjeuner. Le couloir est éclairé normalement et le sol, récemment nettoyé, ne présente pas de trace d'humidité visible. Un tapis d'entrée un peu corné est présent à quelques mètres de l'endroit de la chute.
+
+Le poignet droit de Mattéo présente un léger gonflement, sans déformation visible ; la mobilisation des doigts reste possible mais douloureuse. Il évalue sa douleur à 6/10 avec l'échelle habituellement utilisée avec lui. La plaie de l'arcade est nettoyée et un pansement compressif est posé ; le saignement s'arrête rapidement. Ses constantes sont prises : température à 36,7°C, aucun signe de malaise associé. Mattéo répète plusieurs fois qu'il ne veut pas que ses parents soient prévenus, « ils vont encore dire que je fais n'importe quoi ». Le petit-déjeuner, servi à 9h, est resté sur la table sans qu'il y touche.
+
+Vers 9h45, le médecin du lieu de vie, contacté par téléphone, demande une surveillance neurologique toutes les heures compte tenu du choc à la tête, ainsi qu'une consultation aux urgences pour un avis sur le poignet, à prévoir dans la matinée. Mattéo refuse d'abord catégoriquement d'aller aux urgences, dit que « ça va passer » et se montre agité, en particulier avec l'éducatrice qu'il connaît moins. Il accepte finalement après qu'elle lui propose de rester avec lui pendant tout le trajet et l'attente sur place, plutôt qu'un simple accompagnement en taxi conventionné.
+
+Aux urgences, la radiographie ne montre pas de fracture ; le diagnostic retenu est une entorse du poignet, avec attelle et antalgiques pendant quelques jours. Le médecin urgentiste s'étonne que la famille n'ait pas encore été prévenue et le mentionne à l'éducatrice. De retour au lieu de vie vers 13h30, Mattéo est fatigué, un peu grognon, mais répond correctement aux questions et reconnaît bien les personnes autour de lui. Il demande à pouvoir jouer un peu à la console « juste pour se calmer », ce qui est accepté. La surveillance neurologique horaire se poursuit jusqu'en fin d'après-midi, sans anomalie relevée.`
+    }
+  };
+
+  // Variante "corrigé formateur" : même récit que le cas normal, tableau DAR prérempli.
+  // Entrée indépendante (pas de partage d'objet avec le cas standard), accessible en
+  // ajoutant "/ corrigé" à la fin du code habituel.
+  SPECIAL_CASES["ap/pediatrie/masculin/18 mois/difficultes respiratoires/corrige"] = {
+    meta: SPECIAL_CASES["ap/pediatrie/masculin/18 mois/difficultes respiratoires"].meta,
+    text: SPECIAL_CASES["ap/pediatrie/masculin/18 mois/difficultes respiratoires"].text,
+    correctionRows: [
+      { ident: "8h AP", cible: "Encombrement", donnees: "FR 52/min, tirage intercostal léger, SpO2 94% air ambiant, toux grasse fréquente", actions: "DRP et lavage de nez réalisés avant le repas, aérosol de sérum physiologique administré", resultats: "FR ? SpO2 ?" },
+      { ident: "8h AP", cible: "Refus de s'alimenter", donnees: "N'a bu que 90 mL sur 150 mL habituels", actions: "Biberon proposé après désobstruction", resultats: "Quantité bue au prochain repas ?" },
+      { ident: "10h30 AP", cible: "Anxiété", donnees: "Pleurs et raidissement à l'approche de la seringue de lavage de nez", actions: "Geste réalisé rapidement, contenance physique assurée, parole rassurante pendant le soin", resultats: "Apaisement après le soin ?" },
+      { ident: "10h30 AP", cible: "Relation avec l'entourage", donnees: "Maman n'a pas dormi de la nuit, verbalise « j'ai peur qu'il arrête de respirer », redemande un contrôle de SpO2 déjà fait", actions: "Paramètres re-vérifiés et annoncés à la maman, temps d'écoute accordé", resultats: "Maman rassurée ?" },
+      { ident: "14h AP", cible: "Encombrement", donnees: "FR 44/min, tirage diminué, SpO2 96%", actions: "Aérosol administré selon prescription", resultats: "Amélioration progressive confirmée" },
+      { ident: "14h AP", cible: "Anxiété", donnees: "Pleurs dès que la maman s'éloigne, y compris pour se restaurer", actions: "Présence de la puéricultrice assurée auprès de Nolan le temps que la maman sorte", resultats: "Maman sortie quelques minutes" },
+      { ident: "17h AP", cible: "Encombrement", donnees: "FR 40/min, SpO2 97%, absence de tirage, biberon complet accepté (150 mL)", actions: "Transmission de l'amélioration faite à l'équipe suivante", resultats: "Constantes normalisées, alimentation reprise" }
+    ]
+  };
+
+  function normalizeCode(s) {
+    return (s||"").toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+      .replace(/\s+/g,' ').trim()
+      .split('/').map(p=>p.trim()).join('/');
+  }
+  function lookupSpecialCase(code) {
+    return SPECIAL_CASES[normalizeCode(code)] || null;
+  }
+
+  /* ===================== ESPACE FORMATEUR (god mode) ===================== */
+  // Mot de passe simple, dissuasif pour un usage étudiant courant — pas une
+  // vraie protection cryptographique (le code source du fichier reste lisible
+  // par quiconque l'ouvre). À changer ici si besoin.
+  const FORMATEUR_PASSWORD = "GodMode";
+  let godModeUnlocked = true; /* démo : godmode forcé */
+
+  function currentCorrection() {
+    // 1. Cas de la banque figée (16 cas + Nolan/Mattéo) : clé service|sexe|problème
+    const bankKey = [params.service, params.sexe, params.probleme]
+      .map(s => (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim())
+      .join("|");
+    if (BANK_CORRECTIONS[bankKey]) return { rows: BANK_CORRECTIONS[bankKey], source: "bank" };
+    // 2. Corrigé générique du moteur aléatoire : clé service||label
+    const genKey = params.service + "||" + params.probleme;
+    if (GENERIC_CORRECTIONS[genKey]) return { rows: GENERIC_CORRECTIONS[genKey], source: "generic" };
+    return null;
+  }
+
+  function openGodMode() {
+    const found = currentCorrection();
+    const overlay = document.createElement('div');
+    overlay.className = 'gm-overlay';
+    overlay.id = 'gm-overlay';
+
+    if (!godModeUnlocked) {
+      overlay.innerHTML = `
+        <div class="gm-box">
+          <div class="gm-head"><h3>Espace formateur</h3><button class="gm-close" id="gm-close">×</button></div>
+          <div class="gm-body">
+            <p class="intro">Cet espace donne accès au corrigé du cas actuellement affiché. Réservé aux formateurs.</p>
+            <div class="gm-pass-row">
+              <input type="password" id="gm-pass" placeholder="Mot de passe formateur" />
+              <button class="btn btn-cible" id="gm-submit">Accéder</button>
+            </div>
+            <div class="gm-error" id="gm-error">Mot de passe incorrect.</div>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      document.getElementById('gm-close').addEventListener('click', closeGodMode);
+      overlay.addEventListener('click', e => { if (e.target === overlay) closeGodMode(); });
+      const submit = () => {
+        const val = document.getElementById('gm-pass').value;
+        if (val === FORMATEUR_PASSWORD) {
+          godModeUnlocked = true;
+          closeGodMode();
+          openGodMode();
+        } else {
+          document.getElementById('gm-error').classList.add('show');
+        }
+      };
+      document.getElementById('gm-submit').addEventListener('click', submit);
+      document.getElementById('gm-pass').addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+      document.getElementById('gm-pass').focus();
+      return;
+    }
+
+    let bodyHtml;
+    if (!found) {
+      bodyHtml = `<p class="gm-empty">Aucun corrigé n'est disponible pour ce paramétrage précis (cas non encore documenté, ou aucun cas généré pour l'instant).</p>`;
+    } else {
+      const rows = found.rows;
+      const hasIdent = found.source === 'bank';
+      bodyHtml = `
+        <p class="intro">Cible(s) attendue(s) pour : <b>${esc(params.service)} · ${esc(params.probleme)}</b>${found.source==='generic' ? ' — corrigé générique (données/actions/résultats formulés de façon adaptable, à ajuster selon le cas affiché)' : ''}</p>
+        <table class="gm-table">
+          <thead><tr>
+            ${hasIdent ? '<th>Identification</th>' : ''}
+            <th class="gm-cible-h">Cible</th><th>Données</th><th>Actions</th><th>Résultats</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                ${hasIdent ? `<td>${esc(r.ident||'')}</td>` : ''}
+                <td class="gm-cible">${esc(r.cible)}</td>
+                <td>${esc(r.donnees)}</td>
+                <td>${esc(r.actions)}</td>
+                <td>${esc(r.resultats)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+        <p class="gm-note">Proposition de corrigé : d'autres formulations ou d'autres cibles du menu peuvent être également recevables selon l'angle retenu par l'étudiant.</p>
+      `;
+    }
+
+    overlay.innerHTML = `
+      <div class="gm-box">
+        <div class="gm-head"><h3>Corrigé formateur</h3><button class="gm-close" id="gm-close">×</button></div>
+        <div class="gm-body">${bodyHtml}</div>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('gm-close').addEventListener('click', closeGodMode);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeGodMode(); });
+  }
+
+  function closeGodMode() {
+    const overlay = document.getElementById('gm-overlay');
+    if (overlay) overlay.remove();
+  }
+
+  let params = {
+    service: "Maternité",
+    pro: "Auxiliaire de puériculture",
+    ageValue: "3",
+    ageUnit: "jours",
+    sexe: "Féminin",
+    probleme: ""
+  };
+  let narrative = "";
+  let rows = [];
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 2200);
+  }
+
+  function esc(s) { return (s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  /* ---------------- PLAGE D'ÂGE PAR SERVICE ---------------- */
+  function ageRangeFor(service) {
+    switch (service) {
+      case "Maternité":              return { min: 0,  max: 7,   unit: "jours" };
+      case "Néonatologie":           return { min: 0,  max: 4,   unit: "mois" };
+      case "Pédiatrie":
+      case "Urgences pédiatriques":  return { min: 0,  max: 18,  unit: "ans" };
+      case "Soins à domicile":       return { min: 0,  max: 120, unit: "ans" };
+      case "Gériatrie / EHPAD":      return { min: 60, max: 120, unit: "ans" };
+      case "Oncologie":              return { min: 18, max: 120, unit: "ans" };
+      default:                      return { min: 18, max: 120, unit: "ans" }; // secteurs adultes
+    }
+  }
+  function clampAge(value, range) {
+    let v = parseInt(value, 10);
+    if (isNaN(v)) v = range.min;
+    return Math.min(range.max, Math.max(range.min, v));
+  }
+  function ageSliderHTML(service, value) {
+    const r = ageRangeFor(service);
+    const v = clampAge(value, r);
+    return { range: r, value: v, html: `
+      <div class="age-slider">
+        <input type="range" id="f-age" min="${r.min}" max="${r.max}" step="1" value="${v}" />
+        <div class="age-readout"><b id="age-readout-val">${v}</b> ${r.unit}</div>
+      </div>` };
+  }
+
+  /* ---------------- SETUP SCREEN ---------------- */
+  function renderSetup() {
+    if (!params.probleme) params.probleme = firstProblem(params.service);
+    const opts = (arr, sel) => arr.map(o => `<option ${o===sel?'selected':''}>${esc(o)}</option>`).join('');
+    view.innerHTML = `
+      <p class="lead">Choisissez le cadre du soin. L'outil rédige une situation réaliste — informations utiles et parasites, chiffres objectifs et ressentis mêlés, sans tri. À l'apprenant de construire la transmission.</p>
+      <div class="grid">
+        <div class="field">
+          <label for="f-service">Service</label>
+          <select id="f-service">${opts(SERVICES, params.service)}</select>
+        </div>
+        <div class="field">
+          <label for="f-pro">Professionnel qui observe</label>
+          <select id="f-pro">${opts(PROS, params.pro)}</select>
+        </div>
+        <div class="field" id="age-field">
+          <label>Âge du patient</label>
+          ${ageSliderHTML(params.service, params.ageValue).html}
+        </div>
+        <div class="field">
+          <label for="f-sexe">Sexe</label>
+          <select id="f-sexe">${opts(["Féminin","Masculin"], params.sexe)}</select>
+        </div>
+        <div class="field full">
+          <label for="f-prob">Problème de santé</label>
+          <select id="f-prob">${probOpts(params.service, params.probleme)}</select>
+          <span class="hint">La liste s'adapte au service choisi.</span>
+        </div>
+      </div>
+      <div class="actions-row">
+        <button class="btn btn-cible" id="gen">Générer le cas concret</button>
+        <span class="hint">La grille D·A·R à remplir apparaîtra ensuite.</span>
+      </div>
+
+      <div class="code-block">
+        <label for="f-code">Code formateur (facultatif)</label>
+        <div class="code-row">
+          <input type="text" id="f-code" placeholder="ex. AP / Pédiatrie / Masculin / 18 mois / Difficultés respiratoires" />
+          <button class="btn btn-ghost" id="gen-code">Charger ce cas</button>
+        </div>
+        <span class="hint" id="code-hint">Réservé aux cas transmis par le formateur en séance.</span>
+      </div>
+    `;
+
+    const rangeInfo = ageRangeFor(params.service);
+    document.getElementById('f-age').addEventListener('input', e => {
+      document.getElementById('age-readout-val').textContent = e.target.value;
+    });
+    document.getElementById('f-service').addEventListener('change', e => {
+      params.service = e.target.value;
+      params.probleme = firstProblem(params.service);
+      document.getElementById('f-prob').innerHTML = probOpts(params.service, params.probleme);
+      const built = ageSliderHTML(params.service, params.ageValue);
+      params.ageValue = String(built.value);
+      params.ageUnit = built.range.unit;
+      document.getElementById('age-field').innerHTML = `<label>Âge du patient</label>${built.html}`;
+      document.getElementById('f-age').addEventListener('input', ev => {
+        document.getElementById('age-readout-val').textContent = ev.target.value;
+      });
+    });
+    document.getElementById('gen').addEventListener('click', onGenerate);
+    document.getElementById('gen-code').addEventListener('click', onGenerateCode);
+    document.getElementById('f-code').addEventListener('keydown', e => { if (e.key === 'Enter') onGenerateCode(); });
+  }
+
+  function readParams() {
+    params.service = document.getElementById('f-service').value;
+    params.pro = document.getElementById('f-pro').value;
+    const r = ageRangeFor(params.service);
+    params.ageValue = document.getElementById('f-age').value;
+    params.ageUnit = r.unit;
+    params.sexe = document.getElementById('f-sexe').value;
+    params.probleme = document.getElementById('f-prob').value.trim();
+  }
+
+  /* ---------------- GENERATION ---------------- */
+  function onGenerate() {
+    readParams();
+    if (!params.probleme) { toast("Choisissez un problème de santé."); return; }
+    renderLoading();
+    setTimeout(() => { composeCase(); clearInterval(view._li); renderCase(); Scorm.recordCaseGenerated(); }, 480);
+  }
+
+  function onGenerateCode() {
+    const raw = document.getElementById('f-code').value;
+    const found = lookupSpecialCase(raw);
+    const hintEl = document.getElementById('code-hint');
+    if (!found) {
+      hintEl.textContent = "Code non reconnu. Vérifiez la saisie transmise par le formateur.";
+      hintEl.classList.add('err');
+      return;
+    }
+    Object.assign(params, found.meta);
+    renderLoading();
+    setTimeout(() => {
+      narrative = found.text;
+      rows = found.correctionRows
+        ? found.correctionRows.map(r => ({ ...r }))
+        : [];
+      clearInterval(view._li);
+      renderCase();
+      Scorm.recordCaseGenerated();
+    }, 480);
+  }
+
+  function renderLoading() {
+    const msgs = ["Installation du patient…","Recueil des observations…","On mêle l'utile et l'accessoire…","Rédaction du dossier…"];
+    view.innerHTML = `<div class="loading"><div class="spinner"></div><p id="lmsg">${msgs[0]}</p></div>`;
+    let i = 0;
+    const lmsg = document.getElementById('lmsg');
+    view._li = setInterval(() => { i = (i+1) % msgs.length; if (lmsg) lmsg.textContent = msgs[i]; }, 1400);
+  }
+
+  function findBankCase() {
+    const age = parseInt(params.ageValue, 10);
+    if (isNaN(age)) return null;
+    return BANK_CASES.find(b =>
+      b.service === params.service &&
+      b.sexe === params.sexe &&
+      b.problem === params.probleme &&
+      age >= b.ageMin && age <= b.ageMax
+    ) || null;
+  }
+
+  function todayFR() {
+    const d = new Date();
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function composeCase() {
+    const bankCase = findBankCase();
+    if (bankCase) { narrative = bankCase.text.split('{today}').join(todayFR()); return; }
+    const c = makeCtx();
+    const list = PROBLEMS[params.service] || [];
+    const entry = list.find(p => p.label === params.probleme) || list[0];
+    narrative = entry ? buildCase(entry, c) : "Aucun modèle disponible pour ce paramétrage.";
+  }
+
+  /* ---------------- CASE SCREEN ---------------- */
+  function highlightName(txt) {
+    // colour the first proper-noun-looking token to help the reader spot the patient
+    let done = false;
+    return esc(txt).replace(/\b([A-ZÉÈÀÂÎ][a-zéèêàâîïüç]+)\b/, (m) => {
+      if (done) return m; done = true; return `<span class="name">${m}</span>`;
+    });
+  }
+
+  function renderCase() {
+    if (rows.length === 0) rows = [emptyRow(), emptyRow()];
+    const ageLabel = `${esc(params.ageValue)} ${esc(params.ageUnit)}`;
+    view.innerHTML = `
+      <div class="meta-bar">
+        <span class="tag"><b>${esc(params.service)}</b></span>
+        <span class="tag">Rédacteur : <b>${esc(params.pro)}</b></span>
+        <span class="tag">Patient : <b>${ageLabel}</b> · ${esc(params.sexe)}</span>
+        <span class="tag">Problème : <b>${esc(params.probleme)}</b></span>
+      </div>
+
+      <div class="case-layout">
+        <section class="panel">
+          <div class="panel-head"><h2>La situation</h2><span class="sub">récit non trié</span></div>
+          <div class="narrative">${highlightName(narrative)}</div>
+          <div class="notice">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="#B23A32" stroke-width="1.4"/><path d="M8 4.4v5M8 11.4v.2" stroke="#B23A32" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span>Le récit mêle à dessein l'utile et l'accessoire, l'objectif et le ressenti. Repérez la cible, puis triez.</span>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Transmission ciblée</h2>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="sub">à compléter</span>
+              <button class="gear-btn" id="gear-btn" title="Espace formateur" aria-label="Espace formateur">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              </button>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table class="dar">
+              <thead>
+                <tr>
+                  <th style="width:15%">Identification</th>
+                  <th class="col-cible" style="width:15%">Cible</th>
+                  <th style="width:24%">Données</th>
+                  <th style="width:23%">Actions</th>
+                  <th style="width:23%">Résultats</th>
+                  <th class="row-tools"></th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <div class="table-foot">
+            <button class="add-row" id="addrow">+ Ajouter une cible</button>
+            <span class="hint">Astuce : dans « Identification », notez qui écrit et quand — initiales, date, heure, fonction. Une ligne par cible.</span>
+          </div>
+        </section>
+      </div>
+
+      <div class="footer-actions">
+        <button class="btn btn-primary" id="word">Télécharger en Word</button>
+        <button class="btn btn-ghost" id="copy">Copier le texte</button>
+        <button class="btn btn-ghost" id="restart">Nouveau cas</button>
+      </div>
+    `;
+    renderRows();
+    document.getElementById('addrow').addEventListener('click', () => { rows.push(emptyRow()); renderRows(); });
+    document.getElementById('gear-btn').addEventListener('click', openGodMode);
+    document.getElementById('word').addEventListener('click', downloadWord);
+    document.getElementById('copy').addEventListener('click', copyExport);
+    document.getElementById('restart').addEventListener('click', restart);
+  }
+
+  function emptyRow() { return { ident: params.pro ? "Fonction : " + params.pro : "", cible:"", donnees:"", actions:"", resultats:"" }; }
+
+  function cibleSelectHTML(value) {
+    const bank = cibleBankFor(params.pro);
+    if (!bank) return `<div class="cell" contenteditable data-k="cible" data-ph="Le problème en 2-3 mots">${esc(value)}</div>`;
+    const opts = bank.map(g =>
+      `<optgroup label="${esc(g.groupe)}">` +
+      g.items.map(i => `<option ${i===value?'selected':''}>${esc(i)}</option>`).join('') +
+      `</optgroup>`
+    ).join('');
+    return `<select class="cell-select" data-k="cible"><option value="" ${value?'':'selected'} disabled>Choisir une cible…</option>${opts}</select>`;
+  }
+
+  function renderRows() {
+    const tb = document.getElementById('tbody');
+    tb.innerHTML = "";
+    rows.forEach((r, idx) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="identcol"><div class="cell" contenteditable data-k="ident" data-ph="Initiales, date, heure, fonction">${esc(r.ident)}</div></td>
+        <td class="col-cible">${cibleSelectHTML(r.cible)}</td>
+        <td><div class="cell" contenteditable data-k="donnees" data-ph="Faits observés, chiffres, paroles">${esc(r.donnees)}</div></td>
+        <td><div class="cell" contenteditable data-k="actions" data-ph="Ce qui est mis en œuvre">${esc(r.actions)}</div></td>
+        <td><div class="cell" contenteditable data-k="resultats" data-ph="Effet, réévaluation">${esc(r.resultats)}</div></td>
+        <td class="row-tools"><button class="del-row" title="Supprimer la ligne" aria-label="Supprimer la ligne">×</button></td>
+      `;
+      tr.querySelectorAll('.cell[contenteditable]').forEach(c => {
+        c.addEventListener('input', () => { rows[idx][c.dataset.k] = c.textContent; });
+      });
+      const sel = tr.querySelector('select.cell-select');
+      if (sel) sel.addEventListener('change', () => { rows[idx].cible = sel.value; });
+      tr.querySelector('.del-row').addEventListener('click', () => {
+        if (rows.length === 1) { rows[0] = emptyRow(); } else { rows.splice(idx, 1); }
+        renderRows();
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  /* ---------------- EXPORT ---------------- */
+  function buildExport() {
+    const L = [];
+    L.push("CAS CONCRET — TRANSMISSIONS CIBLÉES");
+    L.push("=".repeat(42));
+    L.push(`Service        : ${params.service}`);
+    L.push(`Rédacteur      : ${params.pro}`);
+    L.push(`Patient        : ${params.ageValue} ${params.ageUnit} · ${params.sexe}`);
+    L.push(`Problème       : ${params.probleme}`);
+    L.push("");
+    L.push("LA SITUATION");
+    L.push("-".repeat(42));
+    L.push(narrative);
+    L.push("");
+    L.push("TRANSMISSION CIBLÉE");
+    L.push("-".repeat(42));
+    rows.forEach((r, i) => {
+      const any = r.ident||r.cible||r.donnees||r.actions||r.resultats;
+      if (!any) return;
+      L.push(`• Cible ${i+1} : ${r.cible || "—"}`);
+      if (r.ident)     L.push(`  Identification : ${r.ident}`);
+      L.push(`  Données   : ${r.donnees || "—"}`);
+      L.push(`  Actions   : ${r.actions || "—"}`);
+      L.push(`  Résultats : ${r.resultats || "—"}`);
+      L.push("");
+    });
+    return L.join("\n");
+  }
+
+  function copyExport() {
+    const txt = buildExport();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(() => toast("Copié dans le presse-papier."), fallbackCopy.bind(null, txt));
+    } else fallbackCopy(txt);
+  }
+  function fallbackCopy(txt) {
+    const ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast("Copié dans le presse-papier."); }
+    catch (e) { toast("Copie impossible — utilisez le téléchargement."); }
+    document.body.removeChild(ta);
+  }
+
+  function slug() {
+    return (params.service + "-" + params.probleme).toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+      .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40) || 'cas';
+  }
+  function filledRows() {
+    return rows.filter(r => r.ident||r.cible||r.donnees||r.actions||r.resultats);
+  }
+
+  function docStyles() {
+    return `
+ body { font-family: Calibri, Arial, sans-serif; color:#1a1a1a; font-size:11pt; margin:24pt; }
+ h1 { font-family:Georgia, serif; color:#163A40; font-size:17pt; margin:0 0 4pt; }
+ .rule { border:none; border-top:2pt solid #B23A32; width:48pt; margin:0 0 10pt; }
+ .meta { color:#4E676B; font-size:10pt; margin:1pt 0; }
+ h2 { color:#2B6E7C; font-size:11pt; letter-spacing:1pt; margin:16pt 0 6pt; }
+ .narr p { line-height:1.5; margin:0 0 6pt; }
+ table { border-collapse:collapse; width:100%; font-size:10pt; margin-top:6pt; }
+ th, td { border:0.5pt solid #B9C1B8; padding:5pt 6pt; vertical-align:top; }
+ th { background:#163A40; color:#fff; text-align:left; font-size:9pt; }
+ th.cb { background:#B23A32; }
+ td.cb { color:#B23A32; font-weight:bold; }
+ td.id { background:#F1F3EE; }
+ tr { page-break-inside: avoid; }`;
+  }
+
+  function docInner() {
+    const br = s => esc(s).replace(/\n/g, '<br>');
+    const body = filledRows().map(r =>
+      `<tr>
+        <td class="id">${br(r.ident)}</td>
+        <td class="cb">${br(r.cible)}</td>
+        <td>${br(r.donnees)}</td>
+        <td>${br(r.actions)}</td>
+        <td>${br(r.resultats)}</td>
+      </tr>`).join('');
+    return `
+<h1>Cas concret — transmissions ciblées</h1>
+<hr class="rule">
+<p class="meta"><b>Service :</b> ${esc(params.service)}</p>
+<p class="meta"><b>Rédacteur :</b> ${esc(params.pro)}</p>
+<p class="meta"><b>Patient :</b> ${esc(params.ageValue)} ${esc(params.ageUnit)} · ${esc(params.sexe)}</p>
+<p class="meta"><b>Problème :</b> ${esc(params.probleme)}</p>
+<h2>LA SITUATION</h2>
+<div class="narr">${narrative.split(/\n{2,}/).map(p => `<p>${br(p)}</p>`).join('')}</div>
+<h2>TRANSMISSION CIBLÉE</h2>
+<table>
+ <tr><th>Identification</th><th class="cb">Cible</th><th>Données</th><th>Actions</th><th>Résultats</th></tr>
+ ${body}
+</table>`;
+  }
+
+  function downloadWord() {
+    // La balise de style du document Word est construite par concaténation,
+    // pour ne jamais faire apparaître ce type de balise en clair dans le code
+    // (certains moteurs de rendu l'interprètent et cassent l'affichage de la page).
+    const styleTag = '<' + 'style>' + docStyles() + '<' + '/style>';
+    const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
+      + '<head><meta charset="utf-8">' + styleTag + '</head><body>' + docInner() + '</body></html>';
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `transmission-${slug()}.doc`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("Document Word téléchargé.");
+  }
+
+  function restart() {
+    narrative = ""; rows = [];
+    renderSetup();
+    view.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  renderSetup();
+})();
+</script>
+</body>
+</html>

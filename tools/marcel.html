@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Démarche Clinique — Le cas de M. Marcel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;800&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fond:#EDF1EA; --carte:#FFFFFF; --encre:#22313A; --encre2:#5C6C75;
+  --vert:#3E7A63; --vert-f:#2C5A49; --vert-p:#E3EEE8;
+  --mimosa:#F2C14E; --mimosa-f:#C79127; --mimosa-p:#FBF0D3;
+  --alerte:#C4574E; --alerte-p:#F8E7E5; --bleu:#3E6C8E; --bleu-p:#E4EDF4;
+  --ligne:#D6DFD6; --ombre:0 2px 10px rgba(34,49,58,.08);
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Nunito Sans',system-ui,sans-serif;background:var(--fond);color:var(--encre);font-size:16px;line-height:1.5;min-height:100vh}
+h1,h2,h3,.disp{font-family:'Bricolage Grotesque','Nunito Sans',sans-serif}
+button{font-family:inherit;cursor:pointer;border:none;font-size:1rem}
+.hidden{display:none!important}
+
+/* ======= EN-TÊTE & PROGRESSION ======= */
+header{background:var(--carte);border-bottom:1px solid var(--ligne);padding:10px 18px;position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{flex:none}
+.brand h1{font-size:1.05rem;font-weight:800;letter-spacing:.2px}
+.brand small{display:block;color:var(--encre2);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}
+.steps{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:var(--fond);color:var(--encre2);font-size:.78rem;font-weight:700}
+.step .n{width:20px;height:20px;border-radius:50%;background:var(--ligne);color:var(--encre2);display:grid;place-items:center;font-size:.72rem}
+.step.on{background:var(--vert);color:#fff}
+.step.on .n{background:rgba(255,255,255,.25);color:#fff}
+.step.done{background:var(--vert-p);color:var(--vert-f)}
+.step.done .n{background:var(--vert);color:#fff}
+.step span.lbl{display:none}
+@media(min-width:980px){.step span.lbl{display:inline}}
+
+/* ======= MISE EN PAGE ======= */
+main{max-width:1180px;margin:0 auto;padding:22px 16px 90px}
+.card{background:var(--carte);border-radius:var(--r);box-shadow:var(--ombre);padding:22px}
+.grid2{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:900px){.grid2{grid-template-columns:1.5fr 1fr}}
+.btn{background:var(--vert);color:#fff;padding:12px 22px;border-radius:99px;font-weight:800;font-size:1rem;transition:transform .12s, background .12s;box-shadow:var(--ombre)}
+.btn:hover{background:var(--vert-f);transform:translateY(-1px)}
+.btn:disabled{background:var(--ligne);color:var(--encre2);cursor:not-allowed;transform:none;box-shadow:none}
+.btn.sec{background:var(--carte);color:var(--vert-f);border:2px solid var(--vert)}
+.btn.sec:hover{background:var(--vert-p)}
+.btn.warn{background:var(--mimosa);color:#5b430a}
+.btn.warn:hover{background:var(--mimosa-f);color:#fff}
+.tag{display:inline-block;background:var(--bleu-p);color:var(--bleu);border-radius:6px;padding:2px 8px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.eyebrow{color:var(--vert-f);font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:.75rem;margin-bottom:6px}
+.acte-title{font-size:1.7rem;font-weight:800;margin-bottom:4px}
+.acte-sub{color:var(--encre2);margin-bottom:18px;max-width:70ch}
+
+/* ======= ACCUEIL ======= */
+.hero{display:grid;grid-template-columns:1fr;gap:26px;align-items:center;margin-top:14px}
+@media(min-width:860px){.hero{grid-template-columns:1.1fr .9fr}}
+.hero h2{font-size:clamp(1.9rem,4vw,3rem);font-weight:800;line-height:1.12;margin-bottom:14px}
+.hero h2 em{font-style:normal;color:var(--vert);position:relative}
+.hero p{color:var(--encre2);font-size:1.05rem;max-width:56ch;margin-bottom:12px}
+.hero .mission{background:var(--mimosa-p);border-left:4px solid var(--mimosa);padding:14px 16px;border-radius:0 10px 10px 0;margin:16px 0;font-weight:600}
+.hero-scene{background:var(--carte);border-radius:var(--r);box-shadow:var(--ombre);padding:10px}
+.hero-scene svg{width:100%;height:auto;display:block;border-radius:10px}
+
+/* ======= ACTE 1 : HUB & SCÈNES ======= */
+.jauge-wrap{display:flex;align-items:center;gap:10px;background:var(--carte);border-radius:99px;padding:8px 16px;box-shadow:var(--ombre);margin-bottom:18px;flex-wrap:wrap}
+.jauge-wrap b{font-size:.85rem;color:var(--encre2)}
+.jauge{flex:1;min-width:140px;height:10px;background:var(--fond);border-radius:99px;overflow:hidden}
+.jauge i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--vert),var(--mimosa));border-radius:99px;transition:width .5s}
+.jauge-pct{font-weight:800;color:var(--vert-f);font-size:.9rem;min-width:44px;text-align:right}
+.hub{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.lieu{background:var(--carte);border-radius:var(--r);box-shadow:var(--ombre);padding:0;overflow:hidden;text-align:left;transition:transform .15s;border:2px solid transparent}
+.lieu:hover{transform:translateY(-3px);border-color:var(--vert)}
+.lieu svg{width:100%;height:120px;display:block}
+.lieu .li-body{padding:12px 14px 14px}
+.lieu h3{font-size:1.05rem;font-weight:800}
+.lieu p{color:var(--encre2);font-size:.85rem;margin-top:2px}
+.lieu .visited{font-size:.75rem;font-weight:800;color:var(--vert-f);margin-top:6px;display:none}
+.lieu.vu .visited{display:block}
+
+.scene{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:920px){.scene{grid-template-columns:1fr 1fr}}
+.scene-visuel{background:var(--carte);border-radius:var(--r);box-shadow:var(--ombre);padding:12px}
+.scene-visuel svg{width:100%;height:auto;display:block;border-radius:10px}
+.bulle{background:var(--bleu-p);border-radius:12px;padding:14px 16px;margin-top:12px;position:relative;font-size:.98rem;min-height:54px}
+.bulle::before{content:"";position:absolute;top:-9px;left:34px;border:10px solid transparent;border-bottom-color:var(--bleu-p);border-top:0}
+.bulle .qui{font-weight:800;color:var(--bleu);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px}
+.q-list{display:flex;flex-direction:column;gap:8px}
+.q-item{background:var(--carte);border:1.5px solid var(--ligne);border-radius:10px;padding:11px 14px;text-align:left;font-size:.94rem;transition:border-color .12s, background .12s}
+.q-item:hover{border-color:var(--vert);background:var(--vert-p)}
+.q-item.asked{opacity:.55;border-style:dashed}
+.q-item.unlock{border-color:var(--mimosa);background:var(--mimosa-p);font-weight:700;animation:pop .4s}
+@keyframes pop{0%{transform:scale(.95)}60%{transform:scale(1.03)}100%{transform:scale(1)}}
+.note-offer{margin-top:10px;background:var(--mimosa-p);border:1.5px dashed var(--mimosa-f);border-radius:10px;padding:10px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.note-offer .nt{font-size:.9rem;font-weight:700}
+.note-offer button{background:var(--vert);color:#fff;border-radius:99px;padding:7px 14px;font-weight:800;font-size:.85rem}
+.note-offer button.ignorer{background:transparent;color:var(--encre2);text-decoration:underline;font-weight:600}
+
+/* Carnet de recueil (signature) */
+.carnet{position:fixed;bottom:0;right:14px;width:min(340px,92vw);z-index:60;transition:transform .3s;transform:translateY(calc(100% - 46px))}
+.carnet.open{transform:translateY(0)}
+.carnet-tab{background:var(--encre);color:#fff;border-radius:12px 12px 0 0;padding:10px 18px;font-weight:800;display:flex;align-items:center;gap:10px;width:100%;font-size:.92rem}
+.carnet-tab .cnt{background:var(--mimosa);color:#5b430a;border-radius:99px;padding:1px 9px;font-size:.8rem}
+.carnet-body{background:#FFFDF5;border:1px solid var(--ligne);border-top:none;max-height:46vh;overflow-y:auto;padding:14px;background-image:repeating-linear-gradient(#FFFDF5 0 27px,#EDE6D2 27px 28px)}
+.carnet-body ul{list-style:none}
+.carnet-body li{font-size:.88rem;padding:4px 0 4px 20px;position:relative;font-weight:600}
+.carnet-body li::before{content:"✎";position:absolute;left:0;color:var(--vert)}
+.carnet-body .vide{color:var(--encre2);font-style:italic;padding:6px 0}
+
+/* Dossier patient */
+.dossier{font-family:'IBM Plex Mono',monospace;background:#FDFBF3;border:1px solid #E4DCC3;border-radius:10px;padding:18px;font-size:.86rem}
+.dossier h4{font-family:'IBM Plex Mono',monospace;border-bottom:2px solid #E4DCC3;padding-bottom:6px;margin:14px 0 8px;font-size:.9rem;letter-spacing:.04em}
+.dossier h4:first-child{margin-top:0}
+.d-item{display:flex;gap:10px;align-items:flex-start;padding:6px 8px;border-radius:8px;cursor:pointer;transition:background .12s}
+.d-item:hover{background:var(--mimosa-p)}
+.d-item.sel{background:var(--vert-p);outline:1.5px solid var(--vert)}
+.d-item input{margin-top:3px;accent-color:var(--vert)}
+
+/* ======= ACTE 2 : HENDERSON ======= */
+.tray{position:sticky;top:64px;z-index:40;background:var(--carte);border-radius:var(--r);box-shadow:var(--ombre);padding:12px 14px;margin-bottom:16px}
+.tray h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--encre2);margin-bottom:8px}
+.tray-chips{display:flex;flex-wrap:wrap;gap:7px;max-height:130px;overflow-y:auto}
+.chip{background:var(--bleu-p);color:var(--encre);border:1.5px solid transparent;border-radius:99px;padding:5px 12px;font-size:.8rem;font-weight:700;transition:all .12s}
+.chip:hover{border-color:var(--bleu)}
+.chip.sel{background:var(--encre);color:#fff;transform:scale(1.05)}
+.chip.pi{background:var(--fond);color:var(--encre2);border:1.5px dashed var(--encre2)}
+.chip.sup{background:var(--mimosa-p)}
+.vh-table{width:100%;border-collapse:separate;border-spacing:0 8px}
+.vh-table th{font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;padding:4px 10px;text-align:left}
+.vh-table th.ok{color:var(--vert-f)}.vh-table th.ko{color:var(--alerte)}
+.vh-row td{background:var(--carte);padding:10px;vertical-align:top;box-shadow:var(--ombre)}
+.vh-row td:first-child{border-radius:12px 0 0 12px;font-weight:800;font-size:.88rem;width:19%}
+.vh-row td:last-child{border-radius:0 12px 12px 0}
+.cell{min-height:44px;border-radius:9px;border:1.5px dashed var(--ligne);padding:6px;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start;transition:all .12s;width:100%}
+.cell.target{border-color:var(--vert);background:var(--vert-p);cursor:pointer}
+.cell.v-ok{border-color:var(--vert);border-style:solid;background:var(--vert-p)}
+.cell.v-manque{border-color:var(--mimosa-f);border-style:solid;background:var(--mimosa-p)}
+.cell.v-erreur{border-color:var(--alerte);border-style:solid;background:var(--alerte-p)}
+.placed{background:#fff;border:1.5px solid var(--bleu);border-radius:99px;padding:3px 8px 3px 11px;font-size:.76rem;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.placed b{cursor:pointer;color:var(--alerte);font-size:.9rem;line-height:1}
+.corbeille{border:2px dashed var(--alerte);background:var(--alerte-p);border-radius:var(--r);padding:16px;text-align:center;font-weight:800;color:var(--alerte);margin-top:16px;transition:all .12s}
+.corbeille.target{background:var(--alerte);color:#fff;cursor:pointer}
+
+/* ======= ACTES 3 & 5 : BLOCS ======= */
+.builder{display:flex;flex-direction:column;gap:16px}
+.concl{background:var(--carte);border-radius:var(--r);box-shadow:var(--ombre);padding:18px;border-left:5px solid var(--ligne)}
+.concl.valide{border-left-color:var(--vert)}
+.concl h4{font-size:1rem;margin-bottom:10px}
+.bank{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 14px}
+.blk{background:var(--fond);border:1.5px solid var(--ligne);border-radius:10px;padding:7px 13px;font-size:.86rem;font-weight:600;text-align:left;transition:all .12s}
+.blk:hover{border-color:var(--vert)}
+.blk.on{background:var(--vert);border-color:var(--vert);color:#fff}
+.blk.on.intitule{background:var(--encre);border-color:var(--encre)}
+.sect-lbl{font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--encre2);margin-top:10px}
+.phrase{background:var(--vert-p);border-radius:10px;padding:12px 14px;font-size:.94rem;margin:10px 0;min-height:46px}
+.phrase em{color:var(--encre2);font-style:italic}
+.feedback{border-radius:10px;padding:12px 14px;margin-top:10px;font-size:.92rem;font-weight:600;display:none}
+.feedback.err{display:block;background:var(--alerte-p);color:var(--alerte);border-left:4px solid var(--alerte)}
+.feedback.okk{display:block;background:var(--vert-p);color:var(--vert-f);border-left:4px solid var(--vert)}
+.feedback.hint{display:block;background:var(--mimosa-p);color:#7a5c10;border-left:4px solid var(--mimosa)}
+.progress-noyau{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.pn{background:var(--carte);border:1.5px solid var(--ligne);border-radius:99px;padding:5px 13px;font-size:.8rem;font-weight:800;color:var(--encre2)}
+.pn.ok{background:var(--vert);border-color:var(--vert);color:#fff}
+.pn.bonus{border-style:dashed}
+
+/* ======= ACTE 4 : QUESTIONS ======= */
+.quiz-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.quiz-prob{font-weight:800;font-size:1.05rem}
+.quiz-num{color:var(--encre2);font-weight:700;font-size:.85rem}
+.q-enonce{font-size:1.08rem;font-weight:700;margin-bottom:14px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{background:var(--fond);border:1.5px solid var(--ligne);border-radius:11px;padding:12px 15px;text-align:left;font-size:.95rem;transition:all .12s}
+.opt:hover{border-color:var(--vert)}
+.opt.on{background:var(--bleu-p);border-color:var(--bleu);font-weight:700}
+.opt.juste{background:var(--vert-p);border-color:var(--vert);font-weight:700}
+.opt.faux{background:var(--alerte-p);border-color:var(--alerte)}
+.order-zone{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;min-height:40px;border:1.5px dashed var(--ligne);border-radius:10px;padding:10px}
+.order-zone .ord{background:var(--vert-p);border:1.5px solid var(--vert);border-radius:9px;padding:8px 12px;font-weight:700;font-size:.9rem;display:flex;gap:8px;align-items:center}
+.order-zone .ord i{font-style:normal;background:var(--vert);color:#fff;border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-size:.75rem;flex:none}
+
+/* ======= ACTE 5 ======= */
+.ps-prob{background:var(--carte);border-radius:var(--r);box-shadow:var(--ombre);padding:18px;margin-bottom:16px;border-top:4px solid var(--vert)}
+.ps-prob>h4{font-size:1.05rem;margin-bottom:4px}
+.ps-prob .rappel{font-size:.85rem;color:var(--encre2);font-style:italic;margin-bottom:12px}
+
+/* ======= BADGES & BILAN ======= */
+.stars{color:var(--mimosa-f);letter-spacing:2px;font-size:1.1rem}
+.bilan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:18px}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:12px}
+.badge{background:var(--carte);border-radius:12px;padding:14px 10px;text-align:center;box-shadow:var(--ombre);border:2px solid var(--mimosa)}
+.badge .ic{font-size:1.9rem}
+.badge h5{font-size:.85rem;margin:6px 0 3px}
+.badge p{font-size:.72rem;color:var(--encre2)}
+.badge.off{border-color:var(--ligne);filter:grayscale(1);opacity:.55}
+.sugg{background:var(--mimosa-p);border-left:4px solid var(--mimosa);border-radius:0 10px 10px 0;padding:10px 14px;margin-top:8px;font-size:.92rem;font-weight:600}
+.acte-recap{background:var(--carte);border-radius:12px;padding:14px;box-shadow:var(--ombre);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.acte-recap b{font-size:.9rem}
+
+/* ======= MODALE ======= */
+.modal-bg{position:fixed;inset:0;background:rgba(34,49,58,.55);display:grid;place-items:center;z-index:100;padding:16px}
+.modal{background:var(--carte);border-radius:var(--r);max-width:520px;width:100%;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:pop .3s}
+.modal h3{margin-bottom:10px;font-size:1.2rem}
+.modal p{color:var(--encre2);margin-bottom:16px}
+.modal .m-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+/* Toast */
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--encre);color:#fff;border-radius:99px;padding:11px 22px;font-weight:700;font-size:.9rem;z-index:120;transition:transform .3s;max-width:92vw;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+.footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:24px;flex-wrap:wrap}
+
+/* ======= V2 : CLASSEUR (dossier patient) ======= */
+.classeur{background:var(--carte);border-radius:var(--r);box-shadow:var(--ombre);overflow:hidden}
+.onglets{display:flex;flex-wrap:wrap;gap:4px;padding:10px 10px 0;background:#E7E2D2}
+.onglet{background:#D8D1BC;border-radius:10px 10px 0 0;padding:9px 16px;font-weight:800;font-size:.82rem;color:#6b6350;transition:all .12s}
+.onglet:hover{background:#CFC7AE}
+.onglet.on{background:#FDFBF3;color:var(--encre)}
+.classeur-page{padding:14px;background:#FDFBF3}
+.classeur-page .dossier{border:none;padding:4px}
+
+/* ======= V2 : ASSISTANTS GUIDÉS ======= */
+.wiz-besoin{font-family:'Bricolage Grotesque',sans-serif;font-size:1.25rem;line-height:1.25;background:var(--vert-p);border-left:5px solid var(--vert);border-radius:0 12px 12px 0;padding:12px 16px;margin-bottom:16px}
+.wiz-besoin b{font-size:1.4rem}
+.ouinon{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}
+.ouinon .btn{flex:1;min-width:150px;padding:15px 18px;font-size:1.02rem}
+.ck-list{display:flex;flex-direction:column;gap:7px;max-height:46vh;overflow-y:auto;margin:8px 0 4px;padding-right:4px}
+.ck-chip{display:flex;gap:10px;align-items:flex-start;background:var(--fond);border:1.5px solid var(--ligne);border-radius:10px;padding:9px 12px;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .12s}
+.ck-chip:hover{border-color:var(--vert)}
+.ck-chip input{margin-top:2px;accent-color:var(--vert);flex:none}
+.ck-chip:has(input:checked){background:var(--vert-p);border-color:var(--vert)}
+
+/* ======= V2 : MINI-TABLEAU EN ARRIÈRE-PLAN ======= */
+.mini-table{display:flex;flex-direction:column;gap:6px;max-height:64vh;overflow-y:auto;padding-right:4px}
+.mt-row{background:var(--fond);border-radius:10px;padding:8px 10px;border-left:4px solid var(--ligne)}
+.mt-row b{font-size:.8rem;display:block}
+.mt-row.cur{border-left-color:var(--mimosa-f);background:var(--mimosa-p)}
+.mt-row.fait{border-left-color:var(--vert)}
+.mt-cell{font-size:.74rem;margin-top:4px;border-radius:7px;padding:4px 8px;font-weight:600}
+.mt-cell.ok{background:var(--vert-p);color:var(--vert-f)}
+.mt-cell.ko{background:var(--alerte-p);color:var(--alerte)}
+.mt-cell.vide{background:#fff;color:var(--encre2);font-style:italic}
+.mt-cell.obj{background:var(--mimosa-p);color:#7a5c10}
+.mt-cell.act{background:var(--vert-p);color:var(--vert-f)}
+.mt-cell.ev{background:var(--bleu-p);color:var(--bleu)}
+.mt-cell.ev i{display:block;font-size:.68rem;opacity:.85}
+
+
+/* ======= V2.1 : TRACE ÉCRITE ======= */
+.trace-h{font-size:1rem;margin:18px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--vert-p);color:var(--vert-f)}
+.trace-h:first-child{margin-top:0}
+.trace-ul{margin:4px 0 8px 20px;font-size:.9rem}
+.trace-ul li{margin:2px 0}
+.trace-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:8px 0 14px}
+.trace-table th{background:var(--vert-p);color:var(--vert-f);text-align:left;padding:7px 9px;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em}
+.trace-table td{border:1px solid var(--ligne);padding:7px 9px;vertical-align:top}
+.trace-table .trace-ul{margin:0 0 0 16px}
+
+
+/* ======= MODE DÉMONSTRATION (formateur) ======= */
+#godDot{background:none;color:var(--encre2);opacity:.15;font-size:.95rem;padding:4px;transition:opacity .2s}
+#godDot:hover{opacity:.6}
+#godBar{position:sticky;top:54px;z-index:49;background:var(--encre);display:flex;gap:6px;align-items:center;padding:7px 16px;flex-wrap:wrap}
+.god-lbl{color:var(--mimosa);font-weight:800;font-size:.78rem;margin-right:6px}
+.god-btn{background:rgba(255,255,255,.12);color:#fff;border-radius:99px;padding:4px 13px;font-size:.78rem;font-weight:700;transition:background .12s}
+.god-btn:hover{background:rgba(255,255,255,.25)}
+.god-btn.on{background:var(--mimosa);color:#5b430a}
+.god-btn.quit{margin-left:auto;background:rgba(196,87,78,.45)}
+@media print{#godBar,#godDot{display:none!important}}
+
+@media print{
+  header,.carnet,.footer-nav,.btn,#toast{display:none!important}
+  body{background:#fff}
+  .card,.badge,.acte-recap{box-shadow:none;border:1px solid #ccc}
+  #scr-bilan{display:block!important}
+  main>section:not(#scr-bilan){display:none!important}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg width="38" height="38" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#3E7A63"/><g fill="#F2C14E"><circle cx="14" cy="16" r="3.2"/><circle cx="21" cy="12" r="3.2"/><circle cx="27" cy="17" r="3.2"/><circle cx="19" cy="20" r="3.2"/><circle cx="25" cy="24" r="3.2"/></g><path d="M13 24 Q16 32 24 31" stroke="#2C5A49" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+    <div><h1>Le cas de M. Marcel</h1><small>EHPAD</small></div>
+  </div>
+  <nav class="steps" id="stepsNav"></nav>
+  <button id="godDot" onclick="askGod()" aria-label="démonstration">⚙</button>
+</header>
+
+<main id="app"></main>
+
+<!-- Carnet de recueil -->
+<aside class="carnet" id="carnet">
+  <button class="carnet-tab" onclick="toggleCarnet()">📓 Carnet de recueil <span class="cnt" id="carnetCnt">0</span><span style="margin-left:auto" id="carnetChevron">▲</span></button>
+  <div class="carnet-body"><ul id="carnetList"><li class="vide">Aucune information notée pour l'instant.</li></ul></div>
+</aside>
+
+<div id="toast"></div>
+<div id="modalRoot"></div>
+<script src="marcel-scorm-api.js"></script>
+<script id="gamejs">
+/* ============================================================
+   DONNÉES PÉDAGOGIQUES — Mr Marcel (cas simple, entrée en formation)
+   ============================================================ */
+
+// ---- Étiquettes ----
+const CHIPS = {
+  DORT:{t:"A bien dormi cette nuit",crucial:1},
+  PDJ:{t:"A pris son petit-déjeuner ce matin à 7h, au lit",crucial:1},
+  OBS_RESP:{t:"Respiration calme, aucune plainte respiratoire",crucial:1},
+  DV:{t:"Déficience visuelle : il ne voit plus très bien",crucial:1},
+  TREMB:{t:"Tremblements légers des mains",crucial:1},
+  CHUTE:{t:"Deux chutes à domicile en 3 semaines ; la dernière a nécessité les pompiers et une blessure sans gravité à l'arcade sourcilière",crucial:1},
+  TOILETTE:{t:"Aide à la toilette nécessaire, prévue en fin de matinée",crucial:1},
+  TENUE:{t:"Prend soin de sa tenue vestimentaire, attentif à son apparence",crucial:1},
+  PROPRETE:{t:"Attentif à la propreté de sa tenue, s'inquiète de savoir si ses vêtements sont tachés",crucial:1},
+  COMM:{t:"S'exprime, échange avec les soignants, verbalise ses inquiétudes",crucial:1},
+  PROMESSE:{t:"Tient à honorer la promesse faite à son épouse « de ne jamais se laisser aller »",crucial:1},
+  // Contexte (n'entrent pas dans le tableau Henderson, mais nourrissent la conclusion clinique)
+  VEUF:{t:"Veuf depuis six mois (épouse décédée le 4 mars 2026)",crucial:1,atcd:1},
+  ENTREE:{t:"Entré à l'EHPAD le 15/06/2026 suite à ses chutes, à la demande de sa fille",crucial:1,atcd:1},
+  D_IDENT:{t:"99 ans, ancien contremaître dans une filature à Chomérac, retraité",crucial:0,atcd:1},
+  // Superflu — dossier
+  NSEC:{t:"N° de sécurité sociale et mutuelle",sup:1},
+  GROUPE:{t:"Groupe sanguin",sup:1},
+  VACCIN:{t:"Vaccination antigrippale à jour",sup:1},
+  TROUSSEAU:{t:"Inventaire des affaires personnelles",sup:1},
+  // Superflu — entretien
+  SP_TELE:{t:"N'a pas suivi les informations télévisées de ce matin",sup:1},
+  SP_SPORT:{t:"Regarde le sport à la télévision de temps en temps",sup:1}
+};
+const NB_CRUCIAL = Object.values(CHIPS).filter(c=>c.crucial).length;
+
+// ---- Scène : entretien avec Mr Marcel (déblocage par vagues) ----
+const SCENES = {
+  patient:{
+    nom:"La chambre de Mr Marcel", qui:"Mr Marcel",
+    intro:"Mr Marcel est dans son lit, chambre 3.10. Il a pris son petit-déjeuner ce matin ; sa toilette est prévue en fin de matinée.",
+    init:["q_dormi","q_vue_fenetre","q_dej"],
+    questions:[
+      {id:"q_dormi",type:"p",q:"« Avez-vous bien dormi cette nuit ? »",r:"« J'ai bien dormi, merci, je n'ai pas à me plaindre. »",chip:"DORT"},
+      {id:"q_dej",type:"p",q:"« Vous avez pris votre petit-déjeuner ? »",r:"« Oui, au lit, à 7 heures, comme tous les matins. »",chip:"PDJ"},
+      {id:"q_respir",type:"p",q:"👁 Observer sa respiration",r:"Sa respiration est calme, régulière, sans effort.",chip:"OBS_RESP"},
+      {id:"q_yeux",type:"p",q:"« Comment allez-vous, côté vue ? »",r:"« Ah… je n'y vois plus très bien, c'est ainsi, avec l'âge. »",chip:"DV"},
+      {id:"q_mains",type:"p",q:"« Je remarque que vos mains tremblent un peu ? »",r:"« Oui, un peu, ça ne m'empêche pas de faire les choses moi-même. »",chip:"TREMB"},
+      {id:"q_chute",type:"p",q:"« On m'a dit que vous étiez tombé récemment ? »",r:"« Deux fois en trois semaines… La dernière fois, les pompiers sont venus, je me suis coupé au-dessus de l'œil. Rien de grave. »",chip:"CHUTE"},
+      {id:"q_toilette",type:"p",q:"« Comment se passe votre toilette avec l'équipe ? »",r:"« Ça se passe bien, ils viennent en fin de matinée. J'apprécie cette organisation. »",chip:"TOILETTE"},
+      {id:"q_tenue",type:"p",q:"« Vous semblez très attentif à votre tenue ? »",r:"« Oh oui, je tiens à être bien mis, toujours. »",chip:"TENUE"},
+      {id:"q_taches",type:"p",q:"« Quelque chose vous inquiète, avec vos vêtements ? »",r:"« Je n'aime pas avoir de taches sur mes habits… ça ne se fait pas. »",chip:"PROPRETE"},
+      {id:"q_comm",type:"p",q:"« On me dit que vous échangez facilement avec l'équipe ? »",r:"« J'aime bien discuter, oui, ça fait du bien de parler un peu. »",chip:"COMM"},
+      {id:"q_promesse",type:"p",q:"« Pourquoi tenez-vous tant à votre apparence ? »",r:"« J'ai promis à mon épouse de ne jamais me laisser aller. »",chip:"PROMESSE",unlock:"q_veuf"},
+      {id:"q_veuf",type:"p",locked:true,q:"💬 « Elle vous manque ? »",r:"« Elle est partie il y a six mois… c'est encore difficile, vous savez. »",chip:"VEUF"},
+      {id:"q_metier",type:"s",q:"« Vous avez travaillé longtemps dans le textile ? »",r:"« Contremaître à la filature de Chomérac, toute ma vie ! » Il sourit, fier de ce souvenir."},
+      {id:"q_vue_fenetre",type:"s",q:"« Belle vue depuis votre chambre ! »",r:"« Oui, j'aime bien regarder dehors, ça occupe. »"},
+      {id:"q_tele",type:"i",q:"« Vous avez suivi les informations à la télé ce matin ? »",r:"« Non, pas eu le temps encore. »",chip:"SP_TELE"},
+      {id:"q_sport",type:"i",q:"« Vous aimez le sport à la télévision ? »",r:"« De temps en temps, oui… »",chip:"SP_SPORT"}
+    ]
+  }
+};
+
+// ---- Dossier patient : classeur à intercalaires (réutilise les mêmes étiquettes) ----
+const CLASSEUR = [
+  {id:"identite", onglet:"Identité", titre:"FICHE D'IDENTITÉ", items:["D_IDENT"]},
+  {id:"motif", onglet:"Admission", titre:"MOTIF D'ENTRÉE", items:["ENTREE"]},
+  {id:"atcd", onglet:"Antécédents", titre:"ANTÉCÉDENTS", items:["CHUTE","DV","TREMB"]},
+  {id:"admin", onglet:"Administratif", titre:"PIÈCES ADMINISTRATIVES", items:["NSEC","GROUPE","VACCIN","TROUSSEAU"]}
+];
+
+/* ---- Les 14 besoins (pour le tableau et la trace écrite) ---- */
+const BESOINS = [
+  {id:"respirer", nom:"Respirer"},
+  {id:"boire", nom:"Boire et manger"},
+  {id:"eliminer", nom:"Éliminer"},
+  {id:"mouvoir", nom:"Se mouvoir et maintenir une bonne posture"},
+  {id:"dormir", nom:"Dormir et se reposer"},
+  {id:"vetir", nom:"Se vêtir et se dévêtir"},
+  {id:"propre", nom:"Être propre et protéger ses téguments"},
+  {id:"temp", nom:"Maintenir sa température corporelle"},
+  {id:"danger", nom:"Éviter les dangers"},
+  {id:"comm", nom:"Communiquer avec ses semblables"},
+  {id:"croire", nom:"Agir selon ses croyances et ses valeurs"},
+  {id:"occuper", nom:"S'occuper en vue de se réaliser"},
+  {id:"recreer", nom:"Se récréer"},
+  {id:"apprendre", nom:"Apprendre"}
+];
+
+/* ---- ACTE 3 : parcours guidé, un problème à la fois ---- */
+const V3 = {
+  ATCDCHUTE:"les antécédents de chutes à domicile",
+  SENSO:"le vieillissement sensoriel et locomoteur (déficience visuelle et tremblements légers)",
+  AGE:"l'âge avancé",
+  DVc:"la déficience visuelle",
+  TREMBc:"les tremblements légers",
+  VEUFc:"le veuvage récent (6 mois)",
+  ENTREEc:"l'entrée récente en institution",
+  TOILETTEc:"la nécessité d'une aide pour la toilette",
+  CRAINTEc:"la crainte de « se laisser aller »"
+};
+const XC = {
+  age_seul:{t:"son âge, à lui seul",msg:"L'âge seul n'est pas une cause suffisante : c'est sa combinaison avec d'autres facteurs (vue, équilibre, antécédents) qui crée le risque."},
+  motivation:{t:"un manque de motivation",msg:"Rien dans le recueil ne l'indique : M. Marcel est décrit comme soigneux et volontaire."},
+  surdite:{t:"sa surdité",msg:"Aucune donnée ne mentionne de surdité chez M. Marcel — attention à ne pas transposer depuis un autre cas."},
+  metier:{t:"son ancien métier de contremaître",msg:"Une donnée biographique n'est pas une cause clinique du problème actuel."},
+  age_pur:{t:"son grand âge uniquement",msg:"L'âge seul ne suffit pas à expliquer ce problème : il faut le combiner à d'autres éléments du recueil."}
+};
+const XM = {
+  age_manif:{t:"son âge avancé",msg:"L'âge n'est pas une manifestation observable : c'est un facteur de risque, pas un signe."},
+  chute_manif:{t:"un risque de chute",msg:"Un risque n'est pas un signe observable."},
+  veuvage_manif:{t:"son veuvage",msg:"Une situation de vie n'est pas un signe clinique observé — c'est une cause, pas une manifestation."}
+};
+
+const PROB3 = {
+  chute:{intitule:"Risque de chute",risque:true,noyau:1,groupe:"chute",
+    causes:[{ok:V3.ATCDCHUTE,ko:XC.age_seul},{ok:V3.SENSO,ko:XC.surdite},{ok:V3.AGE,ko:XC.metier}],
+    manifs:[]},
+  capacite:{intitule:"Capacité partielle à réaliser certains actes de la vie quotidienne",risque:false,noyau:1,groupe:"capacite",
+    causes:[{ok:V3.DVc,ko:XC.motivation},{ok:V3.TREMBc,ko:XC.age_pur}],
+    manifs:[{ok:"le besoin d'une aide pour la toilette",ko:XM.chute_manif}]},
+  humeur:{intitule:"Risque d'altération de l'humeur",risque:true,noyau:1,groupe:"humeur",
+    causes:[{ok:V3.VEUFc,ko:XC.metier},{ok:V3.ENTREEc,ko:XC.motivation}],
+    manifs:[]},
+  image:{intitule:"Risque d'altération de l'image de soi",risque:true,noyau:1,groupe:"image",
+    causes:[{ok:V3.TOILETTEc,ko:XC.surdite},{ok:V3.CRAINTEc,ko:XC.age_seul}],
+    manifs:[]}
+};
+const INTITULES_PIEGES = [
+  {t:"Dépression",msg:"C'est un diagnostic médical que l'aide-soignant ne pose pas : on parle de risque d'altération de l'humeur, à observer et à transmettre."},
+  {t:"Risque d'escarre",msg:"Rien dans le recueil ne l'indique : pas d'immobilité prolongée ni de dénutrition chez M. Marcel."},
+  {t:"Incapacité totale à réaliser les actes de la vie quotidienne",msg:"Il participe, se soigne, s'habille en partie : sa capacité est PARTIELLE, pas totale."},
+  {t:"Risque de déshydratation",msg:"Aucune donnée du recueil ne mentionne un refus de boire chez M. Marcel — ne transposez pas depuis un autre cas."}
+];
+const NOYAU_LABELS = [
+  {g:"chute",l:"Risque de chute"},{g:"capacite",l:"Capacité partielle AVQ"},
+  {g:"humeur",l:"Risque d'altération de l'humeur"},{g:"image",l:"Risque d'altération de l'image de soi"}
+];
+const BONUS_LABELS = [];
+
+/* ---- ACTE 2 : cartes de tri (une information à la fois) ----
+   Chaque carte : l'étiquette du carnet + un petit choix de besoins plausibles
+   (1-3 corrects, le reste pièges avec message). "col" = colonne attendue
+   (S=ressource, NS=perturbation) une fois le bon besoin trouvé.
+   "multi" + "epilogue" : pour les données qui se défendent dans plusieurs besoins. */
+const CARDS2 = {
+  DORT:{col:"S",options:[
+    {besoin:"dormir",ok:1},
+    {besoin:"boire",msg:"Le sommeil et l'alimentation sont deux besoins distincts."},
+    {besoin:"recreer",msg:"Se reposer la nuit n'est pas « se récréer », qui concerne plutôt les loisirs en journée."}
+  ]},
+  PDJ:{col:"S",options:[
+    {besoin:"boire",ok:1},
+    {besoin:"dormir",msg:"Le repas du matin concerne l'alimentation, pas le sommeil."},
+    {besoin:"eliminer",msg:"Manger et éliminer sont deux besoins différents."}
+  ]},
+  OBS_RESP:{col:"S",options:[
+    {besoin:"respirer",ok:1},
+    {besoin:"dormir",msg:"La respiration est un besoin à part entière, distinct du sommeil."},
+    {besoin:"danger",msg:"Une respiration calme n'est pas ici un enjeu de sécurité."}
+  ]},
+  TENUE:{col:"S",options:[
+    {besoin:"vetir",ok:1},
+    {besoin:"propre",msg:"Proche, mais « prendre soin de sa tenue » (s'habiller avec goût) relève de se vêtir ; la propreté du linge relève, elle, d'être propre."},
+    {besoin:"croire",msg:"Prendre soin de sa tenue n'est pas ici une question de croyances ou de valeurs."}
+  ]},
+  PROPRETE:{col:"S",options:[
+    {besoin:"propre",ok:1},
+    {besoin:"vetir",msg:"Proche, mais s'inquiéter de taches concerne la propreté du linge, pas l'habillage en lui-même."},
+    {besoin:"comm",msg:"Une inquiétude exprimée n'en fait pas automatiquement un enjeu de communication."}
+  ]},
+  TOILETTE:{col:"NS",options:[
+    {besoin:"propre",ok:1},
+    {besoin:"mouvoir",msg:"L'aide à la toilette concerne l'hygiène corporelle, pas le mouvement en tant que tel."},
+    {besoin:"vetir",msg:"La toilette et l'habillage sont deux temps de soins distincts."}
+  ]},
+  COMM:{col:"S",options:[
+    {besoin:"comm",ok:1},
+    {besoin:"croire",msg:"Échanger avec les soignants relève de la communication, pas des valeurs personnelles."},
+    {besoin:"occuper",msg:"Discuter n'est pas ici une occupation à visée de réalisation de soi."}
+  ]},
+  PROMESSE:{col:"S",options:[
+    {besoin:"croire",ok:1},
+    {besoin:"comm",msg:"Il s'agit ici d'un engagement personnel et moral, pas d'un échange avec autrui."},
+    {besoin:"propre",msg:"La promesse elle-même est une valeur ; ce n'est pas, en soi, un acte d'hygiène."}
+  ]},
+  CHUTE:{col:"NS",options:[
+    {besoin:"danger",ok:1},
+    {besoin:"mouvoir",msg:"Presque bon — l'antécédent de chutes touche à la mobilité, mais c'est avant tout un facteur de RISQUE que l'on classe ici : le danger prime sur le mouvement lui-même."},
+    {besoin:"comm",msg:"Aucun rapport avec la communication."}
+  ]},
+  TREMB:{col:"NS",multi:1,options:[
+    {besoin:"mouvoir",ok:1},
+    {besoin:"vetir",ok:1},
+    {besoin:"danger",ok:1},
+    {besoin:"comm",msg:"Aucun rapport avec la communication."}
+  ],epilogue:"« Se mouvoir », « se vêtir » et « éviter les dangers » se défendent tous les trois pour cette donnée : ce qui compte n'est pas la case choisie, c'est la justification que vous en donnez."},
+  DV:{col:"NS",multi:1,options:[
+    {besoin:"vetir",ok:1},
+    {besoin:"danger",ok:1},
+    {besoin:"mouvoir",ok:1},
+    {besoin:"occuper",msg:"Aucun rapport direct avec cette donnée."}
+  ],epilogue:"Là encore, plusieurs besoins se défendent : « se vêtir », « éviter les dangers » et « se mouvoir » sont tous les trois recevables selon l'angle choisi."},
+  NSEC:{col:null,options:[
+    {besoin:"__NA__",ok:1},
+    {besoin:"danger",msg:"Une donnée administrative n'éclaire aucun besoin de santé."},
+    {besoin:"propre",msg:"Aucun rapport avec l'hygiène."}
+  ]},
+  GROUPE:{col:null,options:[
+    {besoin:"__NA__",ok:1},
+    {besoin:"mouvoir",msg:"Aucun rapport avec la mobilité."},
+    {besoin:"boire",msg:"Aucun rapport avec l'alimentation du jour."}
+  ]},
+  VACCIN:{col:null,options:[
+    {besoin:"__NA__",ok:1},
+    {besoin:"respirer",msg:"Une vaccination à jour n'est pas, en soi, un signe clinique du jour."},
+    {besoin:"danger",msg:"Ce n'est pas ce type de « danger » qui est ici évalué."}
+  ]},
+  TROUSSEAU:{col:null,options:[
+    {besoin:"__NA__",ok:1},
+    {besoin:"vetir",msg:"La liste des affaires n'est pas la même chose que le soin apporté à la tenue."},
+    {besoin:"occuper",msg:"Aucun rapport avec cette donnée."}
+  ]},
+  SP_TELE:{col:null,options:[
+    {besoin:"__NA__",ok:1},
+    {besoin:"comm",msg:"Regarder ou non les informations n'est pas, ici, une donnée de communication interpersonnelle."},
+    {besoin:"apprendre",msg:"Aucun rapport avec cette donnée du jour."}
+  ]},
+  SP_SPORT:{col:null,options:[
+    {besoin:"__NA__",ok:1},
+    {besoin:"occuper",msg:"Un goût mentionné en passant n'est pas une donnée d'occupation actuelle établie."},
+    {besoin:"recreer",msg:"Aucune activité de ce type n'est organisée ou observée à ce jour."}
+  ]}
+};
+const CARDS2_ORDER = ["DORT","PDJ","OBS_RESP","TENUE","PROPRETE","TOILETTE","COMM","PROMESSE","TREMB","DV","CHUTE","NSEC","GROUPE","VACCIN","TROUSSEAU","SP_TELE","SP_SPORT"];
+
+/* ---- ACTE 4 : Questions de justification (allégées, 2-3 par problème) ---- */
+const QUESTIONS = {
+  chute:[
+    {type:"qcm", q:"Chez une personne très âgée, qu'est-ce qui augmente le risque de chute avec l'avancée en âge ?",
+     opts:["Une amélioration naturelle de la coordination","Une baisse de l'acuité visuelle, un ralentissement des réflexes et des troubles de l'équilibre","Un renforcement musculaire spontané","La disparition progressive des sensations douloureuses"], ok:1,
+     hint:"Pensez aux effets du vieillissement sur les sens et l'équilibre…"},
+    {type:"multi", q:"Quels éléments du cas appuient ce risque de chute chez M. Marcel ?",
+     opts:[{t:"Ses antécédents de chutes",ok:1},{t:"Sa déficience visuelle",ok:1},{t:"Ses tremblements légers",ok:1},{t:"Sa bonne humeur",ok:0},{t:"Son ancien métier de contremaître",ok:0}],
+     hint:"Cherchez ce qui fragilise l'équilibre, la vue ou la stabilité…"},
+    {type:"qcm", link:1, q:"Pourquoi une chute récente augmente-t-elle le risque d'une nouvelle chute ?",
+     opts:["Elle rend plus prudent et diminue donc le risque","Elle entraîne une perte de confiance et une appréhension motrice qui fragilisent l'équilibre","Elle n'a aucun effet sur le risque futur","Elle muscle les réflexes de protection"], ok:1,
+     hint:"Pensez à l'effet psychologique ET physique d'une chute vécue…"}
+  ],
+  capacite:[
+    {type:"qcm", q:"Que signifie « capacité partielle » pour un aide-soignant ?",
+     opts:["La personne ne peut plus rien faire seule","La personne peut réaliser certains gestes seule et a besoin d'aide pour d'autres","La personne refuse toute forme d'aide","La personne est totalement autonome"], ok:1,
+     hint:"Le mot « partielle » est la clé…"},
+    {type:"multi", q:"Quelles données appuient une aide PARTIELLE plutôt qu'une incapacité totale ?",
+     opts:[{t:"Il prend soin de sa tenue vestimentaire",ok:1},{t:"Il participe et communique avec les soignants",ok:1},{t:"Il ne se lève plus du tout",ok:0},{t:"Il refuse systématiquement toute aide",ok:0}],
+     hint:"Cherchez ce qui montre qu'il reste acteur de ses soins…"},
+    {type:"qcm", q:"Quelle posture adopter face à cette capacité partielle ?",
+     opts:["Tout faire à sa place pour gagner du temps","Le laisser réaliser seul ce qu'il peut, l'accompagner pour le reste","Attendre qu'il demande explicitement de l'aide","Lui imposer un rythme rapide"], ok:1,
+     hint:"Que faire de l'autonomie qu'il lui reste ?"}
+  ],
+  humeur:[
+    {type:"qcm", q:"Que sait-on du risque de dépression du sujet âgé après un deuil ?",
+     opts:["Il est automatique et sans lien avec le contexte de vie","C'est un risque réel, majoré par le cumul de ruptures (deuil et entrée en institution)","Il ne concerne que les personnes déjà isolées","Il disparaît après 90 ans"], ok:1,
+     hint:"Pensez au cumul des ruptures vécues par M. Marcel en peu de temps…"},
+    {type:"qcm", link:1, q:"Vous observez que M. Marcel semble triste. Que faites-vous ?",
+     opts:["Vous posez vous-même un diagnostic de dépression","Vous restez disponible, l'écoutez, observez et transmettez à l'IDE","Vous l'ignorez, cela passera","Vous lui dites de ne plus penser à son épouse"], ok:1,
+     hint:"Quel est le rôle propre de l'aide-soignant face à un état psychologique fragile ?"}
+  ],
+  image:[
+    {type:"qcm", q:"En quoi l'aide à la toilette peut-elle fragiliser l'image de soi de M. Marcel ?",
+     opts:["Aucun rapport entre les deux","Elle contredit sa volonté de « ne jamais se laisser aller », engagement pris envers son épouse","Ce genre de préoccupation ne concerne que les femmes","C'est sans importance pour les personnes très âgées"], ok:1,
+     hint:"Repensez à ce qu'il vous a confié sur sa promesse…"},
+    {type:"qcm", link:1, q:"Comment l'accompagner au mieux sur ce point ?",
+     opts:["Minimiser son inquiétude","Valoriser son apparence et le rassurer sur le respect de sa promesse","Lui dire d'arrêter d'y penser","Décider systématiquement à sa place"], ok:1,
+     hint:"Comment concilier bientraitance et respect de son engagement personnel ?"}
+  ]
+};
+
+/* ---- ACTE 5 : Projet de soins en assistant oui/non ---- */
+const PROJET = {
+  chute:{
+    titre:"Risque de chute",
+    objs:[
+      {t:"Que M. Marcel ne chute pas au sein de l'EHPAD",ok:1},
+      {t:"Qu'il retrouve une totale autonomie de déplacement comme avant ses chutes",msg:"Irréaliste : son âge et son état sensoriel ne permettent pas un retour en arrière. L'objectif prioritaire est la sécurité."},
+      {t:"L'empêcher de se déplacer seul",msg:"Priver quelqu'un de mouvement n'est pas un objectif de soins : on sécurise, on n'empêche pas."}
+    ],
+    actions:[
+      {t:"Sécuriser l'environnement (chambre dégagée, lit à bonne hauteur, freins verrouillés, sonnette à portée de main, lunettes à disposition)",ok:1,req:1,rel:"Que pouvez-vous faire sur l'ENVIRONNEMENT de M. Marcel pour prévenir la chute ?"},
+      {t:"Accompagner les déplacements",ok:1,req:1,rel:"Qui l'accompagne quand il se déplace ?"},
+      {t:"Veiller au port de chaussures adaptées",ok:1},
+      {t:"Adapter l'éclairage compte tenu de sa déficience visuelle",ok:1,req:1,rel:"Sa vue est fragile : qu'est-ce qui pourrait l'aider à mieux se repérer dans sa chambre ?"},
+      {t:"L'installer au fauteuil toute la journée pour éviter qu'il ne tombe",malt:1,msg:"Immobiliser quelqu'un par précaution est contre-productif et maltraitant : cela aggrave la perte d'autonomie sans supprimer le risque."},
+      {t:"L'attacher à son fauteuil par précaution",malt:1,flag:"contention",msg:"La contention est un acte de PRESCRIPTION MÉDICALE, en dernier recours. Jamais une initiative de l'aide-soignant."},
+      {t:"Lui prescrire des séances de kinésithérapie",msg:"Hors rôle AS : toute prescription relève du médecin.",horsrole:1}
+    ],
+    evals:[
+      {t:"Absence de chute depuis l'admission",ok:1,links:["obj",0,1]}
+    ]
+  },
+  capacite:{
+    titre:"Capacité partielle à réaliser certains actes de la vie quotidienne",
+    objs:[
+      {t:"Que les besoins d'hygiène de M. Marcel soient satisfaits dans le respect de son autonomie restante",ok:1},
+      {t:"Qu'il redevienne totalement autonome pour sa toilette",msg:"Irréaliste à ce jour : sa déficience visuelle et ses tremblements ne le permettent pas. Visez la participation."},
+      {t:"Réaliser sa toilette le plus vite possible",msg:"C'est une logique de rendement, pas de soin. Son rythme prime."}
+    ],
+    actions:[
+      {t:"Réaliser la toilette en fin de matinée, en respectant ses habitudes",ok:1,req:1,rel:"À quel moment M. Marcel apprécie-t-il sa toilette ? Respectez-vous cette organisation ?"},
+      {t:"Laisser M. Marcel réaliser seul les gestes qu'il peut accomplir, l'accompagner pour le reste",ok:1,req:1,rel:"Que faites-vous de son autonomie restante ?"},
+      {t:"Nommer les gestes et objets utilisés, pour compenser sa déficience visuelle",ok:1,req:1,rel:"Comment l'aider à se repérer alors qu'il voit mal ?"},
+      {t:"Veiller au port de ses lunettes",ok:1},
+      {t:"Faire la toilette à sa place pour gagner du temps",malt:1,msg:"Faire à la place, c'est accélérer la perte d'autonomie. On stimule la participation."},
+      {t:"Ne pas lui expliquer les gestes, il comprendra bien assez",malt:1,msg:"Ne pas nommer ce que l'on fait à une personne malvoyante la prive de repères : c'est une maltraitance passive."}
+    ],
+    evals:[
+      {t:"M. Marcel participe aux soins autant que possible, il est propre et se sent bien",ok:1,links:[1,"obj"]}
+    ]
+  },
+  humeur:{
+    titre:"Risque d'altération de l'humeur",
+    objs:[
+      {t:"Que M. Marcel trouve progressivement sa place au sein de l'EHPAD et exprime son vécu du deuil",ok:1},
+      {t:"Qu'il oublie son épouse et tourne la page",msg:"On n'efface pas un deuil, on accompagne la personne qui le traverse."},
+      {t:"Qu'il participe à toutes les activités collectives dès la première semaine",msg:"Objectif forcé et irréaliste : le rythme d'intégration doit rester le sien."}
+    ],
+    actions:[
+      {t:"Instaurer une relation de confiance, être disponible pour l'écouter s'il évoque son épouse",ok:1,req:1,rel:"Comment lui permettre d'exprimer ce qu'il vit, s'il le souhaite ?"},
+      {t:"Observer les signes évocateurs d'un mal-être et transmettre à l'équipe/IDE",ok:1,req:1,rel:"Comment repérer une évolution de son état psychologique, et à qui la signaler ?"},
+      {t:"L'orienter vers les activités collectives selon son souhait",ok:1},
+      {t:"Associer sa fille à l'accompagnement",ok:1},
+      {t:"Éviter d'évoquer son épouse pour ne pas le faire souffrir",msg:"Éviter systématiquement le sujet peut au contraire l'isoler. Mieux vaut rester disponible s'il souhaite en parler."},
+      {t:"Lui prescrire un traitement antidépresseur",msg:"Hors rôle AS : toute prescription relève du médecin.",horsrole:1}
+    ],
+    evals:[
+      {t:"Pas de signe de mal-être constaté à ce jour ; à réévaluer régulièrement",ok:1,links:[0,1,"obj"]}
+    ]
+  },
+  image:{
+    titre:"Risque d'altération de l'image de soi",
+    objs:[
+      {t:"Que M. Marcel conserve une image positive de lui-même",ok:1},
+      {t:"Qu'il n'ait plus jamais aucune tache sur ses vêtements",msg:"Objectif trop strict et irréaliste : personne ne peut le garantir en toute circonstance."}
+    ],
+    actions:[
+      {t:"Veiller à la propreté et à l'absence de tache sur sa tenue après chaque soin",ok:1,req:1,rel:"Comment répondre concrètement à son inquiétude sur ses vêtements ?"},
+      {t:"Le laisser choisir sa tenue vestimentaire",ok:1,req:1,rel:"Qui décide de ce qu'il porte aujourd'hui ?"},
+      {t:"Valoriser son apparence, le rassurer sur le respect de la promesse faite à son épouse",ok:1,req:1,ecoute:1,rel:"Il vous a confié quelque chose d'important sur cette promesse… Comment en tenir compte ici ?"},
+      {t:"Adopter une communication bienveillante",ok:1},
+      {t:"Lui dire que ce genre de promesse n'a plus d'importance à son âge",malt:1,msg:"Dévaloriser un engagement personnel et affectif est maltraitant, même dit avec légèreté."},
+      {t:"Décider seul de sa tenue pour aller plus vite",malt:1,msg:"Décider à sa place ce qu'il porte le prive d'un choix simple qu'il est pourtant capable de faire."}
+    ],
+    evals:[
+      {t:"M. Marcel se dit satisfait de sa présentation, aucune inquiétude exprimée",ok:1,links:[0,2,"obj"]}
+    ]
+  }
+};
+
+/* ---- Badges (8) ---- */
+const BADGES = [
+  {id:"limier",ic:"🕵️",nom:"Fin limier",desc:"Recueil complet à 100 %"},
+  {id:"henderson",ic:"🗂️",nom:"Maître Henderson",desc:"Toutes les informations classées sans aucune erreur"},
+  {id:"reflexif",ic:"🧠",nom:"Clinicien réflexif",desc:"Conclusion clinique construite sans tomber dans un piège"},
+  {id:"justif",ic:"💬",nom:"Justification béton",desc:"Toutes les justifications réussies du premier coup"},
+  {id:"liens",ic:"🔗",nom:"Faiseur de liens",desc:"Toutes les questions de liens réussies du premier coup"},
+  {id:"promesse",ic:"🤝",nom:"La promesse tenue",desc:"La promesse faite à son épouse recueillie… et honorée dans le projet de soins"},
+  {id:"bientraitance",ic:"🛡️",nom:"Bientraitance",desc:"Aucune action maltraitante acceptée"},
+  {id:"diplome",ic:"🎓",nom:"Démarche clinique validée",desc:"Le cas de M. Marcel mené jusqu'au bout"}
+];
+
+/* ---- Suggestions de révision ---- */
+const SUGGESTIONS = {
+  contention:"Revoir le cadre de la contention : prescription médicale, dernier recours, réévaluation régulière — jamais une initiative de l'AS.",
+  evallink:"Retenir : toute action posée doit pouvoir être évaluée ; sinon, on évalue l'atteinte de l'objectif.",
+  piege3:"Revoir la formulation de la conclusion clinique : problème lié à… se manifestant par… / risque lié à… (sans manifestations).",
+  malt:"Revoir les principes de bientraitance : stimuler sans forcer, expliquer chaque soin, respecter le rythme et la dignité de la personne.",
+  jauge:"Revoir la méthodologie du recueil de données : interroger ET observer, puis croiser avec le dossier.",
+  horsrole:"Revoir les limites du rôle propre de l'aide-soignant : prescriptions et traitements relèvent de l'IDE ou du médecin.",
+  henderson:"Revoir la classification des 14 besoins : pour chaque donnée, se demander « à quel besoin se rattache-t-elle, et est-ce une ressource ou une difficulté ? »"
+};
+
+const state = {
+  ecran:"accueil",
+  chips:new Set(), asked:new Set(), unlocked:new Set(), visited:new Set(),
+  sc:{},                    // état des vagues par scène
+  errH:0,                   // erreurs acte 2
+  hTable:{},                // tableau henderson rempli {besoin:{S:[],NS:[]}}
+  validated:[],
+  wrong3:0, piegesUsed:new Set(),
+  quizQueue:[], quizIdx:0, quizAttempt:0,
+  secondChances:0, linkFails:0,
+  piegeSelect5:0, relances:0, evalErr:0, maltYes:0, ecouteYes:false,
+  flags:new Set(),
+  stars:{a1:0,a2:0,a3:0,a4:0,a5:0,a6:0}
+};
+const $ = s=>document.querySelector(s);
+const app = document.getElementById("app");
+function esc(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),3200)}
+function modal(titre,corps,boutons){
+  const root=$("#modalRoot");
+  root.innerHTML='<div class="modal-bg"><div class="modal"><h3>'+titre+'</h3><p>'+corps+'</p><div class="m-actions" id="mActs"></div></div></div>';
+  const acts=$("#mActs");
+  (boutons||[{t:"J'ai compris"}]).forEach(b=>{
+    const btn=document.createElement("button");
+    btn.className="btn"+(b.sec?" sec":"");btn.textContent=b.t;
+    btn.onclick=()=>{root.innerHTML="";if(b.fn)b.fn()};
+    acts.appendChild(btn);
+  });
+}
+/* ---------- Carnet ---------- */
+function toggleCarnet(){$("#carnet").classList.toggle("open");$("#carnetChevron").textContent=$("#carnet").classList.contains("open")?"▼":"▲"}
+function refreshCarnet(){
+  const ul=$("#carnetList");
+  const ids=[...state.chips];
+  $("#carnetCnt").textContent=ids.length;
+  ul.innerHTML=ids.length?ids.map(id=>"<li>"+esc(CHIPS[id].t)+"</li>").join(""):'<li class="vide">Aucune information notée pour l\'instant.</li>';
+}
+function addChip(id){if(!state.chips.has(id)){state.chips.add(id);refreshCarnet();refreshJauge()}}
+function jaugePct(){const n=[...state.chips].filter(id=>CHIPS[id].crucial).length;return Math.round(100*n/NB_CRUCIAL)}
+function refreshJauge(){const j=$("#jaugeFill");if(j){j.style.width=jaugePct()+"%";$("#jaugePct").textContent=jaugePct()+" %"}}
+/* ---------- Étapes ---------- */
+const STEPS=[["1","Recueil"],["2","Henderson"],["3","Conclusion"],["4","Justification"],["5","Projet"],["6","Validation"]];
+function renderSteps(){
+  const cur={accueil:-1,acte1:0,acte2:1,acte3:2,acte4:3,acte4prep:3,acte5:4,bilan:6}[state.ecran];
+  $("#stepsNav").innerHTML=STEPS.map((s,i)=>{
+    const cls=i<cur||state.ecran==="bilan"?"done":(i===cur?"on":"");
+    return '<div class="step '+cls+'"><span class="n">'+(cls==="done"?"✓":s[0])+'</span><span class="lbl">'+s[1]+'</span></div>';
+  }).join("");
+  $("#carnet").style.display=(state.ecran==="acte1"||state.ecran==="acte2"||state.ecran==="acte3")?"":"none";
+}
+function go(ecran){state.ecran=ecran;renderSteps();window.scrollTo(0,0);RENDER[ecran]()}
+/* ---------- SVG scènes ---------- */
+function svgChambre(mini){
+  const h=mini?120:320;
+  return '<svg viewBox="0 0 400 '+(mini?150:280)+'" style="background:#F7F3E8" preserveAspectRatio="xMidYMid slice">'+
+  '<rect x="0" y="'+(mini?110:210)+'" width="400" height="80" fill="#E8DFC8"/>'+
+  '<rect x="250" y="20" width="110" height="'+(mini?80:130)+'" rx="6" fill="#CDE3F0" stroke="#B7CBD8" stroke-width="4"/>'+
+  '<line x1="305" y1="20" x2="305" y2="'+(mini?100:150)+'" stroke="#B7CBD8" stroke-width="4"/>'+
+  '<g transform="translate(268,'+(mini?60:100)+')"><path d="M0 30 Q10 5 25 0" stroke="#4C7C4C" stroke-width="3" fill="none"/><circle cx="8" cy="16" r="6" fill="#F2C14E"/><circle cx="16" cy="8" r="6" fill="#F2C14E"/><circle cx="24" cy="14" r="6" fill="#F2C14E"/><circle cx="14" cy="22" r="6" fill="#F2C14E"/></g>'+
+  '<g transform="translate(70,'+(mini?40:80)+')">'+
+  '<rect x="-14" y="36" width="118" height="86" rx="14" fill="#9C6B4F"/>'+
+  '<rect x="-24" y="20" width="30" height="100" rx="12" fill="#8A5B41"/>'+
+  '<rect x="84" y="20" width="30" height="100" rx="12" fill="#8A5B41"/>'+
+  '<circle cx="45" cy="10" r="20" fill="#F1D2B8"/>'+
+  '<path d="M25 4 Q45 -18 65 4 L65 12 Q45 -2 25 12 Z" fill="#DDE1E4"/>'+
+  '<rect x="20" y="30" width="50" height="52" rx="16" fill="#7E9BB5"/>'+
+  '<rect x="14" y="82" width="62" height="26" rx="10" fill="#5E7A94"/>'+
+  '<circle cx="38" cy="8" r="2.4" fill="#5c4a3d"/><circle cx="53" cy="8" r="2.4" fill="#5c4a3d"/>'+
+  '<path d="M40 18 Q45 21 51 18" stroke="#b98e77" stroke-width="2" fill="none" stroke-linecap="round"/>'+
+  '</g>'+
+  (mini?'':'<rect x="330" y="180" width="60" height="70" rx="6" fill="#D9CBAE"/><rect x="336" y="170" width="48" height="12" rx="4" fill="#C4B393"/><ellipse cx="360" cy="164" rx="12" ry="8" fill="#7FB0C9"/>')+
+  '</svg>';
+}
+function svgSoins(mini){
+  return '<svg viewBox="0 0 400 '+(mini?150:280)+'" style="background:#EAF2F4" preserveAspectRatio="xMidYMid slice">'+
+  '<rect x="0" y="'+(mini?100:200)+'" width="400" height="90" fill="#D8E6E9"/>'+
+  '<rect x="20" y="'+(mini?70:150)+'" width="360" height="26" rx="6" fill="#BFD4D9"/>'+
+  '<rect x="40" y="'+(mini?40:96)+'" width="70" height="'+(mini?30:52)+'" rx="4" fill="#fff" stroke="#BFD4D9" stroke-width="3"/>'+
+  '<g transform="translate(170,'+(mini?26:56)+')">'+
+  '<circle cx="0" cy="0" r="17" fill="#E8C39E"/><path d="M-14 -6 Q0 -22 14 -6 L14 2 Q0 -10 -14 2 Z" fill="#3d2f24"/>'+
+  '<rect x="-22" y="16" width="44" height="'+(mini?36:66)+'" rx="12" fill="#fff" stroke="#C9D8DC" stroke-width="2"/>'+
+  '<rect x="-6" y="26" width="12" height="16" rx="3" fill="#3E6C8E"/>'+
+  '<circle cx="-5" cy="-3" r="2.2" fill="#3d2f24"/><circle cx="6" cy="-3" r="2.2" fill="#3d2f24"/><path d="M-5 7 Q0 10 6 7" stroke="#b98e77" stroke-width="2" fill="none" stroke-linecap="round"/></g>'+
+  '<g transform="translate(255,'+(mini?30:62)+')">'+
+  '<circle cx="0" cy="0" r="16" fill="#C99772"/><path d="M-13 -8 Q0 -20 13 -8 L15 6 Q13 -4 -15 6 Z" fill="#6b4a2f"/>'+
+  '<rect x="-21" y="15" width="42" height="'+(mini?34:62)+'" rx="12" fill="#B5D0BC"/>'+
+  '<circle cx="-5" cy="-3" r="2.2" fill="#3d2f24"/><circle cx="6" cy="-3" r="2.2" fill="#3d2f24"/><path d="M-5 6 Q0 9 6 6" stroke="#8a6a50" stroke-width="2" fill="none" stroke-linecap="round"/></g>'+
+  '<rect x="320" y="'+(mini?30:70)+'" width="46" height="'+(mini?36:66)+'" rx="4" fill="#fff" stroke="#BFD4D9" stroke-width="3"/><path d="M336 '+(mini?42:86)+' h14 M343 '+(mini?35:79)+' v14" stroke="#C4574E" stroke-width="5" stroke-linecap="round"/>'+
+  '</svg>';
+}
+function svgSalon(mini){
+  return '<svg viewBox="0 0 400 '+(mini?150:280)+'" style="background:#F3EEE4" preserveAspectRatio="xMidYMid slice">'+
+  '<rect x="0" y="'+(mini?105:205)+'" width="400" height="85" fill="#E3D9C4"/>'+
+  '<rect x="30" y="'+(mini?55:120)+'" width="90" height="'+(mini?46:80)+'" rx="12" fill="#A8B99A"/>'+
+  '<g transform="translate(215,'+(mini?36:76)+')">'+
+  '<circle cx="0" cy="0" r="18" fill="#EFCDB4"/>'+
+  '<path d="M-16 -4 Q-14 -22 0 -22 Q14 -22 16 -4 Q10 -14 0 -13 Q-10 -14 -16 -4Z" fill="#CFCFCF"/>'+
+  '<circle cx="-6" cy="-2" r="2.3" fill="#4a3a2e"/><circle cx="6" cy="-2" r="2.3" fill="#4a3a2e"/>'+
+  '<path d="M-6 8 Q0 12 6 8" stroke="#bd8f76" stroke-width="2" fill="none" stroke-linecap="round"/>'+
+  '<ellipse cx="-15" cy="-8" rx="4" ry="5" fill="#F2C14E" opacity=".9"/>'+
+  '<rect x="-24" y="17" width="48" height="'+(mini?38:70)+'" rx="14" fill="#B77A8C"/>'+
+  '<rect x="-30" y="'+(mini?42:74)+'" width="24" height="14" rx="6" fill="#8a5b6b"/></g>'+
+  '<rect x="300" y="'+(mini?70:150)+'" width="70" height="'+(mini?36:60)+'" rx="8" fill="#C8A87C"/><ellipse cx="335" cy="'+(mini?66:144)+'" rx="16" ry="9" fill="#6E9E6E"/>'+
+  '</svg>';
+}
+function svgDossier(mini){
+  return '<svg viewBox="0 0 400 '+(mini?150:280)+'" style="background:#EDE9DC" preserveAspectRatio="xMidYMid slice">'+
+  '<rect x="120" y="'+(mini?18:40)+'" width="160" height="'+(mini?114:200)+'" rx="8" fill="#3E7A63"/>'+
+  '<rect x="135" y="'+(mini?28:56)+'" width="130" height="'+(mini?94:168)+'" rx="4" fill="#FDFBF3"/>'+
+  '<rect x="150" y="'+(mini?40:72)+'" width="100" height="7" rx="3" fill="#C9C2A8"/>'+
+  '<rect x="150" y="'+(mini?54:92)+'" width="80" height="6" rx="3" fill="#DDD6BE"/>'+
+  '<rect x="150" y="'+(mini?66:108)+'" width="92" height="6" rx="3" fill="#DDD6BE"/>'+
+  '<rect x="150" y="'+(mini?78:124)+'" width="70" height="6" rx="3" fill="#DDD6BE"/>'+
+  (mini?'':'<rect x="150" y="140" width="88" height="6" rx="3" fill="#DDD6BE"/><rect x="150" y="156" width="64" height="6" rx="3" fill="#DDD6BE"/><rect x="150" y="172" width="90" height="6" rx="3" fill="#DDD6BE"/>')+
+  '<circle cx="128" cy="'+(mini?45:80)+'" r="5" fill="#2C5A49"/><circle cx="128" cy="'+(mini?85:150)+'" r="5" fill="#2C5A49"/>'+
+  '<path d="M255 '+(mini?24:48)+' l24 0 0 24 -12 -8 -12 8 Z" fill="#F2C14E"/>'+
+  '</svg>';
+}
+const SVGS={patient:svgChambre,equipe:svgSoins,aidant:svgSalon,dossier:svgDossier};
+
+/* ============================================================
+   ÉCRANS
+   ============================================================ */
+const RENDER={};
+
+/* ---------- ACCUEIL ---------- */
+RENDER.accueil=function(){
+  app.innerHTML=
+  '<div class="hero">'+
+    '<div>'+
+      '<span class="tag">Serious game · Démarche clinique</span>'+
+      '<h2>Ce matin, vous prenez en charge <em>M. Marcel</em></h2>'+
+      '<p>Élève aide-soignant(e), vous êtes en stage à l\'EHPAD. M. Marcel, 99 ans, entré il y a deux mois et demi, vous attend dans sa chambre — et avec lui, tout le raisonnement clinique à construire.</p>'+
+      '<div class="mission">🎯 Votre mission : mener la démarche clinique complète — recueillir, organiser, analyser, <b>justifier</b> — puis bâtir un projet de soins réaliste.</div>'+
+      '<p style="font-size:.9rem">Vos outils : votre <b>carnet de recueil</b> 📓 (en bas à droite), votre esprit critique… et votre rigueur. Aucune limite de temps : c\'est votre raisonnement qui compte, pas la vitesse.</p>'+
+      '<p style="font-size:.85rem;color:var(--encre2)">⚠️ Une seule partie à la fois : recommencer ou fermer la page efface toute la progression.</p>'+
+      '<button class="btn" style="margin-top:14px" onclick="startGame()">Commencer ma prise en charge →</button>'+
+    '</div>'+
+    '<div class="hero-scene">'+svgChambre(false)+'</div>'+
+  '</div>';
+};
+function startGame(){go("acte1")}
+
+/* ---------- ACTE 1 : HUB ---------- */
+RENDER.acte1=function(){
+  const lieux=[
+    {id:"patient",t:"La chambre de M. Marcel",d:"Interroger et observer le patient — votre première source."},
+    {id:"dossier",t:"Le dossier patient",d:"Fouiller le classeur, rubrique par rubrique."}
+  ];
+  app.innerHTML=
+  '<p class="eyebrow">Acte 1 · Recueil de données</p>'+
+  '<h2 class="acte-title">Allez chercher l\'information à la source</h2>'+
+  '<p class="acte-sub">En première intention auprès du patient, puis dans le dossier. Un entretien se conduit : chaque échange peut ouvrir de nouvelles pistes. À chaque réponse, c\'est <b>vous</b> qui décidez ce qui mérite d\'être noté au carnet — et ce qui ne le mérite pas.</p>'+
+  '<div class="jauge-wrap"><b>Recueil</b><div class="jauge"><i id="jaugeFill"></i></div><span class="jauge-pct" id="jaugePct">0 %</span></div>'+
+  '<div class="hub">'+lieux.map(l=>
+    '<button class="lieu'+(state.visited.has(l.id)?" vu":"")+'" onclick="openScene(\''+l.id+'\')">'+SVGS[l.id](true)+
+    '<div class="li-body"><h3>'+l.t+'</h3><p>'+l.d+'</p><span class="visited">✓ Déjà consulté — vous pouvez y retourner</span></div></button>').join("")+
+  '</div>'+
+  '<div class="footer-nav"><span></span><button class="btn" onclick="finActe1()">J\'ai terminé mon recueil →</button></div>';
+  refreshJauge();refreshCarnet();
+};
+function finActe1(){
+  const pct=jaugePct();
+  if(pct<100){
+    modal("Recueil incomplet ("+pct+" %)","Votre jauge de recueil n'est pas pleine : des informations importantes semblent vous échapper. Vous pourrez avoir du mal à analyser la situation…<br><br><i>Astuce : poursuivez les entretiens — de nouvelles questions se débloquent au fil de l'échange. Et souvenez-vous : un signe appelle une vérification.</i>",
+      [{t:"Retourner enquêter",sec:false},{t:"Continuer quand même",sec:true,fn:()=>{state.flags.add("jauge");validerActe1()}}]);
+  } else validerActe1();
+}
+function validerActe1(){
+  const pct=jaugePct();
+  state.stars.a1=pct>=100?3:(pct>=80?2:1);
+  initActe2();
+  go("acte2");
+}
+
+/* ---------- ACTE 1 : SCÈNES (vagues) ---------- */
+function initSceneState(id){
+  if(state.sc[id])return;
+  const sc=SCENES[id];
+  const pool=shuffle(sc.questions.filter(q=>!q.locked&&!sc.init.includes(q.id)).map(q=>q.id));
+  state.sc[id]={visible:[...sc.init],pool:pool,askedN:0};
+}
+function openScene(id){
+  state.visited.add(id);
+  if(id==="dossier"){renderClasseur("identite");return}
+  initSceneState(id);
+  const sc=SCENES[id];
+  app.innerHTML=
+  '<p class="eyebrow">Acte 1 · Recueil — '+esc(sc.nom)+'</p>'+
+  '<div class="scene">'+
+    '<div><div class="scene-visuel">'+SVGS[id](false)+
+      '<div class="bulle" id="bulle"><span class="qui">'+esc(sc.qui)+'</span><span id="bulleTxt"><i>'+esc(sc.intro)+'</i></span></div>'+
+      '<div id="noteOffer"></div>'+
+    '</div></div>'+
+    '<div class="card"><h3 style="margin-bottom:4px">Que faites-vous ?</h3>'+
+    '<p style="font-size:.82rem;color:var(--encre2);margin-bottom:10px">💬 L\'entretien avance : de nouvelles questions apparaissent au fil de l\'échange.</p>'+
+    '<div class="q-list" id="qList"></div>'+
+    '<div class="footer-nav"><button class="btn sec" onclick="go(\'acte1\')">← Retour au service</button></div></div>'+
+  '</div>';
+  renderQuestions(id);
+}
+function renderQuestions(sceneId){
+  const sc=SCENES[sceneId], st=state.sc[sceneId];
+  let visibles=[...st.visible];
+  // les questions débloquées (ex. découvertes conditionnelles) apparaissent en tête
+  sc.questions.filter(q=>q.locked&&state.unlocked.has(q.id)&&!visibles.includes(q.id)).forEach(q=>visibles.unshift(q.id));
+  // une question posée disparaît du listing
+  visibles=visibles.filter(qid=>!state.asked.has(qid));
+  $("#qList").innerHTML=(visibles.length?visibles.map(qid=>{
+    const q=sc.questions.find(x=>x.id===qid);
+    return '<button class="q-item'+(q.locked?" unlock":"")+'" onclick="ask(\''+sceneId+'\',\''+q.id+'\')">'+esc(q.q)+'</button>';
+  }).join(""):'<p style="font-size:.86rem;color:var(--encre2);font-style:italic;padding:6px 2px">Vous avez épuisé vos questions ici. D\'autres sources vous attendent…</p>')+
+  (st.pool.length?'<p style="font-size:.78rem;color:var(--encre2);font-style:italic;padding:4px 2px">… poursuivez l\'échange pour ouvrir de nouvelles pistes.</p>':"");
+}
+function ask(sceneId,qid){
+  const sc=SCENES[sceneId], st=state.sc[sceneId];
+  const q=sc.questions.find(x=>x.id===qid);
+  const nouvelle=!state.asked.has(qid);
+  state.asked.add(qid);
+  $("#bulleTxt").innerHTML=esc(q.r);
+  const off=$("#noteOffer");off.innerHTML="";
+  if(q.unlock&&!state.unlocked.has(q.unlock)){state.unlocked.add(q.unlock);toast("💡 Une nouvelle action est disponible : un signe appelle une vérification !")}
+  if(nouvelle&&!q.locked){
+    st.askedN++;
+    if(st.askedN%2===0&&st.pool.length){
+      const n=Math.min(st.pool.length,2+Math.floor(Math.random()*2)); // vague de 2-3
+      for(let i=0;i<n;i++)st.visible.push(st.pool.shift());
+      toast("💬 L'échange se poursuit : de nouvelles questions s'ouvrent…");
+    }
+  }
+  const chipsHere=q.chip2?q.chip2:(q.chip?[q.chip]:[]);
+  const news=chipsHere.filter(c=>!state.chips.has(c));
+  if(news.length){
+    off.innerHTML='<div class="note-offer"><span class="nt">📓 Noter au carnet : «&nbsp;'+news.map(c=>esc(CHIPS[c].t)).join("&nbsp;» et «&nbsp;")+'&nbsp;» ?</span>'+
+    '<span><button onclick="noter(\''+news.join(",")+'\')">Noter</button> <button class="ignorer" onclick="this.closest(\'.note-offer\').remove()">Ne pas noter</button></span></div>';
+  }
+  renderQuestions(sceneId);
+}
+function noter(ids){
+  ids.split(",").forEach(addChip);
+  $("#noteOffer").innerHTML="";
+  toast("✎ Noté au carnet.");
+}
+
+/* ---------- ACTE 1 : CLASSEUR (dossier patient) ---------- */
+function renderClasseur(ongletId){
+  const rub=CLASSEUR.find(r=>r.id===ongletId);
+  app.innerHTML=
+  '<p class="eyebrow">Acte 1 · Recueil — Le dossier patient</p>'+
+  '<div class="grid2">'+
+  '<div><div class="classeur">'+
+    '<div class="onglets">'+CLASSEUR.map(r=>
+      '<button class="onglet'+(r.id===ongletId?" on":"")+'" onclick="renderClasseur(\''+r.id+'\')">'+esc(r.onglet)+'</button>').join("")+'</div>'+
+    '<div class="classeur-page">'+
+      '<div class="dossier"><h4>'+esc(rub.titre)+'</h4>'+
+      rub.items.map(chip=>{
+        const sel=state.chips.has(chip);
+        return '<label class="d-item'+(sel?" sel":"")+'"><input type="checkbox" '+(sel?"checked":"")+' onchange="toggleDossier(\''+chip+'\',this)"><span>'+esc(CHIPS[chip].t)+'</span></label>';
+      }).join("")+
+      '</div>'+
+    '</div>'+
+  '</div></div>'+
+  '<div><div class="card"><div class="scene-visuel" style="box-shadow:none;padding:0">'+svgDossier(false)+'</div>'+
+  '<p style="font-size:.88rem;color:var(--encre2);margin-top:10px">🧭 <b>Réflexe clinique :</b> fouillez chaque intercalaire, mais ne cochez que ce qui éclaire la situation de M. Marcel <i>aujourd\'hui</i>. Tout n\'est pas bon à prendre…</p>'+
+  '<div class="footer-nav"><button class="btn sec" onclick="go(\'acte1\')">← Retour au service</button></div></div></div>'+
+  '</div>';
+}
+function toggleDossier(chip,input){
+  if(input.checked){state.chips.add(chip)}else{state.chips.delete(chip)}
+  input.closest(".d-item").classList.toggle("sel",input.checked);
+  refreshCarnet();refreshJauge();
+}
+
+
+/* ---------- ACTE 2 : TRI CARTE PAR CARTE (une information à la fois) ---------- */
+function initActe2(){
+  const queue=shuffle(CARDS2_ORDER.filter(c=>state.chips.has(c)));
+  state.h2={queue:queue,idx:0,phase:"besoin",errCount:0};
+  BESOINS.forEach(b=>state.hTable[b.id]={S:[],NS:[]});
+}
+RENDER.acte2=function(){
+  const h2=state.h2;
+  if(h2.idx>=h2.queue.length){renderConfirmVides();return}
+  const chip=h2.queue[h2.idx], card=CARDS2[chip];
+  let wiz="";
+  if(h2.phase==="besoin"){
+    const opts=shuffle(card.options.map((o,i)=>({...o,i})));
+    state._optsH2=opts;
+    wiz='<p style="font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--encre2)">Information '+(h2.idx+1)+' / '+h2.queue.length+'</p>'+
+    '<div class="wiz-besoin">« '+esc(CHIPS[chip].t)+' »</div>'+
+    '<p class="q-enonce">Cette information concerne quel besoin ?</p>'+
+    '<div class="opts">'+opts.map((o,i)=>{
+      const label=o.besoin==="__NA__"?"Information non pertinente pour la clinique":esc(BESOINS.find(b=>b.id===o.besoin).nom);
+      return '<button class="opt" onclick="repCarte2('+i+')">'+label+'</button>';
+    }).join("")+'</div>';
+  }else if(h2.phase==="col"){
+    wiz='<p style="font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--encre2)">Information '+(h2.idx+1)+' / '+h2.queue.length+'</p>'+
+    '<div class="wiz-besoin">« '+esc(CHIPS[chip].t)+' »<br><span style="font-size:.95rem">→ '+esc(BESOINS.find(b=>b.id===h2._besoinChoisi).nom)+'</span></div>'+
+    '<p class="q-enonce">Pour ce besoin, c\'est plutôt…</p>'+
+    '<div class="ouinon"><button class="btn" style="background:var(--vert)" onclick="repCol2(\'S\')">🌱 Une ressource</button><button class="btn" style="background:var(--alerte)" onclick="repCol2(\'NS\')">⚠️ Une perturbation</button></div>';
+  }
+  app.innerHTML=
+  '<p class="eyebrow">Acte 2 · Trier le recueil de données</p>'+
+  '<h2 class="acte-title">Y a-t-il un lien avec ce besoin… ou pas ?</h2>'+
+  '<p class="acte-sub">Une information à la fois : à quel besoin se rattache-t-elle ? Est-ce une ressource ou une perturbation ? Certaines informations ne concernent aucun besoin — c\'est à vous de le repérer.</p>'+
+  '<div class="scene">'+
+  '<div class="card" id="wiz2">'+wiz+'<div class="feedback" id="fb2"></div></div>'+
+  '<div><div class="card"><h3 style="font-size:.95rem;margin-bottom:10px">🗂️ Votre tableau se construit</h3><div class="mini-table" id="mini2"></div></div></div>'+
+  '</div>';
+  paintMini2();
+};
+function paintMini2(){
+  const el=$("#mini2");if(!el)return;
+  el.innerHTML=BESOINS.map(b=>{
+    const t=state.hTable[b.id];
+    if(!t.S.length&&!t.NS.length)return '<div class="mt-row"><b>'+esc(b.nom)+'</b></div>';
+    return '<div class="mt-row fait"><b>'+esc(b.nom)+'</b>'+
+    (t.S.length?'<div class="mt-cell ok">'+t.S.map(c=>esc(CHIPS[c].t)).join(" · ")+'</div>':"")+
+    (t.NS.length?'<div class="mt-cell ko">'+t.NS.map(c=>esc(CHIPS[c].t)).join(" · ")+'</div>':"")+
+    '</div>';
+  }).join("");
+}
+function fb2(cls,msg){const f=$("#fb2");f.className="feedback "+cls;f.innerHTML=msg}
+function continueBtn2(label,fn){
+  window._continue2=fn;
+  const f=$("#fb2");
+  f.innerHTML+='<div class="footer-nav" style="margin-top:10px"><span></span><button class="btn" onclick="window._continue2()">'+label+' →</button></div>';
+}
+function repCarte2(i){
+  const h2=state.h2, chip=h2.queue[h2.idx], card=CARDS2[chip], o=state._optsH2[i];
+  const btns=document.querySelectorAll(".opt");
+  if(o.ok){
+    btns.forEach(b=>b.disabled=true);
+    btns[i].classList.add("juste");
+    if(o.besoin==="__NA__"){
+      fb2("okk","✅ Exact : cette information n'apporte rien à l'analyse clinique d'aujourd'hui.");
+      continueBtn2("Continuer",nextCarte2);
+    }else if(card.multi&&card.epilogue){
+      fb2("okk","✅ C'est recevable ! "+card.epilogue);
+      h2._besoinChoisi=o.besoin;
+      continueBtn2("Continuer",()=>{h2.phase="col";RENDER.acte2()});
+    }else{
+      fb2("okk","✅ Exact !");
+      h2._besoinChoisi=o.besoin;
+      continueBtn2("Continuer",()=>{h2.phase="col";RENDER.acte2()});
+    }
+  }else{
+    state.errH++;h2.errCount++;
+    btns[i].classList.add("faux");btns[i].disabled=true;
+    fb2("hint","🤔 "+(o.msg||"Regardez à nouveau cette information : à quoi se rattache-t-elle vraiment ?"));
+  }
+}
+function repCol2(col){
+  const h2=state.h2, chip=h2.queue[h2.idx], card=CARDS2[chip];
+  if(col===card.col){
+    state.hTable[h2._besoinChoisi][col].push(chip);
+    paintMini2();
+    fb2("okk","✅ Bien classé !");
+    continueBtn2("Continuer",nextCarte2);
+  }else{
+    state.errH++;h2.errCount++;
+    fb2("hint","🤔 Cette information <b>aide-t-elle</b> M. Marcel au quotidien, ou traduit-elle une <b>difficulté</b> ? Réessayez.");
+  }
+}
+function nextCarte2(){
+  state.h2.idx++;state.h2.phase="besoin";state.h2._besoinChoisi=null;
+  RENDER.acte2();
+}
+function renderConfirmVides(){
+  const vides=BESOINS.filter(b=>!state.hTable[b.id].S.length&&!state.hTable[b.id].NS.length);
+  app.innerHTML=
+  '<p class="eyebrow">Acte 2 · Trier le recueil de données</p>'+
+  '<h2 class="acte-title">Dernière vérification</h2>'+
+  '<p class="acte-sub">Toutes les informations recueillies ont été classées. Les besoins suivants ne comportent aucune donnée aujourd\'hui — on n\'invente pas, on laisse la ligne vide, et on pense à les explorer en stage.</p>'+
+  '<div class="scene">'+
+  '<div class="card">'+
+  (vides.length?'<div class="ck-list">'+vides.map(b=>'<div class="ck-chip" style="cursor:default"><span>'+esc(b.nom)+'</span></div>').join("")+'</div>':
+   '<p style="color:var(--encre2)">Tous les besoins ont pu être documentés aujourd\'hui !</p>')+
+  '<div class="footer-nav"><span></span><button class="btn" onclick="finActe2()">Confirmer et continuer →</button></div>'+
+  '</div>'+
+  '<div><div class="card"><h3 style="font-size:.95rem;margin-bottom:10px">🗂️ Votre tableau</h3><div class="mini-table" id="mini2"></div></div></div>'+
+  '</div>';
+  paintMini2();
+}
+function finActe2(){
+  state.stars.a2=state.errH===0?3:(state.errH<=4?2:1);
+  if(state.errH>0)state.flags.add("henderson");
+  modal("🗂️ Le recueil est trié !","Toutes vos informations sont désormais organisées selon les 14 besoins fondamentaux. Place à l'analyse : que vous racontent-elles, mises ensemble ?",[{t:"Passer à la conclusion clinique →",fn:()=>go("acte3")}]);
+}
+
+/* ---------- ACTE 3 : CONCLUSION CLINIQUE GUIDÉE ---------- */
+// N'affiche les intitulés qu'une fois trouvés (✓ + nom) ; sinon un simple compteur, pour ne pas donner les réponses à l'avance
+function barreProgres3(labels,doneSet,bonus){
+  if(!labels.length)return "";
+  const trouves=labels.filter(n=>doneSet.has(n.g));
+  const reste=labels.length-trouves.length;
+  let html=trouves.map(n=>'<span class="pn ok">✓ '+n.l+'</span>').join("");
+  if(reste>0)html+='<span class="pn'+(bonus?" bonus":"")+'">'+(bonus?"⭐ ":"")+reste+(bonus?" bonus à identifier":" à identifier")+'</span>';
+  return html;
+}
+function initActe3(){
+  if(state.c3)return;
+  state.c3={cur:null,seq:[],seqIdx:0,parts:{causes:[],manifs:[]},doneG:new Set()};
+}
+RENDER.acte3=function(){
+  initActe3();
+  const c3=state.c3;
+  const noyauOk=NOYAU_LABELS.every(n=>c3.doneG.has(n.g));
+  let inner="";
+  if(!c3.cur){
+    // écran de choix d'intitulé
+    const restants=Object.keys(PROB3).filter(id=>!c3.doneG.has(PROB3[id].groupe));
+    const reels=restants.filter(id=>PROB3[id].noyau||noyauOk); // bonus proposés après le noyau
+    if(reels.length===0||(noyauOk&&!state._bonusMode)){
+      inner='<div class="card" style="text-align:center">'+
+      '<h3 style="margin-bottom:8px">🧠 Noyau de la conclusion clinique complété !</h3>'+
+      '<p style="color:var(--encre2);margin-bottom:16px">Cinq problèmes et risques sont posés. Votre regard peut encore s\'élargir : deux situations bonus se cachent dans ce cas… ⭐</p>'+
+      '<div class="m-actions" style="justify-content:center">'+
+      (BONUS_LABELS.some(n=>!c3.doneG.has(n.g))?'<button class="btn sec" onclick="state._bonusMode=true;RENDER.acte3()">⭐ Chercher un problème bonus</button>':"")+
+      '<button class="btn" onclick="go(\'acte4prep\')">Justifier ma conclusion →</button></div></div>';
+    }else{
+      const pieges=INTITULES_PIEGES.filter(p=>!state.piegesUsed.has(p.t)).slice(0,2);
+      const options=shuffle([
+        ...reels.map(id=>({id:id,t:PROB3[id].intitule})),
+        ...pieges.map(p=>({piege:p,t:p.t}))
+      ]);
+      inner='<div class="card">'+
+      '<p class="q-enonce">Quel problème ou risque identifiez-vous chez M. Marcel ?</p>'+
+      '<p style="font-size:.85rem;color:var(--encre2);margin-bottom:12px">Choisissez un intitulé — méfiez-vous, certains sont des pièges.</p>'+
+      '<div class="opts">'+options.map((o,i)=>{
+        if(o.piege)return '<button class="opt" onclick="pickPiege3('+INTITULES_PIEGES.indexOf(o.piege)+')">'+esc(o.t)+'</button>';
+        return '<button class="opt" onclick="pickProb3(\''+o.id+'\')">'+esc(o.t)+'</button>';
+      }).join("")+'</div>'+
+      '<div class="feedback" id="fb3"></div></div>';
+    }
+  }else{
+    // séquence binaire du problème en cours
+    const p=PROB3[c3.cur];
+    const step=c3.seq[c3.seqIdx];
+    const phrase="<b>"+esc(p.intitule)+"</b>"+
+      (c3.parts.causes.length?" lié(e) à "+esc(c3.parts.causes.join(", ")):" <em>lié(e) à …</em>")+
+      (c3.parts.manifs.length?" se manifestant par "+esc(c3.parts.manifs.join(", ")):(p.risque?"":(c3.seqIdx>=p.causes.length?" <em>se manifestant par …</em>":"")))+".";
+    let stepHtml="";
+    if(step.kind==="cause"){
+      const duo=shuffle([{t:step.ok,ok:1},{t:step.ko.t,ok:0,msg:step.ko.msg}]);
+      stepHtml='<p class="q-enonce">Cause '+(c3.seqIdx+1)+' — ce problème est lié à…</p>'+
+      '<div class="opts">'+duo.map((d,i)=>'<button class="opt" onclick="repBin3('+d.ok+','+i+')">'+esc(d.t)+'</button>').join("")+'</div>';
+      state._duo=duo;
+    }else if(step.kind==="manif"){
+      const duo=shuffle([{t:step.ok,ok:1},{t:step.ko.t,ok:0,msg:step.ko.msg}]);
+      stepHtml='<p class="q-enonce">Et cela se manifeste par…</p>'+
+      '<div class="opts">'+duo.map((d,i)=>'<button class="opt" onclick="repBin3('+d.ok+','+i+')">'+esc(d.t)+'</button>').join("")+'</div>';
+      state._duo=duo;
+    }else if(step.kind==="risk"){
+      stepHtml='<p class="q-enonce">Ce risque se manifeste-t-il par des signes observables chez M. Marcel ?</p>'+
+      '<div class="ouinon"><button class="btn sec" onclick="repRisk3(true)">Oui</button><button class="btn" onclick="repRisk3(false)">Non</button></div>';
+    }
+    inner='<div class="card">'+
+    '<div class="phrase">'+phrase+'</div>'+stepHtml+
+    '<div class="feedback" id="fb3"></div>'+
+    '<div class="footer-nav" class="hidden"><span></span><button class="btn hidden" id="btn3next" onclick="next3()">Continuer →</button></div>'+
+    '</div>';
+  }
+  app.innerHTML=
+  '<p class="eyebrow">Acte 3 · Conclusion clinique</p>'+
+  '<h2 class="acte-title">Que concluez-vous de votre analyse ?</h2>'+
+  '<p class="acte-sub">Un problème à la fois. À chaque étape, un seul choix tient la route cliniquement : <b>problème lié à… se manifestant par…</b> — ou <b>risque lié à…</b> (sans manifestations).</p>'+
+  '<div class="progress-noyau">'+
+    barreProgres3(NOYAU_LABELS,c3.doneG,false)+
+    barreProgres3(BONUS_LABELS,c3.doneG,true)+
+  '</div>'+inner+
+  '<div class="builder" id="valides" style="margin-top:16px">'+state.validated.map(id=>{
+    const p=PROB3[id];
+    return '<div class="concl valide"><h4>'+(p.risque?"⚠️ ":"🩺 ")+esc(p.intitule)+'</h4><p style="font-size:.9rem">lié(e) à '+esc(p.causes.map(c=>c.ok).join(", "))+(p.manifs.length?" se manifestant par "+esc(p.manifs.map(m=>m.ok).join(", ")):"")+'.</p></div>';
+  }).join("")+'</div>';
+};
+function fb3(cls,msg){const f=$("#fb3");if(f){f.className="feedback "+cls;f.innerHTML=msg}}
+function pickPiege3(idx){
+  const p=INTITULES_PIEGES[idx];
+  state.piegesUsed.add(p.t);
+  state.wrong3++;state.flags.add("piege3");
+  fb3("err","🎭 "+p.msg);
+}
+function pickProb3(id){
+  const p=PROB3[id];
+  state.c3.cur=id;
+  state.c3.seq=[...p.causes.map(c=>({kind:"cause",ok:c.ok,ko:c.ko})),
+                ...(p.risque?[{kind:"risk"}]:p.manifs.map(m=>({kind:"manif",ok:m.ok,ko:m.ko})))];
+  state.c3.seqIdx=0;state.c3.parts={causes:[],manifs:[]};
+  RENDER.acte3();
+}
+function repBin3(ok,i){
+  const step=state.c3.seq[state.c3.seqIdx];
+  const btns=document.querySelectorAll(".opt");
+  if(ok){
+    btns.forEach(b=>b.disabled=true);btns[i].classList.add("juste");
+    avancer3(step);
+  }else{
+    state.wrong3++;state.flags.add("piege3");
+    btns.forEach(b=>b.disabled=true);
+    btns[i].classList.add("faux");
+    const okIdx=state._duo.findIndex(d=>d.ok);
+    btns[okIdx].classList.add("juste");
+    fb3("err","🎭 "+state._duo[i].msg+"<br><i>La bonne réponse est en vert — on enchaîne.</i>");
+    $("#btn3next").classList.remove("hidden");
+    state._pendingStep=step;
+  }
+}
+function next3(){avancer3(state._pendingStep)}
+function avancer3(step){
+  if(step.kind==="cause")state.c3.parts.causes.push(step.ok);
+  if(step.kind==="manif")state.c3.parts.manifs.push(step.ok);
+  state.c3.seqIdx++;
+  if(state.c3.seqIdx>=state.c3.seq.length)finirProb3();
+  else RENDER.acte3();
+}
+function repRisk3(oui){
+  if(!oui){
+    fb3("okk","✅ Exact : un risque n'a pas de manifestations — sinon, ce serait un problème réel.");
+    setTimeout(()=>{state.c3.seqIdx++;finirProb3()},1400);
+  }else{
+    state.wrong3++;state.flags.add("risqmanif");
+    fb3("err","⛔ Un risque n'a PAS de manifestations : l'événement n'est pas encore survenu. S'il y avait des signes, ce serait un problème réel.");
+    setTimeout(()=>{fb3("okk","On retient donc : risque lié à ses causes, sans manifestations.");setTimeout(()=>{state.c3.seqIdx++;finirProb3()},1400)},2600);
+  }
+}
+function finirProb3(){
+  const p=PROB3[state.c3.cur];
+  state.validated.push(state.c3.cur);
+  state.c3.doneG.add(p.groupe);
+  const noyauOk=NOYAU_LABELS.every(n=>state.c3.doneG.has(n.g));
+  const bonusRestants=BONUS_LABELS.some(n=>!state.c3.doneG.has(n.g));
+  modal("👏 Problème complété !","<b>"+p.intitule+"</b> lié(e) à "+p.causes.map(c=>c.ok).join(", ")+(p.manifs.length?" se manifestant par "+p.manifs.map(m=>m.ok).join(", "):"")+".<br><br>"+(noyauOk?"Le noyau est complet !":"Continuez : d'autres problèmes attendent d'être posés."),
+  [{t:noyauOk?(bonusRestants?"Continuer":"Voir la suite"):"Problème suivant →",fn:()=>{state.c3.cur=null;RENDER.acte3()}}]);
+}
+
+/* ---------- ACTE 4 : JUSTIFICATION (inchangé) ---------- */
+RENDER.acte4prep=function(){
+  state.stars.a3=state.wrong3===0?3:(state.wrong3<=2?2:1);
+  const ordre=Object.keys(PROB3);
+  state.quizQueue=[];
+  ordre.forEach(id=>{
+    if(!state.validated.includes(id))return;
+    const p=PROB3[id];
+    (QUESTIONS[p.groupe]||[]).forEach(q=>state.quizQueue.push({prob:p.intitule,q:q}));
+  });
+  state.quizIdx=0;
+  go("acte4");
+};
+RENDER.acte4=function(){renderQuiz()};
+function renderQuiz(){
+  if(state.quizIdx>=state.quizQueue.length){finActe4();return}
+  const item=state.quizQueue[state.quizIdx];
+  let q=item.q;
+  state.quizAttempt=0;
+  state._curQ=q;
+  app.innerHTML=
+  '<p class="eyebrow">Acte 4 · Justification de la conclusion clinique</p>'+
+  '<h2 class="acte-title">Justifiez : théorie, données, critères</h2>'+
+  '<p class="acte-sub">Votre conclusion est posée — encore faut-il pouvoir la défendre. Répondez comme si votre formateur était en face de vous.</p>'+
+  '<div class="card">'+
+    '<div class="quiz-head"><span class="quiz-prob">🩺 '+esc(item.prob)+'</span><span class="quiz-num">Question '+(state.quizIdx+1)+' / '+state.quizQueue.length+'</span></div>'+
+    '<p class="q-enonce">'+esc(q.q)+'</p>'+
+    '<div id="qZone"></div>'+
+    '<div class="feedback" id="fbQ"></div>'+
+    '<div class="footer-nav"><span></span><button class="btn hidden" id="btnNext" onclick="state.quizIdx++;renderQuiz()">Question suivante →</button></div>'+
+  '</div>';
+  if(q.type==="qcm")renderQcm(q);
+  else if(q.type==="multi")renderMulti(q);
+  else if(q.type==="ordre")renderOrdre(q);
+}
+function fbQ(cls,msg){const f=$("#fbQ");f.className="feedback "+cls;f.innerHTML=msg}
+function renderQcm(q){
+  state._shuf=shuffle(q.opts.map((o,i)=>({t:o,orig:i})));
+  $("#qZone").innerHTML='<div class="opts">'+state._shuf.map((o,i)=>
+    '<button class="opt" data-i="'+i+'" onclick="repQcm('+i+')">'+esc(o.t)+'</button>').join("")+'</div>';
+}
+function repQcm(i){
+  const q=state._curQ;
+  const btns=document.querySelectorAll(".opt");
+  const okIdx=state._shuf.findIndex(o=>o.orig===q.ok);
+  if(state._shuf[i].orig===q.ok){
+    btns.forEach(b=>b.disabled=true);
+    btns[i].classList.add("juste");
+    fbQ("okk",q.after||"✅ Exactement !");
+    if(q.link&&state.quizAttempt>0)state.linkFails++;
+    $("#btnNext").classList.remove("hidden");
+  }else{
+    btns[i].classList.add("faux");btns[i].disabled=true;
+    if(state.quizAttempt===0){
+      state.quizAttempt++;state.secondChances++;
+      if(q.flag)state.flags.add(q.flag);
+      fbQ("hint","💡 "+q.hint);
+    }else{
+      if(q.flag)state.flags.add(q.flag);
+      btns.forEach(b=>b.disabled=true);
+      btns[okIdx].classList.add("juste");
+      if(q.link)state.linkFails++;
+      fbQ("err","La bonne réponse est mise en évidence. Notez-la : elle reviendra dans votre bilan de révision.");
+      $("#btnNext").classList.remove("hidden");
+    }
+  }
+}
+function renderMulti(q){
+  state._shufM=shuffle([...q.opts]);
+  $("#qZone").innerHTML='<div class="opts">'+state._shufM.map((o,i)=>
+    '<button class="opt" data-i="'+i+'" onclick="this.classList.toggle(\'on\')">'+esc(o.t)+'</button>').join("")+'</div>'+
+    '<div class="footer-nav"><span></span><button class="btn" id="btnValM" onclick="repMulti()">Valider ma sélection</button></div>';
+}
+function repMulti(){
+  const q=state._curQ;
+  const opts=state._shufM;
+  const btns=[...document.querySelectorAll(".opt")];
+  const sel=btns.map((b,i)=>b.classList.contains("on")?i:-1).filter(i=>i>=0);
+  const okSet=opts.map((o,i)=>o.ok?i:-1).filter(i=>i>=0);
+  const exact=sel.length===okSet.length&&okSet.every(i=>sel.includes(i));
+  if(exact){
+    btns.forEach((b,i)=>{b.disabled=true;if(opts[i].ok)b.classList.add("juste")});
+    $("#btnValM").disabled=true;
+    fbQ("okk","✅ Sélection complète et juste !");
+    if(q.link&&state.quizAttempt>0)state.linkFails++;
+    $("#btnNext").classList.remove("hidden");
+  }else{
+    const piegeSel=sel.map(i=>opts[i]).find(o=>!o.ok&&o.msg);
+    if(piegeSel&&piegeSel.flag)state.flags.add(piegeSel.flag);
+    if(state.quizAttempt===0){
+      state.quizAttempt++;state.secondChances++;
+      fbQ("hint","💡 "+(piegeSel?piegeSel.msg+"<br>":"")+q.hint);
+    }else{
+      btns.forEach((b,i)=>{b.disabled=true;b.classList.remove("on");if(opts[i].ok)b.classList.add("juste");else if(sel.includes(i))b.classList.add("faux")});
+      $("#btnValM").disabled=true;
+      if(q.link)state.linkFails++;
+      fbQ("err","Les bonnes réponses sont en vert. Elles reviendront dans votre bilan de révision.");
+      $("#btnNext").classList.remove("hidden");
+    }
+  }
+}
+let ordreSel=[];
+function renderOrdre(q){
+  ordreSel=[];
+  const mel=shuffle(q.items.map((t,i)=>({t,i})));
+  state._ordreMel=mel;
+  $("#qZone").innerHTML=
+    '<div class="order-zone" id="ordZone"><em style="color:var(--encre2)">Cliquez les blocs dans l\'ordre de la chaîne causale…</em></div>'+
+    '<div class="bank" id="ordBank">'+mel.map((o,k)=>'<button class="blk" data-k="'+k+'" onclick="pickOrdre('+k+',this)">'+esc(o.t)+'</button>').join("")+'</div>'+
+    '<div class="footer-nav"><button class="btn sec" onclick="renderOrdre(state._curQ)">Recommencer</button><button class="btn" onclick="repOrdre()">Valider la chaîne</button></div>';
+}
+function pickOrdre(k,btn){
+  if(btn.disabled)return;
+  btn.disabled=true;btn.style.opacity=.35;
+  ordreSel.push(state._ordreMel[k].i);
+  const z=$("#ordZone");
+  if(ordreSel.length===1)z.innerHTML="";
+  z.innerHTML+='<div class="ord"><i>'+ordreSel.length+'</i>'+esc(state._ordreMel[k].t)+'</div>';
+}
+function repOrdre(){
+  const q=state._curQ;
+  const ok=ordreSel.length===q.items.length&&ordreSel.every((v,i)=>v===i);
+  if(ok){
+    fbQ("okk","✅ La chaîne causale est limpide : c'est exactement ce raisonnement que l'on attend de vous en situation !");
+    if(q.link&&state.quizAttempt>0)state.linkFails++;
+    $("#btnNext").classList.remove("hidden");
+  }else{
+    if(state.quizAttempt===0){
+      state.quizAttempt++;state.secondChances++;
+      fbQ("hint","💡 "+q.hint);renderOrdre(q);
+    }else{
+      if(q.link)state.linkFails++;
+      $("#ordZone").innerHTML=q.items.map((t,i)=>'<div class="ord"><i>'+(i+1)+'</i>'+esc(t)+'</div>').join("");
+      $("#ordBank").innerHTML="";
+      fbQ("err","Voici la chaîne attendue : chaque maillon entraîne le suivant.");
+      $("#btnNext").classList.remove("hidden");
+    }
+  }
+}
+function finActe4(){
+  state.stars.a4=state.secondChances===0?3:(state.secondChances<=3?2:1);
+  modal("💬 Conclusion clinique justifiée !","Vos problèmes et risques sont verrouillés : ils sont maintenant pré-remplis dans votre projet de soins. Dernière ligne droite : <b>qu'allons-nous faire pour M. Marcel, aujourd'hui ?</b>",
+  [{t:"Construire le projet de soins →",fn:()=>{initActe5();go("acte5")}}]);
+}
+
+/* ---------- ACTE 5 : PROJET DE SOINS EN ASSISTANT ---------- */
+function initActe5(){
+  const probs=Object.keys(PROJET);
+  state.p5={probs:probs,idx:0,phase:"obj",ai:0,ei:0,relOnce:{},chosen:{}};
+  probs.forEach(k=>{
+    state.p5.chosen[k]={obj:null,actions:[],evals:[]};
+    state.p5[k+"_actOrder"]=shuffle(PROJET[k].actions.map((a,i)=>i));
+    state.p5[k+"_evalOrder"]=shuffle(PROJET[k].evals.map((e,i)=>i));
+    state.p5[k+"_objOrder"]=shuffle(PROJET[k].objs.map((o,i)=>i));
+  });
+}
+RENDER.acte5=function(){
+  const p5=state.p5;
+  if(p5.idx>=p5.probs.length){finActe5();return}
+  const k=p5.probs[p5.idx], P=PROJET[k], C=p5.chosen[k];
+  let wiz="";
+  if(p5.phase==="obj"){
+    wiz='<p class="q-enonce">Nous avons validé : <b>'+esc(P.titre)+'</b>.<br>Quel est votre objectif ?</p>'+
+    '<div class="opts">'+p5[k+"_objOrder"].map(i=>
+      '<button class="opt" onclick="repObj5('+i+',this)">'+esc(P.objs[i].t)+'</button>').join("")+'</div>';
+  }else if(p5.phase==="act"){
+    const ai=p5[k+"_actOrder"][p5.ai];
+    const a=P.actions[ai];
+    wiz='<p style="font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--encre2)">Action proposée '+(p5.ai+1)+' / '+P.actions.length+'</p>'+
+    '<p class="q-enonce">« '+esc(a.t)+' »<br><span style="font-weight:600;color:var(--encre2)">L\'ajoutez-vous à votre projet de soins ?</span></p>'+
+    '<div class="ouinon"><button class="btn" onclick="repAct5(true)">✔ Oui, je l\'ajoute</button><button class="btn sec" onclick="repAct5(false)">✘ Non, je l\'écarte</button></div>';
+  }else if(p5.phase==="eval"){
+    const ei=p5[k+"_evalOrder"][p5.ei];
+    const e=P.evals[ei];
+    wiz='<p style="font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--encre2)">Évaluation proposée '+(p5.ei+1)+' / '+P.evals.length+'</p>'+
+    '<p class="q-enonce">« '+esc(e.t)+' »<br><span style="font-weight:600;color:var(--encre2)">La retenez-vous pour ce problème ?</span></p>'+
+    '<div class="ouinon"><button class="btn" onclick="repEval5(true)">✔ Oui</button><button class="btn sec" onclick="repEval5(false)">✘ Non</button></div>';
+  }else if(p5.phase==="lien"){
+    const ei=p5[k+"_evalOrder"][p5.ei];
+    const e=P.evals[ei];
+    const opts=C.actions.map(ai2=>({v:ai2,t:P.actions[ai2].t})).concat([{v:"obj",t:"L'atteinte de l'objectif : « "+P.objs[C.obj].t+" »"}]);
+    wiz='<p class="q-enonce">« '+esc(e.t)+' »<br><span style="font-weight:600;color:var(--encre2)">Que mesure cette évaluation ?</span></p>'+
+    '<div class="opts">'+opts.map(o=>'<button class="opt" onclick="repLien5(\''+o.v+'\',this)">'+esc(o.t)+'</button>').join("")+'</div>';
+  }
+  app.innerHTML=
+  '<p class="eyebrow">Acte 5 · Projet de soins — problème '+(p5.idx+1)+' / '+p5.probs.length+'</p>'+
+  '<h2 class="acte-title">À ce jour, voilà ce que nous allons faire</h2>'+
+  '<p class="acte-sub">Un objectif concis et réaliste, des actions concrètes d\'aujourd\'hui, et des évaluations reliées à vos actions. Méfiez-vous : certaines propositions n\'ont rien à faire dans un projet de soins…</p>'+
+  '<div class="scene">'+
+  '<div class="card" id="wiz5">'+wiz+'<div class="feedback" id="fb5"></div></div>'+
+  '<div><div class="card"><h3 style="font-size:.95rem;margin-bottom:10px">📋 Votre projet se construit</h3><div class="mini-table" id="mini5"></div></div></div>'+
+  '</div>';
+  paintMini5();
+};
+function paintMini5(){
+  const p5=state.p5, el=$("#mini5");if(!el)return;
+  el.innerHTML=p5.probs.map((k,i)=>{
+    const P=PROJET[k], C=p5.chosen[k];
+    const fait=i<p5.idx, cur=i===p5.idx;
+    if(!fait&&!cur)return '<div class="mt-row"><b>'+esc(P.titre)+'</b></div>';
+    return '<div class="mt-row'+(cur?" cur":" fait")+'"><b>'+(fait?"✓ ":"")+esc(P.titre)+'</b>'+
+    (C.obj!==null?'<div class="mt-cell obj">🎯 '+esc(P.objs[C.obj].t)+'</div>':"")+
+    C.actions.map(ai=>'<div class="mt-cell act">• '+esc(P.actions[ai].t)+'</div>').join("")+
+    C.evals.map(ev=>'<div class="mt-cell ev">📏 '+esc(P.evals[ev.i].t)+' <i>→ évalue : '+esc(ev.lien==="obj"?"l\'objectif":P.actions[ev.lien].t)+'</i></div>').join("")+
+    '</div>';
+  }).join("");
+  const cur=el.querySelector(".mt-row.cur");if(cur)cur.scrollIntoView({block:"nearest"});
+}
+function fb5(cls,msg){const f=$("#fb5");f.className="feedback "+cls;f.innerHTML=msg}
+function repObj5(i,btn){
+  const p5=state.p5,k=p5.probs[p5.idx],P=PROJET[k];
+  if(P.objs[i].ok){
+    p5.chosen[k].obj=i;
+    btn.classList.add("juste");
+    paintMini5();
+    setTimeout(()=>{p5.phase="act";p5.ai=0;RENDER.acte5()},600);
+  }else{
+    state.piegeSelect5++;
+    btn.classList.add("faux");btn.disabled=true;
+    fb5("err","🎭 "+P.objs[i].msg);
+  }
+}
+function repAct5(oui){
+  const p5=state.p5,k=p5.probs[p5.idx],P=PROJET[k];
+  const ai=p5[k+"_actOrder"][p5.ai], a=P.actions[ai];
+  const relKey=k+"_"+ai;
+  if(a.ok){
+    if(oui){
+      p5.chosen[k].actions.push(ai);
+      if(a.ecoute)state.ecouteYes=true;
+      paintMini5();
+      nextAct5();
+    }else{
+      if(a.req&&!p5.relOnce[relKey]){
+        p5.relOnce[relKey]=true;state.relances++;
+        fb5("hint","🤔 "+a.rel);
+      }else if(a.req){
+        p5.chosen[k].actions.push(ai);
+        if(a.ecoute)state.ecouteYes=true;
+        paintMini5();
+        fb5("okk","Cette action est incontournable pour ce problème — nous la gardons dans le projet.");
+        setTimeout(nextAct5,1700);
+      }else{
+        nextAct5();
+      }
+    }
+  }else{
+    if(oui){
+      state.piegeSelect5++;
+      if(a.malt){state.maltYes++;state.flags.add("malt")}
+      if(a.flag)state.flags.add(a.flag);
+      if(a.horsrole)state.flags.add("horsrole");
+      fb5("err",(a.malt?"🛑 ":"🎭 ")+a.msg+"<br><i>Cette proposition n'entre pas dans le projet.</i>");
+      setTimeout(nextAct5,2800);
+    }else{
+      toast("👍 Bien écarté.");
+      nextAct5();
+    }
+  }
+}
+function nextAct5(){
+  const p5=state.p5,k=p5.probs[p5.idx],P=PROJET[k];
+  p5.ai++;
+  if(p5.ai>=P.actions.length){p5.phase="eval";p5.ei=0}
+  RENDER.acte5();
+}
+function repEval5(oui){
+  const p5=state.p5,k=p5.probs[p5.idx],P=PROJET[k];
+  const ei=p5[k+"_evalOrder"][p5.ei], e=P.evals[ei];
+  const relKey=k+"_ev"+ei;
+  if(e.ok){
+    if(oui){p5.phase="lien";RENDER.acte5()}
+    else{
+      if(!p5.relOnce[relKey]){
+        p5.relOnce[relKey]=true;state.relances++;state.flags.add("evallink");
+        fb5("hint","🤔 Chaque action mise en place doit être évaluée — et si une action ne s'y prête pas, on évalue l'atteinte de l'objectif. Cette évaluation mesure bien quelque chose que vous avez posé…");
+      }else{
+        fb5("okk","Cette évaluation est nécessaire au suivi — nous la gardons. Reliez-la maintenant.");
+        setTimeout(()=>{p5.phase="lien";RENDER.acte5()},1600);
+      }
+    }
+  }else{
+    if(oui){
+      state.piegeSelect5++;state.flags.add("evallink");
+      fb5("err","🎭 "+e.msg);
+      setTimeout(nextEval5,2600);
+    }else{
+      toast("👍 Bien écarté : elle ne mesurait rien de votre projet.");
+      nextEval5();
+    }
+  }
+}
+function repLien5(v,btn){
+  const p5=state.p5,k=p5.probs[p5.idx],P=PROJET[k];
+  const ei=p5[k+"_evalOrder"][p5.ei], e=P.evals[ei];
+  const val=v==="obj"?"obj":parseInt(v,10);
+  const liens=e.links||[];
+  const liensDispo=liens.filter(l=>l==="obj"||p5.chosen[k].actions.includes(l));
+  const valide=liensDispo.length?liensDispo.some(l=>String(l)===String(val)):(val==="obj");
+  if(valide){
+    btn.classList.add("juste");
+    p5.chosen[k].evals.push({i:ei,lien:val});
+    paintMini5();
+    setTimeout(nextEval5,600);
+  }else{
+    state.evalErr++;state.flags.add("evallink");
+    btn.classList.add("faux");btn.disabled=true;
+    fb5("hint","🤔 Pas tout à fait : que mesure-t-elle <b>directement</b> ? Relisez l'évaluation et vos actions…");
+  }
+}
+function nextEval5(){
+  const p5=state.p5,k=p5.probs[p5.idx],P=PROJET[k];
+  p5.ei++;
+  if(p5.ei>=P.evals.length){
+    p5.idx++;p5.phase="obj";p5.ai=0;p5.ei=0;
+    if(p5.idx<p5.probs.length)toast("✅ "+P.titre+" : projet posé ! Problème suivant.");
+  }
+  RENDER.acte5();
+}
+function finActe5(){
+  state.stars.a5=state.piegeSelect5===0?3:(state.piegeSelect5<=2?2:1);
+  const a6err=state.relances+state.evalErr;
+  state.stars.a6=a6err===0?3:(a6err<=2?2:1);
+  modal("🎉 Projet de soins validé !","Votre démarche clinique est complète : recueil, analyse, conclusion justifiée, projet réaliste et évaluable. Découvrez votre bilan personnalisé.",
+  [{t:"Voir mon bilan →",fn:()=>go("bilan")}]);
+}
+
+
+/* ---------- TRACE ÉCRITE : le corrigé personnel de l'élève ---------- */
+function renderTrace(){
+  // 1. Recueil de données : entretien avec M. Marcel + dossier
+  const entretien=[], dossier=[];
+  [...state.chips].forEach(c=>{
+    const estDossier=CLASSEUR.some(r=>r.items.includes(c)) && !SCENES.patient.questions.some(q=>q.chip===c||( q.chip2&&q.chip2.includes(c)));
+    if(estDossier)dossier.push(c); else entretien.push(c);
+  });
+  const recueil=
+    (entretien.length?'<p style="margin:8px 0 2px"><b>Auprès de M. Marcel (entretien et observation) :</b></p><ul class="trace-ul">'+entretien.map(c=>'<li>'+esc(CHIPS[c].t)+'</li>').join("")+'</ul>':"")+
+    (dossier.length?'<p style="margin:8px 0 2px"><b>Dans le dossier patient :</b></p><ul class="trace-ul">'+dossier.map(c=>'<li>'+esc(CHIPS[c].t)+'</li>').join("")+'</ul>':"");
+
+  // 2. Tableau des 14 besoins fondamentaux
+  const vh='<table class="trace-table"><thead><tr><th>Besoin fondamental</th><th>Ressources / Satisfait</th><th>Perturbé / Non satisfait</th></tr></thead><tbody>'+
+    BESOINS.map(b=>{
+      const t=state.hTable[b.id]||{S:[],NS:[]};
+      const vide=!t.S.length&&!t.NS.length;
+      return '<tr><td><b>'+esc(b.nom)+'</b></td>'+
+      (vide?'<td colspan="2" style="font-style:italic;color:var(--encre2)">— aucune donnée recueillie ce jour —</td>':
+      '<td>'+t.S.map(c=>esc(CHIPS[c].t)).join("<br>")+'</td><td>'+t.NS.map(c=>esc(CHIPS[c].t)).join("<br>")+'</td>')+'</tr>';
+    }).join("")+'</tbody></table>';
+
+  // 3. Conclusion clinique littérale
+  const concl='<ul class="trace-ul">'+state.validated.map(id=>{
+    const p=PROB3[id];
+    return '<li><b>'+esc(p.intitule)+'</b> lié(e) à '+esc(p.causes.map(c=>c.ok).join(", "))+
+    (p.manifs.length?", se manifestant par "+esc(p.manifs.map(m=>m.ok).join(", ")):"")+'.</li>';
+  }).join("")+'</ul>';
+
+  // 4. Projet de soins sous forme de tableau
+  const ps='<table class="trace-table"><thead><tr><th>Problème / Risque</th><th>Objectif</th><th>Actions (à ce jour)</th><th>Évaluations</th></tr></thead><tbody>'+
+    (state.p5?state.p5.probs:[]).map(k=>{
+      const P=PROJET[k],C=state.p5.chosen[k];
+      return '<tr><td><b>'+esc(P.titre)+'</b></td>'+
+      '<td>'+(C.obj!==null?esc(P.objs[C.obj].t):"")+'</td>'+
+      '<td><ul class="trace-ul">'+C.actions.map(ai=>'<li>'+esc(P.actions[ai].t)+'</li>').join("")+'</ul></td>'+
+      '<td><ul class="trace-ul">'+C.evals.map(ev=>'<li>'+esc(P.evals[ev.i].t)+'<br><i style="font-size:.78em;color:var(--encre2)">→ évalue : '+esc(ev.lien==="obj"?"l\'atteinte de l\'objectif":P.actions[ev.lien].t)+'</i></li>').join("")+'</ul></td></tr>';
+    }).join("")+'</tbody></table>';
+
+  return '<h3 style="margin:30px 0 4px">📝 Ma trace écrite — la démarche clinique de M. Marcel</h3>'+
+  '<p style="color:var(--encre2);font-size:.9rem;margin-bottom:12px">Voici, mise au propre, la démarche que vous venez de construire — votre propre corrigé, à conserver et à relire.</p>'+
+  '<div class="card trace">'+
+  '<h4 class="trace-h">1 · Recueil de données</h4>'+
+  '<p style="font-size:.92rem">M. Marcel, 99 ans, ancien contremaître dans une filature, est entré à l\'EHPAD le 15 juin 2026 à la suite de deux chutes à domicile en trois semaines, à la demande de sa fille.</p>'+recueil+
+  '<h4 class="trace-h">2 · Les 14 besoins fondamentaux (Virginia Henderson)</h4>'+vh+
+  '<h4 class="trace-h">3 · Conclusion clinique</h4>'+concl+
+  '<h4 class="trace-h">4 · Projet de soins</h4>'+ps+
+  '</div>';
+}
+
+/* ---------- BILAN FINAL ---------- */
+function calcBadges(){
+  const earned=new Set();
+  if(jaugePct()>=100)earned.add("limier");
+  if(state.errH===0)earned.add("henderson");
+  if(state.wrong3===0)earned.add("reflexif");
+  if(state.secondChances===0)earned.add("justif");
+  if(state.linkFails===0)earned.add("liens");
+  if(state.chips.has("PROMESSE")&&state.ecouteYes)earned.add("promesse");
+  if(state.maltYes===0)earned.add("bientraitance");
+  earned.add("diplome");
+  return earned;
+}
+function stars(n){return '<span class="stars">'+"★".repeat(n)+'<span style="opacity:.25">'+"★".repeat(3-n)+'</span></span>'}
+RENDER.bilan=function(){
+  const earned=calcBadges();
+  const nbB=earned.size;
+  const totalStars=Object.values(state.stars).reduce((a,b)=>a+b,0);
+  const suggs=[...state.flags].filter(f=>SUGGESTIONS[f]);
+  app.innerHTML=
+  '<div id="scr-bilan">'+
+  '<p class="eyebrow">Bilan de fin de parcours</p>'+
+  '<h2 class="acte-title">Votre démarche clinique, en un coup d\'œil</h2>'+
+  '<p class="acte-sub">M. Marcel est entre de bonnes mains. Voici la trace de votre raisonnement — à discuter avec votre formateur, ou à battre lors d\'une prochaine partie !</p>'+
+  '<div class="card" style="display:flex;gap:26px;align-items:center;flex-wrap:wrap"><div><div style="font-size:2.6rem;font-weight:800" class="disp">'+totalStars+'<span style="font-size:1.2rem;color:var(--encre2)"> / 18 ⭐</span></div><div style="color:var(--encre2);font-weight:700">'+nbB+' badge'+(nbB>1?"s":"")+' sur '+BADGES.length+'</div></div>'+
+  '<div style="flex:1;min-width:240px;display:grid;gap:8px">'+
+  [["Acte 1 · Recueil de données","a1"],["Acte 2 · Les 14 besoins","a2"],["Acte 3 · Conclusion clinique","a3"],["Acte 4 · Justification","a4"],["Acte 5 · Projet de soins","a5"],["Acte 6 · Cohérence actions-évaluations","a6"]].map(x=>
+    '<div class="acte-recap"><b>'+x[0]+'</b>'+stars(state.stars[x[1]])+'</div>').join("")+
+  '</div></div>'+
+  '<h3 style="margin:22px 0 4px">🏅 Vos badges</h3>'+
+  '<div class="badge-grid">'+BADGES.map(b=>
+    '<div class="badge'+(earned.has(b.id)?"":" off")+'"><div class="ic">'+b.ic+'</div><h5>'+b.nom+'</h5><p>'+b.desc+'</p></div>').join("")+'</div>'+
+  '<h3 style="margin:26px 0 4px">📚 Vos pistes de révision personnalisées</h3>'+
+  (suggs.length?
+    suggs.map(f=>'<div class="sugg">'+SUGGESTIONS[f]+'</div>').join(""):
+    '<div class="sugg" style="background:var(--vert-p);border-color:var(--vert)">Rien à signaler : votre raisonnement a été solide de bout en bout. Bravo — et rendez-vous en stage ! 👏</div>')+
+  renderTrace()+
+  '<div class="footer-nav" style="margin-top:28px"><button class="btn sec" onclick="window.print()">🖨️ Imprimer mon bilan et ma trace écrite</button>'+
+  '<button class="btn warn" onclick="modal(\'Recommencer ?\',\'Toute votre progression sera définitivement effacée. Une nouvelle partie commencera de zéro.\',[{t:\'Annuler\',sec:true},{t:\'Tout effacer et recommencer\',fn:()=>location.reload()}])">↻ Recommencer (tout effacer)</button></div>'+
+  '</div>';
+};
+
+/* ---------- MODE DÉMONSTRATION (formateur) ---------- */
+function askGod(){
+  if(state.god){state.god=false;paintGodBar();toast("Mode démonstration désactivé.");return}
+  const root=$("#modalRoot");
+  root.innerHTML='<div class="modal-bg"><div class="modal"><h3>Mode démonstration</h3><p>Entrez le code formateur :</p><input type="password" id="godCode" autocomplete="off" style="width:100%;padding:11px;border:1.5px solid var(--ligne);border-radius:10px;font-size:1rem;margin-bottom:14px"><div class="m-actions"><button class="btn sec" onclick="document.getElementById(\'modalRoot\').innerHTML=\'\'">Annuler</button><button class="btn" onclick="checkGod()">Valider</button></div></div></div>';
+  setTimeout(()=>{const i=$("#godCode");if(i){i.focus();i.onkeydown=e=>{if(e.key==="Enter")checkGod()}}},60);
+}
+function checkGod(){
+  const v=($("#godCode")||{}).value||"";
+  $("#modalRoot").innerHTML="";
+  if(v==="JesuisDieu"){state.god=true;paintGodBar();toast("🔓 Mode démonstration activé : naviguez librement entre les actes.");}
+  else toast("Code incorrect.");
+}
+function paintGodBar(){
+  let bar=document.getElementById("godBar");
+  if(!state.god){if(bar)bar.remove();return}
+  if(!bar){bar=document.createElement("div");bar.id="godBar";document.body.insertBefore(bar,document.querySelector("main"));}
+  const items=[["accueil","Accueil"],["acte1","Acte 1"],["acte2","Acte 2"],["acte3","Acte 3"],["acte4","Acte 4"],["acte5","Acte 5"],["bilan","Bilan"]];
+  bar.innerHTML='<span class="god-lbl">🔓 Démo formateur</span>'+items.map(x=>'<button class="god-btn'+(state.ecran===x[0]?" on":"")+'" onclick="godJump(\''+x[0]+'\')">'+x[1]+'</button>').join("")+'<button class="god-btn quit" onclick="state.god=false;paintGodBar();toast(\'Mode démonstration désactivé.\')">✕ Quitter</button>';
+}
+function resetForGod(){
+  state.chips=new Set();state.asked=new Set();state.unlocked=new Set();state.visited=new Set();state.sc={};
+  state.errH=0;state.hTable={};state.hPlaced={};state.h=null;
+  state.validated=[];state.wrong3=0;state.piegesUsed=new Set();state.c3=null;state._bonusMode=false;
+  state.quizQueue=[];state.quizIdx=0;state.quizAttempt=0;state.secondChances=0;state.linkFails=0;
+  state.p5=null;state.piegeSelect5=0;state.relances=0;state.evalErr=0;state.maltYes=0;state.ecouteYes=false;
+  state.flags=new Set();state.stars={a1:0,a2:0,a3:0,a4:0,a5:0,a6:0};
+  refreshCarnet();
+}
+function seedRecueil(){
+  Object.entries(CHIPS).forEach(([id,c])=>{if(c.crucial)state.chips.add(id)});
+  state.stars.a1=3;refreshCarnet();
+}
+function seedHenderson(){
+  initActe2();
+  state.h2.queue.forEach(chip=>{
+    const card=CARDS2[chip];
+    const bon=card.options.find(o=>o.ok);
+    if(bon.besoin!=="__NA__")state.hTable[bon.besoin][card.col].push(chip);
+  });
+  state.h2.idx=state.h2.queue.length;state.stars.a2=3;
+}
+function seedConclusion(){
+  initActe3();
+  Object.keys(PROB3).forEach(id=>{state.validated.push(id);state.c3.doneG.add(PROB3[id].groupe)});
+  state.stars.a3=3;
+}
+function seedProjet(){
+  initActe5();
+  state.p5.probs.forEach(k=>{
+    const P=PROJET[k],C=state.p5.chosen[k];
+    C.obj=P.objs.findIndex(o=>o.ok);
+    P.actions.forEach((a,i)=>{if(a.ok){C.actions.push(i);if(a.ecoute)state.ecouteYes=true}});
+    P.evals.forEach((e,i)=>{if(e.ok){const l=(e.links||[]).find(x=>x==="obj"||C.actions.includes(x));C.evals.push({i:i,lien:l===undefined?"obj":l})}});
+  });
+  state.p5.idx=state.p5.probs.length;
+  state.stars.a5=3;state.stars.a6=3;
+}
+function godJump(target){
+  resetForGod();
+  if(target==="accueil"){go("accueil");paintGodBar();return}
+  if(target==="acte1"){go("acte1");paintGodBar();return}
+  seedRecueil();
+  if(target==="acte2"){initActe2();go("acte2");paintGodBar();return}
+  seedHenderson();
+  if(target==="acte3"){go("acte3");paintGodBar();return}
+  seedConclusion();
+  if(target==="acte4"){go("acte4prep");paintGodBar();return}
+  state.stars.a4=3;
+  if(target==="acte5"){initActe5();go("acte5");paintGodBar();return}
+  seedProjet();go("bilan");paintGodBar();
+}
+
+
+/* ---------- Lancement ---------- */
+renderSteps();
+RENDER.accueil();
+state.god = true; /* démo : godmode forcé */
+paintGodBar();
+
+/* ---------- SCORM : remontée du score au LMS à l'affichage du bilan ---------- */
+(function(){
+  const _bilanOriginal = RENDER.bilan;
+  RENDER.bilan = function(){
+    _bilanOriginal();
+    try{
+      const total = Object.values(state.stars).reduce((a,b)=>a+b,0);
+      if (typeof SCORM !== "undefined") SCORM.rapporter(total, 18);
+    }catch(e){}
+  };
+})();
+</script>
+</body>
+</html>
