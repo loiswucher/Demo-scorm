@@ -7,6 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- préchargement discret des 4 démos en tâche de fond, pour qu'elles soient déjà en cache au clic -->
+<link rel="prefetch" href="tools/lexique.html">
+<link rel="prefetch" href="tools/alarmotron.html">
+<link rel="prefetch" href="tools/ciblotron.html">
+<link rel="prefetch" href="tools/marcel.html">
 <style>
 :root{
   --bg:#EEF0EA; --surface:#FFFFFF; --surface-2:#F5F6F1;
@@ -94,10 +99,17 @@ header.hero .lede{font-size:16px; color:var(--ink-soft); max-width:68ch;}
 }
 .demo-frame.open{display:block;}
 .demo-screen{
+  position:relative;
   border-radius:11px; overflow:hidden; box-shadow:0 2px 14px rgba(0,0,0,.14);
   background:#fff; height:min(78vh, 860px);
 }
-.demo-screen iframe{width:100%; height:100%; border:none; display:block;}
+.demo-screen iframe{width:100%; height:100%; border:none; display:block; position:relative; z-index:1;}
+.demo-loading{
+  position:absolute; inset:0; z-index:2;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--surface-2);
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.04em; color:var(--ink-faint);
+}
 
 /* ---- other project (self-resa) : set apart, static previews not live tools ---- */
 .other-project{margin-top:44px; padding-top:30px; border-top:1px dashed var(--border);}
@@ -163,6 +175,8 @@ footer{margin-top:40px; padding-top:22px; border-top:1px solid var(--border); fo
 </style>
 </head>
 <body>
+
+
 <div class="wrap">
   <header class="hero">
     <span class="eyebrow">Vitrine pédagogique &middot; démonstration privée</span>
@@ -189,7 +203,7 @@ footer{margin-top:40px; padding-top:22px; border-top:1px solid var(--border); fo
         <button class="station-toggle" aria-expanded="false" data-target="frame-lexique">Tester la démo →</button>
       </div>
       <div class="demo-frame" id="frame-lexique">
-        <div class="demo-screen"><iframe data-src="tools/lexique.html" title="Le Lexique"></iframe></div>
+        <div class="demo-screen"><div class="demo-loading">Chargement de la démo…</div><iframe data-src="tools/lexique.html" title="Le Lexique" onload="this.previousElementSibling.style.display='none'"></iframe></div>
       </div>
     </article>
 
@@ -204,7 +218,7 @@ footer{margin-top:40px; padding-top:22px; border-top:1px solid var(--border); fo
         <button class="station-toggle" aria-expanded="false" data-target="frame-alarmotron">Tester la démo →</button>
       </div>
       <div class="demo-frame" id="frame-alarmotron">
-        <div class="demo-screen"><iframe data-src="tools/alarmotron.html" title="Alarmotron"></iframe></div>
+        <div class="demo-screen"><div class="demo-loading">Chargement de la démo…</div><iframe data-src="tools/alarmotron.html" title="Alarmotron" onload="this.previousElementSibling.style.display='none'"></iframe></div>
       </div>
     </article>
 
@@ -219,7 +233,7 @@ footer{margin-top:40px; padding-top:22px; border-top:1px solid var(--border); fo
         <button class="station-toggle" aria-expanded="false" data-target="frame-ciblotron">Tester la démo →</button>
       </div>
       <div class="demo-frame" id="frame-ciblotron">
-        <div class="demo-screen"><iframe data-src="tools/ciblotron.html" title="Ciblotron"></iframe></div>
+        <div class="demo-screen"><div class="demo-loading">Chargement de la démo…</div><iframe data-src="tools/ciblotron.html" title="Ciblotron" onload="this.previousElementSibling.style.display='none'"></iframe></div>
       </div>
     </article>
 
@@ -234,7 +248,7 @@ footer{margin-top:40px; padding-top:22px; border-top:1px solid var(--border); fo
         <button class="station-toggle" aria-expanded="false" data-target="frame-marcel">Tester la démo →</button>
       </div>
       <div class="demo-frame" id="frame-marcel">
-        <div class="demo-screen"><iframe data-src="tools/marcel.html" title="Le cas de M. Marcel"></iframe></div>
+        <div class="demo-screen"><div class="demo-loading">Chargement de la démo…</div><iframe data-src="tools/marcel.html" title="Le cas de M. Marcel" onload="this.previousElementSibling.style.display='none'"></iframe></div>
       </div>
     </article>
 
@@ -364,5 +378,6 @@ document.querySelectorAll('.op-tab').forEach(function(tab){
   });
 });
 </script>
+
 </body>
 </html>
