@@ -85,31 +85,12 @@ header.hero .lede{font-size:16px; color:var(--ink-soft); max-width:68ch;}
 .station-head .desc{font-size:13.5px; color:var(--ink-soft);}
 .station-head .godnote{font-size:12.5px; color:var(--accent-ink); font-family:'IBM Plex Mono',monospace;}
 .station-toggle{
-  flex:none;
+  flex:none; display:inline-block; text-decoration:none;
   font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; letter-spacing:.03em;
   background:var(--accent); color:#fff; border:none; border-radius:9px;
   padding:10px 16px; cursor:pointer;
 }
 .station-toggle:hover{filter:brightness(1.06);}
-.station-toggle[aria-expanded="true"]{background:var(--surface-2); color:var(--accent-ink); border:1px solid var(--border);}
-.demo-frame{
-  display:none; border-top:1px solid var(--border);
-  background:repeating-linear-gradient(135deg, var(--surface-2), var(--surface-2) 10px, var(--surface) 10px, var(--surface) 20px);
-  padding:14px;
-}
-.demo-frame.open{display:block;}
-.demo-screen{
-  position:relative;
-  border-radius:11px; overflow:hidden; box-shadow:0 2px 14px rgba(0,0,0,.14);
-  background:#fff; height:min(78vh, 860px);
-}
-.demo-screen iframe{width:100%; height:100%; border:none; display:block; position:relative; z-index:1;}
-.demo-loading{
-  position:absolute; inset:0; z-index:2;
-  display:flex; align-items:center; justify-content:center;
-  background:var(--surface-2);
-  font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.04em; color:var(--ink-faint);
-}
 
 /* ---- other project (self-resa) : set apart, static previews not live tools ---- */
 .other-project{margin-top:44px; padding-top:30px; border-top:1px dashed var(--border);}
@@ -200,10 +181,7 @@ footer{margin-top:40px; padding-top:22px; border-top:1px solid var(--border); fo
           <h2>Le Lexique</h2>
           <p class="desc">Assembler racines et sens pour décoder les mots du soin — 156 mots médicaux sur 11 systèmes du corps.</p>
         </div>
-        <button class="station-toggle" aria-expanded="false" data-target="frame-lexique">Tester la démo →</button>
-      </div>
-      <div class="demo-frame" id="frame-lexique">
-        <div class="demo-screen"><div class="demo-loading">Chargement de la démo…</div><iframe data-src="tools/lexique.html" title="Le Lexique" onload="this.previousElementSibling.style.display='none'"></iframe></div>
+        <a class="station-toggle" href="tools/lexique.html" target="_blank" rel="noopener">Tester la démo ↗</a>
       </div>
     </article>
 
@@ -215,10 +193,7 @@ footer{margin-top:40px; padding-top:22px; border-top:1px solid var(--border); fo
           <h2>Alarmotron</h2>
           <p class="desc">Un recueil de cas réels (HAS, MACSF...) : qualifier la gravité, analyser avec la grille ALARM.</p>
         </div>
-        <button class="station-toggle" aria-expanded="false" data-target="frame-alarmotron">Tester la démo →</button>
-      </div>
-      <div class="demo-frame" id="frame-alarmotron">
-        <div class="demo-screen"><div class="demo-loading">Chargement de la démo…</div><iframe data-src="tools/alarmotron.html" title="Alarmotron" onload="this.previousElementSibling.style.display='none'"></iframe></div>
+        <a class="station-toggle" href="tools/alarmotron.html" target="_blank" rel="noopener">Tester la démo ↗</a>
       </div>
     </article>
 
@@ -230,10 +205,7 @@ footer{margin-top:40px; padding-top:22px; border-top:1px solid var(--border); fo
           <h2>Ciblotron</h2>
           <p class="desc">Générer une situation clinique réaliste et construire la transmission qui l'accompagne.</p>
         </div>
-        <button class="station-toggle" aria-expanded="false" data-target="frame-ciblotron">Tester la démo →</button>
-      </div>
-      <div class="demo-frame" id="frame-ciblotron">
-        <div class="demo-screen"><div class="demo-loading">Chargement de la démo…</div><iframe data-src="tools/ciblotron.html" title="Ciblotron" onload="this.previousElementSibling.style.display='none'"></iframe></div>
+        <a class="station-toggle" href="tools/ciblotron.html" target="_blank" rel="noopener">Tester la démo ↗</a>
       </div>
     </article>
 
@@ -245,10 +217,7 @@ footer{margin-top:40px; padding-top:22px; border-top:1px solid var(--border); fo
           <h2>Le cas de M. Marcel</h2>
           <p class="desc">Serious game complet : recueil, Henderson, conclusion, justification, projet de soins, validation.</p>
         </div>
-        <button class="station-toggle" aria-expanded="false" data-target="frame-marcel">Tester la démo →</button>
-      </div>
-      <div class="demo-frame" id="frame-marcel">
-        <div class="demo-screen"><div class="demo-loading">Chargement de la démo…</div><iframe data-src="tools/marcel.html" title="Le cas de M. Marcel" onload="this.previousElementSibling.style.display='none'"></iframe></div>
+        <a class="station-toggle" href="tools/marcel.html" target="_blank" rel="noopener">Tester la démo ↗</a>
       </div>
     </article>
 
@@ -357,19 +326,6 @@ footer{margin-top:40px; padding-top:22px; border-top:1px solid var(--border); fo
 </div>
 
 <script>
-document.querySelectorAll('.station-toggle').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    var frame = document.getElementById(btn.getAttribute('data-target'));
-    var open = frame.classList.toggle('open');
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    btn.textContent = open ? 'Refermer la démo ×' : 'Tester la démo →';
-    if(open){
-      var iframe = frame.querySelector('iframe[data-src]');
-      if(iframe){ iframe.src = iframe.getAttribute('data-src'); iframe.removeAttribute('data-src'); }
-    }
-  });
-});
-
 document.querySelectorAll('.op-tab').forEach(function(tab){
   tab.addEventListener('click', function(){
     var target = tab.getAttribute('data-op');
