@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salle de Simulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- préchargement discret des 4 démos en tâche de fond, pour qu'elles soient déjà en cache au clic -->
+<link rel="prefetch" href="tools/lexique.html">
+<link rel="prefetch" href="tools/alarmotron.html">
+<link rel="prefetch" href="tools/ciblotron.html">
+<link rel="prefetch" href="tools/marcel.html">
+<style>
+:root{
+  --bg:#EEF0EA; --surface:#FFFFFF; --surface-2:#F5F6F1;
+  --ink:#1B2A2E; --ink-soft:#586B6D; --ink-faint:#8B9C9C;
+  --border:#DCE3DD;
+  --accent:#1F6F72; --accent-ink:#0E4547; --accent-bg:#E3EFEE;
+  --shadow: 0 1px 2px rgba(16,38,40,.07), 0 10px 28px rgba(16,38,40,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1719; --surface:#172325; --surface-2:#1C2A2C;
+    --ink:#E7EEEC; --ink-soft:#AEBEBC; --ink-faint:#75908E;
+    --border:#2A3B3D;
+    --accent:#5FC0BB; --accent-ink:#9AE0DB; --accent-bg:#173534;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1719; --surface:#172325; --surface-2:#1C2A2C;
+  --ink:#E7EEEC; --ink-soft:#AEBEBC; --ink-faint:#75908E;
+  --border:#2A3B3D;
+  --accent:#5FC0BB; --accent-ink:#9AE0DB; --accent-bg:#173534;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'IBM Plex Sans', system-ui, sans-serif;
+  padding:0 20px; padding-block: 36px 64px;
+  line-height:1.55;
+}
+.wrap{max-width:1020px; margin:0 auto;}
+h1,h2,h3{font-family:'Source Serif 4', Georgia, serif; text-wrap:balance; margin:0; color:var(--ink);}
+p{margin:0;}
+.eyebrow{
+  font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--accent-ink); font-weight:600;
+}
+
+/* ---- header ---- */
+header.hero{
+  display:flex; flex-direction:column; gap:14px;
+  padding-bottom:28px; margin-bottom:28px;
+  border-bottom:1px solid var(--border);
+}
+header.hero h1{font-size:clamp(28px,5vw,40px); font-weight:700;}
+header.hero .lede{font-size:16px; color:var(--ink-soft); max-width:68ch;}
+.byline{font-size:13.5px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace;}
+
+/* ---- traçabilité banner ---- */
+.trace-banner{
+  display:flex; gap:14px; align-items:flex-start;
+  background:var(--accent-bg); border:1px solid var(--border);
+  border-radius:14px; padding:16px 18px; margin-bottom:36px;
+  box-shadow:var(--shadow);
+}
+.trace-banner .ic{font-size:20px; line-height:1; flex:none; margin-top:1px;}
+.trace-banner p{font-size:14px; color:var(--accent-ink);}
+.trace-banner b{color:var(--ink);}
+
+/* ---- station list (one per row: these are full real apps, wide is better) ---- */
+.stations{display:flex; flex-direction:column; gap:20px;}
+.station{
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.station-head{padding:20px 22px 18px; display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:14px;}
+.station-head-text{display:flex; flex-direction:column; gap:6px; max-width:62ch;}
+.station-tag{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint);}
+.station-head h2{font-size:20px;}
+.station-head .desc{font-size:13.5px; color:var(--ink-soft);}
+.station-head .godnote{font-size:12.5px; color:var(--accent-ink); font-family:'IBM Plex Mono',monospace;}
+.station-toggle{
+  flex:none; display:inline-block; text-decoration:none;
+  font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; letter-spacing:.03em;
+  background:var(--accent); color:#fff; border:none; border-radius:9px;
+  padding:10px 16px; cursor:pointer;
+}
+.station-toggle:hover{filter:brightness(1.06);}
+
+/* ---- other project (self-resa) : set apart, static previews not live tools ---- */
+.other-project{margin-top:44px; padding-top:30px; border-top:1px dashed var(--border);}
+.other-project .op-head{max-width:72ch; display:flex; flex-direction:column; gap:8px; margin-bottom:18px;}
+.other-project h2{font-size:21px;}
+.other-project .op-desc{font-size:13.5px; color:var(--ink-soft);}
+.op-note{font-size:12px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace;}
+
+.op-tabs{display:flex; gap:8px; margin-bottom:14px;}
+.op-tab{
+  font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; letter-spacing:.03em;
+  background:var(--surface); color:var(--ink-soft); border:1px solid var(--border); border-radius:9px;
+  padding:9px 14px; cursor:pointer;
+}
+.op-tab[aria-selected="true"]{background:var(--accent); color:#fff; border-color:var(--accent);}
+.op-panel{display:none;}
+.op-panel.active{display:block;}
+
+.mock-browser{border-radius:12px; overflow:hidden; box-shadow:0 2px 14px rgba(0,0,0,.14); border:1px solid var(--border);}
+.mock-chrome{display:flex; align-items:center; gap:8px; background:var(--surface-2); padding:9px 12px; border-bottom:1px solid var(--border);}
+.mock-dots{display:flex; gap:5px; flex:none;}
+.mock-dots span{width:8px; height:8px; border-radius:50%; background:var(--border); display:block;}
+.mock-url{flex:1; background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:4px 10px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+.mock-app{background:#fff; color:#1B2A2E; padding:22px 24px; font-family:'IBM Plex Sans',system-ui,sans-serif;}
+
+/* -- réservation mock -- */
+.mock-topbar{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:18px;}
+.mock-brand{font-weight:700; font-size:15px;}
+.mock-account{font-size:11.5px; color:#5C7072; font-family:'IBM Plex Mono',monospace; background:#EEF3F2; border:1px solid #DCE6E4; border-radius:20px; padding:5px 11px;}
+.mock-days{display:flex; gap:7px; margin-bottom:16px;}
+.mock-day{font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:600; color:#5C7072; background:#F3F6F5; border:1px solid #DCE6E4; border-radius:8px; padding:7px 12px;}
+.mock-day.is-active{background:#1F6F72; color:#fff; border-color:#1F6F72;}
+.mock-card{border:1px solid #DCE6E4; border-radius:12px; padding:18px 20px;}
+.mock-card-title{font-weight:600; font-size:14px; margin-bottom:12px;}
+.mock-options{display:flex; flex-direction:column; gap:8px; margin-bottom:16px;}
+.mock-opt{display:flex; align-items:center; gap:9px; font-size:13.5px; color:#3C4D4F; border:1px solid #DCE6E4; border-radius:9px; padding:9px 12px;}
+.mock-opt-check{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:#1F6F72; color:#fff; font-size:10px; flex:none;}
+.mock-opt.is-selected{border-color:#1F6F72; background:#EEF6F5; font-weight:600; color:#0E4547;}
+.mock-actions{display:flex; align-items:center; gap:12px; margin-bottom:10px;}
+.mock-btn{font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; background:#1F6F72; color:#fff; border:none; border-radius:8px; padding:9px 15px;}
+.mock-confirm{font-size:12.5px; color:#2E7D4F; font-weight:600;}
+.mock-deadline{font-size:11.5px; color:#8B9C9C; font-family:'IBM Plex Mono',monospace;}
+.mock-week-recap{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; padding-top:14px; border-top:1px solid #EAEFEE;}
+.mock-recap-item{font-size:11.5px; color:#5C7072; background:#F3F6F5; border-radius:7px; padding:5px 9px;}
+.mock-recap-item b{color:#1B2A2E;}
+.mock-recap-item.is-active{background:#EEF6F5; color:#0E4547;}
+
+/* -- listing cuisine mock -- */
+.mock-kitchen-head{display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px;}
+.mock-kitchen-title{font-weight:700; font-size:15px;}
+.mock-kitchen-sub{font-size:11.5px; color:#8B9C9C; font-family:'IBM Plex Mono',monospace; margin-top:3px;}
+.mock-kitchen-actions{display:flex; gap:8px; flex:none;}
+.mock-chip{font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; color:#5C7072; background:#F3F6F5; border:1px solid #DCE6E4; border-radius:7px; padding:6px 11px;}
+.mock-table{width:100%; border-collapse:collapse; font-size:13px;}
+.mock-table th{text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:#8B9C9C; padding:0 10px 8px; border-bottom:1px solid #DCE6E4;}
+.mock-table td{padding:7px 10px; border-bottom:1px solid #EEF2F1; color:#2E3F41;}
+.mock-table tfoot td{font-family:'IBM Plex Mono',monospace; font-size:12px; color:#5C7072; padding-top:10px; border-bottom:none;}
+.mock-table tfoot tr.mock-total td{font-weight:700; color:#0E4547; padding-top:8px; border-top:1px solid #DCE6E4;}
+
+/* ---- footer ---- */
+footer{margin-top:40px; padding-top:22px; border-top:1px solid var(--border); font-size:12.5px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">Vitrine pédagogique &middot; démonstration privée</span>
+    <h1>Salle de Simulation</h1>
+    <p class="lede">Quatre outils numériques réels, déployés en formation en soins infirmiers et aides-soignants — ouverts ici en mode formateur pour être testés sans détour.</p>
+    <p class="byline">Loïs Wucher — formateur infirmier, concepteur de ces quatre outils</p>
+  </header>
+
+  <div class="trace-banner">
+    <span class="ic">&#128202;</span>
+    <p>Les quatre outils sont packagés au format <b>SCORM 1.2</b> et déposés dans le LMS de l'institut&nbsp;: la norme permet de <b>tracer l'usage réel</b> des apprenants (temps passé, progression, score), plutôt que de s'en tenir à un déclaratif.</p>
+  </div>
+
+  <section class="stations">
+
+    <!-- STATION 1 : LEXIQUE -->
+    <article class="station">
+      <div class="station-head">
+        <div class="station-head-text">
+          <span class="station-tag">Vocabulaire médical &middot; étymologie</span>
+          <h2>Le Lexique</h2>
+          <p class="desc">Assembler racines et sens pour décoder les mots du soin — 156 mots médicaux sur 11 systèmes du corps.</p>
+        </div>
+        <a class="station-toggle" href="tools/lexique.html" target="_blank" rel="noopener">Tester la démo ↗</a>
+      </div>
+    </article>
+
+    <!-- STATION 2 : ALARMOTRON -->
+    <article class="station">
+      <div class="station-head">
+        <div class="station-head-text">
+          <span class="station-tag">Signalement &middot; analyse plurifactorielle</span>
+          <h2>Alarmotron</h2>
+          <p class="desc">Un recueil de cas réels (HAS, MACSF...) : qualifier la gravité, analyser avec la grille ALARM.</p>
+        </div>
+        <a class="station-toggle" href="tools/alarmotron.html" target="_blank" rel="noopener">Tester la démo ↗</a>
+      </div>
+    </article>
+
+    <!-- STATION 3 : CIBLOTRON -->
+    <article class="station">
+      <div class="station-head">
+        <div class="station-head-text">
+          <span class="station-tag">Transmissions ciblées &middot; méthode DAR</span>
+          <h2>Ciblotron</h2>
+          <p class="desc">Générer une situation clinique réaliste et construire la transmission qui l'accompagne.</p>
+        </div>
+        <a class="station-toggle" href="tools/ciblotron.html" target="_blank" rel="noopener">Tester la démo ↗</a>
+      </div>
+    </article>
+
+    <!-- STATION 4 : M. MARCEL -->
+    <article class="station">
+      <div class="station-head">
+        <div class="station-head-text">
+          <span class="station-tag">Démarche clinique &middot; module 1/4</span>
+          <h2>Le cas de M. Marcel</h2>
+          <p class="desc">Serious game complet : recueil, Henderson, conclusion, justification, projet de soins, validation.</p>
+        </div>
+        <a class="station-toggle" href="tools/marcel.html" target="_blank" rel="noopener">Tester la démo ↗</a>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- AUTRE PROJET : RÉSERVATION DES REPAS DU SELF (aperçus statiques, pas un outil SCORM) -->
+  <section class="other-project">
+    <div class="op-head">
+      <span class="eyebrow">Un peu à part</span>
+      <h2>Réservation des repas du self</h2>
+      <p class="op-desc">Application développée pour l'ensemble du personnel et des apprenants de l'institut (~450 utilisateurs) : réservation quotidienne du repas et du régime alimentaire, avec authentification professionnelle (Microsoft Entra ID) et hébergement Azure (Static Web Apps, Functions, Table Storage).</p>
+      <p class="op-note">Aperçus statiques — l'application réelle nécessite une connexion professionnelle et ne peut pas être ouverte ici en accès libre. Noms fictifs, pour la démonstration.</p>
+    </div>
+
+    <div class="op-tabs" role="tablist">
+      <button class="op-tab" role="tab" aria-selected="true" data-op="resa">Côté réservation</button>
+      <button class="op-tab" role="tab" aria-selected="false" data-op="cuisine">Côté cuisine</button>
+    </div>
+
+    <div class="op-panel active" data-op-panel="resa">
+      <div class="mock-browser">
+        <div class="mock-chrome">
+          <span class="mock-dots"><span></span><span></span><span></span></span>
+          <span class="mock-url">icy-pond-0a2f7d10e.4.azurestaticapps.net</span>
+        </div>
+        <div class="mock-app mock-resa">
+          <div class="mock-topbar">
+            <div class="mock-brand">Réservation des repas · IFPSPRIVAS</div>
+            <div class="mock-account">🔐 Compte de démonstration · Microsoft Entra ID</div>
+          </div>
+          <div class="mock-days">
+            <span class="mock-day">LUN 21</span>
+            <span class="mock-day">MAR 22</span>
+            <span class="mock-day is-active">MER 23</span>
+            <span class="mock-day">JEU 24</span>
+            <span class="mock-day">VEN 25</span>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-title">Mercredi 23 septembre — votre repas</div>
+            <div class="mock-options">
+              <span class="mock-opt is-selected"><span class="mock-opt-check">✓</span>Repas complet</span>
+              <span class="mock-opt">Végétarien</span>
+              <span class="mock-opt">Sans porc</span>
+              <span class="mock-opt">Pas de repas ce jour</span>
+            </div>
+            <div class="mock-actions">
+              <span class="mock-btn">Enregistrer mon choix</span>
+              <span class="mock-confirm">✓ Choix enregistré</span>
+            </div>
+            <p class="mock-deadline">Modifiable jusqu'à la veille 12h</p>
+          </div>
+          <div class="mock-week-recap">
+            <span class="mock-recap-item">Lun <b>Complet</b></span>
+            <span class="mock-recap-item">Mar <b>Sans porc</b></span>
+            <span class="mock-recap-item is-active">Mer <b>Complet</b></span>
+            <span class="mock-recap-item">Jeu <b>Végétarien</b></span>
+            <span class="mock-recap-item">Ven <b>—</b></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="op-panel" data-op-panel="cuisine">
+      <div class="mock-browser">
+        <div class="mock-chrome">
+          <span class="mock-dots"><span></span><span></span><span></span></span>
+          <span class="mock-url">icy-pond-0a2f7d10e.4.azurestaticapps.net/cuisine</span>
+        </div>
+        <div class="mock-app mock-kitchen">
+          <div class="mock-kitchen-head">
+            <div>
+              <div class="mock-kitchen-title">Liste de production — Mercredi 23 septembre 2026</div>
+              <div class="mock-kitchen-sub">Export cuisine · données anonymisées pour la démonstration</div>
+            </div>
+            <div class="mock-kitchen-actions"><span class="mock-chip">Imprimer</span><span class="mock-chip">Exporter</span></div>
+          </div>
+          <table class="mock-table">
+            <thead><tr><th>Nom</th><th>Filière</th><th>Repas</th></tr></thead>
+            <tbody>
+              <tr><td>Camille B.</td><td>AS</td><td>Complet</td></tr>
+              <tr><td>Nora T.</td><td>AS</td><td>Sans porc</td></tr>
+              <tr><td>Chloé N.</td><td>AS</td><td>Complet</td></tr>
+              <tr><td>Hugo R.</td><td>AP</td><td>Complet</td></tr>
+              <tr><td>Inès D.</td><td>AP</td><td>Végétarien</td></tr>
+              <tr><td>Karim L.</td><td>AES</td><td>Complet</td></tr>
+              <tr><td>Manon F.</td><td>Ambulancier</td><td>Complet</td></tr>
+              <tr><td>Théo V.</td><td>Ambulancier</td><td>Sans porc</td></tr>
+              <tr><td>Sofia P.</td><td>IDE</td><td>Végétarien</td></tr>
+              <tr><td>Lucas G.</td><td>IDE</td><td>Complet</td></tr>
+              <tr><td>Élise M.</td><td>Personnel</td><td>Complet</td></tr>
+              <tr><td>Antoine C.</td><td>Personnel</td><td>Sans porc</td></tr>
+            </tbody>
+            <tfoot>
+              <tr><td colspan="2">Complet</td><td>7</td></tr>
+              <tr><td colspan="2">Végétarien</td><td>2</td></tr>
+              <tr><td colspan="2">Sans porc</td><td>3</td></tr>
+              <tr class="mock-total"><td colspan="2">Total</td><td>12</td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Démonstration privée &middot; outils réels ouverts en mode formateur (navigation libre, corrigés visibles) pour permettre un test direct sans contrainte de progression.</footer>
+</div>
+
+<script>
+document.querySelectorAll('.op-tab').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    var target = tab.getAttribute('data-op');
+    document.querySelectorAll('.op-tab').forEach(function(t){ t.setAttribute('aria-selected', t === tab ? 'true' : 'false'); });
+    document.querySelectorAll('.op-panel').forEach(function(p){ p.classList.toggle('active', p.getAttribute('data-op-panel') === target); });
+  });
+});
+</script>
+
+</body>
+</html>
